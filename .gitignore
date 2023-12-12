@@ -3,3 +3,5 @@
 .idea
 src/data/
 src/data
+src/assets/player_images/*
+src/assets/player_images/

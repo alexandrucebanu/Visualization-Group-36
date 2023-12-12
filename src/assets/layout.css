@@ -90,6 +90,11 @@ h1 {
     border-bottom: none;
 }
 
+.search_result .flag {
+    width: 22px;
+    border-radius: 3px;
+}
+
 #search_no_result {
     display: block;
     text-align: center;
