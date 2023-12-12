@@ -42,9 +42,17 @@ def updateSearch(value):
     if (value == None):
         return ''
     mask = np.char.find(playerNames, value) != -1
-    resultList = [html.Div(name, className='search_result') for name in playerNames[mask]]
+    matchingPlayers = df_defense[mask].iterrows()
+    resultList = []
+    for playerItem in matchingPlayers:
+        playerInfo = playerItem[1]
+        itemDiv = html.Div([
+            playerInfo['player'],
+            html.Span(playerInfo['position'], className='position_badge')
+        ], className="search_result")
+        resultList.append(itemDiv)
     if (len(resultList) == 0):
-        return [html.Div('Nothing found!')]
+        return [html.Div('No player found!',id='search_no_result')]
     return resultList
 
 

@@ -70,9 +70,19 @@ h1 {
     top: 10px;
 }
 
+.position_badge {
+    background: #009688;
+    color: #fff;
+    margin: 0 5px;
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 9px;
+    font-weight: 600;
+}
+
 .search_result {
     display: block;
-    padding: 19px 15px;
+    padding: 25px 15px;
     border-bottom: 1px dashed #c9c9c9
 }
 
@@ -80,4 +90,11 @@ h1 {
     border-bottom: none;
 }
 
-
+#search_no_result {
+    display: block;
+    text-align: center;
+    padding: 35px 0;
+    font-size: 21px;
+    color: #0000004f;
+    font-weight: 700;
+}
