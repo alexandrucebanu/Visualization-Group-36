@@ -1,8 +1,8 @@
 import dash
 from dash import Dash, html, dcc, callback, Output, Input, dash_table
 import pandas as pd
-from flask import redirect
 import os
+from . import helpers
 
 dash.register_page(__name__, path='/')
 
@@ -37,6 +37,12 @@ layout = [
 
 
 @callback(Output('results', 'children'), Input('select_player_name', 'value'))
-def choosePlayer(value):
-
-    return ""
+def choosePlayer(playerIdValue=None):
+    if not playerIdValue:
+        return ""
+    playerRow = df_defense.iloc[[playerIdValue]].to_dict(orient='records')[0]
+    return [
+        html.A([helpers.fontIcon('chevron_right'), "Explore replacements for {}".format(playerRow['player'])],
+               href='/replace/{}'.format(playerIdValue),
+               id="go_to_player_page")
+    ]

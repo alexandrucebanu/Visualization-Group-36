@@ -13,10 +13,11 @@ df_defense = pd.read_csv(filePath)
 def layout(player_id=None):
     if not player_id:
         print('No `player_id` passed...')
-        return []
+        return ""
         # TODO: handle this properly
-    player = df_defense.iloc[[player_id]]
+    player = df_defense.iloc[[player_id]].to_dict(orient='records')[0]
 
     return [
-        html.Div('Hi and welcome. You have chosen player with id {} That would be {}'.format(player_id,player['player'])),
+        html.Div(
+            'Hi and welcome. You have chosen player with id {} That would be {}'.format(player_id, player['player'])),
     ]

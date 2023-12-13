@@ -11,4 +11,4 @@ app = Dash(__name__, use_pages=True)
 
 app.layout = html.Div([dash.page_container], id='app_container')
 
-app.run(debug=False, port=2030)
+app.run(debug=True, port=2030,dev_tools_hot_reload=False, dev_tools_hot_reload_interval=100)
