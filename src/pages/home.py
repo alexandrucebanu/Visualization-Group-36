@@ -1,6 +1,7 @@
 import dash
 from dash import Dash, html, dcc, callback, Output, Input, dash_table
 import pandas as pd
+from flask import redirect
 import os
 
 dash.register_page(__name__, path='/')
@@ -10,7 +11,7 @@ dash.register_page(__name__, path='/')
 
 filePath = os.path.join(os.path.dirname(__file__), '../data/player_gca.csv')
 df_defense = pd.read_csv(filePath)
-playerNames = df_defense.player.unique()
+playersList = [(index, player['player']) for index, player in df_defense.iterrows()]
 
 layout = [
     html.Div([
@@ -24,7 +25,8 @@ layout = [
         html.Div([
             # dcc.Input(id='search_input', type='text',
             #           placeholder='Search for the name of the player you want to substitute', debounce=False),
-            dcc.Dropdown(playerNames, id='select_player_name', placeholder="Search for a player..."),
+            dcc.Dropdown(options=[{'label': playerItem[1], 'value': playerItem[0]} for playerItem in playersList],
+                         id='select_player_name', placeholder="Search for a player..."),
             html.Div(id='little_search_icon',
                      style={'backgroundSize': 'cover',
                             'background-image': 'url(' + dash.get_asset_url('icons/icons8-search-60.png') + ')'})
@@ -32,3 +34,9 @@ layout = [
         html.Div([], id='results')
     ], id='search_box'),
 ]
+
+
+@callback(Output('results', 'children'), Input('select_player_name', 'value'))
+def choosePlayer(value):
+
+    return ""

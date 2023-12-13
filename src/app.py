@@ -7,10 +7,8 @@ import pandas as pd
 import os
 import dataAdapters
 
-
-
 app = Dash(__name__, use_pages=True)
 
 app.layout = html.Div([dash.page_container], id='app_container')
 
-app.run(debug=False)
+app.run(debug=False, port=2030)
