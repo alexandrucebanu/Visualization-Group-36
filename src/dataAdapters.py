@@ -52,7 +52,7 @@ def playerImageDirectory(playerName, playerTeam=None, playerGroup=None):
 def getCountryFlagPath(countryName: str):
     countryCode = "un"
 
-    # manually handling the countries with unlisted names
+    # manually handling the countries with unlisted names | TODO: do this better with dictionary (using dict.keys() probably)
     if countryName == "IR Iran":
         countryCode = "ir"
     elif countryName == "Wales":

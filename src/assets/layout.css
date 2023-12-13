@@ -22,26 +22,47 @@ h1 {
 
 
 #logo {
-    width: 90px;
-    height: 90px;
+    width: 78px;
+    height: 78px;
     margin: 20px auto;
+    z-index: 20;
+    position: absolute;
     background-repeat: no-repeat;
+    background-size: cover;
+    top: 76px;
+    left: calc(50% - 39px);
     /*background-position-x: 44%;*/
     /*background-position-y: 44%;*/
     /*box-shadow: 0 0 4px #00000038;*/
-    border-radius: 31px;
+    border-radius: 100%;
 }
 
 
 #search_box {
     background: #fff;
+    position: relative;
     display: block;
     margin: 70px auto;
     width: 800px;
     padding: 20px;
+    padding-top: 190px;
     border: 1px solid #ededed;
     border-radius: 12px;
     box-shadow: 0 0 2px rgba(0, 0, 0, 0.07);
+}
+
+#search_box_header {
+    position: absolute;
+    left: 0;
+    background-size: cover;
+    background-position: center;
+    top: 0;
+    border-radius: 12px 12px 0 0;
+    width: 100%;
+    z-index: 0;
+    height: 150px;
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
+
 }
 
 #search_input_container {
@@ -50,15 +71,27 @@ h1 {
     margin: 40px 10%;
 }
 
-#search_input {
+#search_input_container .Select-control {
     display: block;
     line-height: 30px;
     width: 100%;
-    padding: 7px 42px 7px 15px;
+    height: 40px;
     border: 1px solid rgba(229, 229, 229, 0.7);
     font-size: 14px;
     border-radius: 12px;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.05);
+}
+
+#search_input_container .Select-menu-outer {
+    border-radius: 12px;
+    overflow: hidden;
+    margin-top: 5px;
+    font-size: 13.5px;
+    border-color: #ededed;
+}
+
+#search_input_container .Select-control .Select-placeholder, #search_input_container .Select-control .Select-value {
+    line-height: 40px;
 }
 
 #little_search_icon {
@@ -67,7 +100,7 @@ h1 {
     background-size: cover;
     position: absolute;
     right: 15px;
-    top: 10px;
+    top: 7px;
 }
 
 .position_badge {
