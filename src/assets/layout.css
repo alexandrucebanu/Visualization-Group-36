@@ -18,8 +18,8 @@ body {
 }
 
 #app_container {
-    width: calc(100% - 60px);
-    margin: 30px;
+    width: 100%;
+    display: block;
 }
 
 input {
@@ -166,4 +166,85 @@ h1 {
     float: right;
     line-height: 31px;
     margin-left: 7px;
+}
+
+#general_page {
+    width: calc(100% - 60px);
+    height: auto;
+    margin: 30px;
+}
+
+#aside {
+    width: 300px;
+    float: left;
+}
+
+.filters_block {
+    width: 100%;
+    background: #fff;
+    min-height: 300px;
+    border: 1px solid #ededed;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.block_title {
+    font-weight: bold;
+    font-size: 17px;
+    color: rgb(51, 51, 51);
+    letter-spacing: 0.4px;
+}
+
+.tab_switch {
+    width: 90%;
+    margin: 20px auto;
+    overflow: hidden;
+    overflow: hidden;
+    line-height: 30px;
+    border-radius: 8px;
+    font-size: 13px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.05);
+    font-weight: 500;
+
+}
+
+.tab_switch .tab_switch_option {
+    width: 50%;
+    color: #3b3b3b;
+    cursor: pointer;
+    border-right: 1px solid #ededed;
+    padding: 0 10px;
+    float: left;
+}
+
+.tab_switch .tab_switch_option {
+    width: 50%;
+    color: #3b3b3b;
+    cursor: pointer;
+    padding: 0 10px;
+    border: 1px solid rgba(205, 205, 205, 0.8);
+    float: left;
+}
+
+.tab_switch .tab_switch_option:first-child {
+    border-radius: 8px 0 0 8px;
+}
+
+.tab_switch .tab_switch_option:last-child {
+    border-radius: 0 8px 8px 0;
+
+}
+
+.tab_switch .tab_switch_option .font_icon {
+    float: left;
+    font-size: 19px;
+    line-height: 30px;
+    margin-right: 5px;
+}
+
+.tab_switch .tab_switch_option.active {
+    background: #009688;
+    border-color: #008a7d;
+    color: #fff;
 }

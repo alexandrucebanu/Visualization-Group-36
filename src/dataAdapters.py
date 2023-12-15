@@ -3,6 +3,23 @@ import os
 import pycountry
 
 
+def getMergedDataFrame():
+    files = ["player_shooting.csv", "player_possession.csv", "player_playingtime.csv", "player_passing.csv",
+             "player_misc.csv"];
+    frames = []
+
+    counter = 0
+    for file in files:
+        filePath = os.path.join(os.path.dirname(__file__), ('data/' + file))
+
+        frame = pd.read_csv(filePath)
+        frames.append(frame)
+        df = frames[0]
+        for i in range(1, len(frames)):
+            df = pd.merge(df, frames[i])
+    return df
+
+
 def getTeamGroup(team: str, mapToLetters=False) -> int | str:
     """
     :type team: int | str <- The input team (either in the group number of the corresponding letter in uppercase)
