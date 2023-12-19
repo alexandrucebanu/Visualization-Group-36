@@ -167,3 +167,32 @@ h1 {
     line-height: 31px;
     margin-left: 7px;
 }
+
+#welcome_message {
+    color: orange;
+}
+
+
+#general_plots_background_block {
+    width: 320px;
+    height: 50px;
+    padding: 10px;
+    border: 5px solid gray;
+    margin: 0;
+}
+
+
+#general_plots_background_block2 {
+    background-position-x: 200;
+    background: #0064b1;
+    color: #009688;
+    line-height: 30px;
+    display: block;
+    width: fit-content;
+    padding: 200px 200px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    margin: 10px auto;
+    margin-bottom: 40px;
+}

@@ -1,1 +1,2 @@
 pycountry 23.12.11
+dash-bootstrap-components 1.5.0
