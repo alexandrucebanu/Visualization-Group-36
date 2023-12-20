@@ -83,3 +83,6 @@ def getCountryFlagPath(countryName: str):
         if country:
             countryCode = country.alpha_2.lower()
     return "flags/{}.png".format(countryCode)
+
+
+print(playerImageDirectory("Aaron Ramsey"))

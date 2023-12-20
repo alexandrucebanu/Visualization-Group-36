@@ -248,3 +248,23 @@ h1 {
     border-color: #008a7d;
     color: #fff;
 }
+
+
+.filter_block h3 {
+    font-weight: 500;
+    color: #000;
+    margin-bottom: 16px;
+    display: block;
+    font-size: 14px;
+    text-align: center;
+}
+
+#age_slider {
+    padding: 0 10px !important;
+    margin-top: -10px;
+}
+
+#wage_filter {
+    border-bottom: 1px solid #ededed;
+    padding-bottom: 46px;
+}
