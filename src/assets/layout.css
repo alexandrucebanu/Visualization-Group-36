@@ -167,3 +167,14 @@ h1 {
     line-height: 31px;
     margin-left: 7px;
 }
+
+#rectangle_specific_plots{
+    background: #ddffdf;
+    width: 320px;
+    height: 1050px;
+    margin: auto;
+    width: 50%;
+    padding: 10px;
+    border-radius: 75px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
