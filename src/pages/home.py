@@ -3,6 +3,7 @@ from dash import Dash, html, dcc, callback, Output, Input, dash_table
 import pandas as pd
 import os
 from . import helpers
+from urllib.parse import quote
 
 dash.register_page(__name__, path='/')
 
@@ -27,6 +28,7 @@ layout = [
             #           placeholder='Search for the name of the player you want to substitute', debounce=False),
             dcc.Dropdown(options=[{'label': playerItem[1], 'value': playerItem[0]} for playerItem in playersList],
                          id='select_player_name', placeholder="Search for a player..."),
+            html.Div([], id='results'),
             html.Div(id='little_search_icon',
                      style={'backgroundSize': 'cover',
                             'background-image': 'url(' + dash.get_asset_url('icons/icons8-search-60.png') + ')'})
