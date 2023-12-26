@@ -19,11 +19,8 @@ def layout(player_id=None):
         return ""
         # TODO: handle this properly
     player = df_defense.iloc[[player_id]].to_dict(orient='records')[0]
-    return html.Div(
-        html.Aside([
+    return html.Div([html.Aside([
             filters.layout(),
             html.Div('hi', id='testing')
-        ], id='aside')
+        ], id='aside'), specific_players.specific_plots_component]
         , id='general_page')
-
-    return specific_players.specific_plots_component
