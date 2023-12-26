@@ -3,6 +3,8 @@ from dash import Dash, html, dcc, callback, Output, Input, dash_table
 import os
 import pandas as pd
 from components import specific_players
+from .components import filters
+import plotly.express as px
 
 dash.register_page(__name__, path_template='/replace/<player_id>')
 
@@ -17,5 +19,11 @@ def layout(player_id=None):
         return ""
         # TODO: handle this properly
     player = df_defense.iloc[[player_id]].to_dict(orient='records')[0]
+    return html.Div(
+        html.Aside([
+            filters.layout(),
+            html.Div('hi', id='testing')
+        ], id='aside')
+        , id='general_page')
 
     return specific_players.specific_plots_component
