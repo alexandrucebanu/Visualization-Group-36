@@ -2,6 +2,7 @@ import dash
 from dash import Dash, html, dcc, callback, Output, Input, dash_table
 import os
 import pandas as pd
+from components import specific_players
 from .components import filters
 import plotly.express as px
 
@@ -25,4 +26,4 @@ def layout(player_id=None):
         ], id='aside')
         , id='general_page')
 
-
+    return specific_players.specific_plots_component
