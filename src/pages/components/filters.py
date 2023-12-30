@@ -4,10 +4,10 @@ from dataAdapters import getMergedDataFrame
 import plotly.express as px
 
 
-def layout(originalDf):
-    a = originalDf['age']
+def layout(sourceDF):
+    a = sourceDF['age']
     nrbins = len(a.unique())
-    fig = px.histogram(originalDf, x="age", nbins=nrbins)
+    fig = px.histogram(sourceDF, x="age", nbins=nrbins)
     fig.update_traces(marker_color='#2196f3')
     fig.update_layout(yaxis_visible=False, xaxis_title=None, yaxis_showticklabels=False, xaxis_showticklabels=False)
     fig.update_layout(margin={'l': 0, 't': 0, 'b': 0, 'r': 0}, plot_bgcolor='white')
