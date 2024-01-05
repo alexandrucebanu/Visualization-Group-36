@@ -243,6 +243,7 @@ h1 {
     font-size: 17px;
     color: rgb(51, 51, 51);
     letter-spacing: 0.4px;
+    margin-bottom: 30px;
 }
 
 .tab_switch {
@@ -298,6 +299,9 @@ h1 {
     color: #fff;
 }
 
+.filter_block {
+    margin-bottom: 25px;
+}
 
 .filter_block h3 {
     font-weight: 500;
@@ -317,3 +321,105 @@ h1 {
     border-bottom: 1px solid #ededed;
     padding-bottom: 46px;
 }
+
+#map_filter {
+    width: 250px;
+    height: 150px;
+    background-size: cover;
+    margin: 20px auto;
+    border-radius: 8px;
+    position: relative;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+}
+
+.position_marker {
+    position: absolute;
+    background: #000;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    background: #fff;
+    color: #000;
+    font-size: 12px;
+    text-align: center;
+    line-height: 24px;
+    font-weight: bold;
+    transition: 0.4s;
+
+}
+
+.position_marker:hover {
+    background: #ef8702;
+    color: #fff;
+}
+
+#map_filter input[type=checkbox] {
+    background: #fff;
+    border: 1px solid #fff;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    height: 23px;
+    border-radius: 50%;
+    width: 23px;
+    z-index: 1;
+    cursor: pointer;
+}
+
+#map_filter input[type=checkbox]:checked {
+    background: #ff9100;
+    border-color: #ff9100;
+}
+
+#map_filter label {
+    color: rgba(255, 255, 255, 0);
+    position: absolute;
+}
+#map_filter label::selection {
+    color: rgba(255, 255, 255, 0);
+    position: absolute;
+}
+
+#map_filter label::after {
+    position: absolute;
+    left: 4px;
+    top: 5px;
+    z-index: 10000;
+    color: #000 !important;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+#map_filter label:nth-child(1) {
+    left: 12px;
+    top: 64px
+}
+
+#map_filter label:nth-child(1):after {
+    content: 'GK';
+}
+#map_filter label:nth-child(2):after {
+    content: 'DF';
+}
+#map_filter label:nth-child(3):after {
+    content: 'MF';
+}
+#map_filter label:nth-child(4):after {
+    content: 'FW';
+}
+
+#map_filter label:nth-child(2) {
+    left: 75px;
+    top: 20px
+}
+
+#map_filter label:nth-child(3) {
+    left: 114px;
+    top: 64px
+}
+
+#map_filter label:nth-child(4) {
+    left: 155px;
+    top: 108px
+}
+
