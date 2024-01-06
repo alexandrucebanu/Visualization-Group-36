@@ -97,8 +97,7 @@ def update_output(filters, chosenPlayer):
     try:
         if chosenPlayer['position'] == 'FW':
             fig1 = px.scatter(filterDataFrame, x='shots_on_target', y='goals', color=filterDataFrame['offsides'], title='Goal Scoring Efficiency', labels={'shots_on_target': 'Shots on target', 'goals': 'Goals', 'color': 'Number of Offsides'}, hover_data=['player'])
-            fig1.update_layout(coloraxis_colorbar=dict(title='Number<br>of Offsides'  # Attempt to split the title into two lines
-            ))
+            fig1.update_layout(coloraxis_colorbar=dict(title='Number of Offsides'))
             fig2 = px.scatter(filterDataFrame, x='dribbles_completed', y='miscontrols', title='Ball Handling Skills', labels={'dribbles_completed': 'Dribbles Completed', 'miscontrols': 'Miscontrols'}, hover_data=['player'])
 
         elif chosenPlayer['position'] == 'MF':
