@@ -232,7 +232,7 @@ h1 {
     width: 100%;
     background: #fff;
     min-height: 300px;
-    border: 1px solid #ededed;
+    /*border: 1px solid #ededed;*/
     box-shadow: 0 0 2px rgba(0, 0, 0, 0.05);
     border-radius: 8px;
     padding: 20px;
