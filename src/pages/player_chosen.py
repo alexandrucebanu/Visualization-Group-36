@@ -59,7 +59,8 @@ def layout(player_id=None):
         print('No `player_id` passed...')
         return ""  # TODO: handle this properly
     player = sourceDF.iloc[[player_id]].to_dict(orient='records')[0]
-    return html.Div([dcc.Store('chosen_player', data=player, storage_type='local'), dcc.Store('filters', data={'position': player['position']}, storage_type='local'), html.Aside([filters.layout(sourceDF, player), html.Div('hi', id='testing')], id='aside'), specific_players.specific_plots_component(player)], id='general_page')
+    return html.Div([ dcc.Store('chosen_player', data=player, storage_type='local'), dcc.Store('filters', data={'position': player['position']}, storage_type='local'), html.Header([]),
+        html.Section([html.Aside([html.Span('chevron_left', className='close-aside material-symbols-rounded'), filters.layout(sourceDF, player), html.Div('hi', id='testing')], id='aside'), specific_players.specific_plots_component(player)])], id='general_page')
 
 
 def getPlayerById(playerId):
