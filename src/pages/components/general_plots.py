@@ -13,11 +13,11 @@ filePath = os.path.join(os.path.dirname(__file__), '../../data/players_22.csv')
 df_general = pd.read_csv(filePath)
 
 
-# Speed over power
+# Speed Plot
 speed_power_jump = html.Div(id='speed_power_jump',children=[
 
     html.H3('Speed vs. Power Jump',  style={'textAlign': 'center'} ),
-    dcc.Graph(id="scatter-plot", style={'width': '50vh', 'height': '50vh', 'align': 'center'}),
+    dcc.Graph(id="scatter-plot", style={'width': '100%', 'height': '100%', 'align': 'center'}),
     
     html.P("Filter by sprint speed:"),
     dcc.RangeSlider(
@@ -36,18 +36,16 @@ def update_bar_chart(slider_range):
     low, high = slider_range
     mask = (df_general['movement_agility'] > low) & (df_general['movement_agility'] < high)
     fig = px.scatter(
-        df_general[mask], x="movement_sprint_speed", y="movement_acceleration",
+        df_general[mask], x=(df_general[mask]["height_cm"]*df_general[mask]['weight_kg']), y="movement_agility",
         hover_data=['long_name'])
     return fig
 
 
-
-
-# OTHER Plot
+# Power Plot
 speed_power_jump2 = html.Div(id='speed_power_jump2',children=[
 
     html.H3('Atacking vs. Defending',  style={'textAlign': 'center'} ),
-    dcc.Graph(id="scatter-plot2", style={'width': '50vh', 'height': '50vh', 'align': 'center'}),
+    dcc.Graph(id="scatter-plot2", style={'width': '100%', 'height': '100%', 'align': 'center'}),
     
     html.P("Filter by movement agility:"),
     dcc.RangeSlider(
@@ -66,7 +64,7 @@ def update_bar_chart(slider_range):
     low, high = slider_range
     mask = (df_general['power_jumping'] > low) & (df_general['power_jumping'] < high)
     fig2 = px.scatter(
-        df_general[mask], x="power_strength", y="power_stamina",
+        df_general[mask], x=(df_general[mask]["movement_acceleration"]*df_general[mask]['movement_sprint_speed']*df_general[mask]["movement_agility"]), 
+        y='power_stamina',
         hover_data=['long_name'])
     return fig2
-
