@@ -10,9 +10,6 @@ import unicodedata
 from pathlib import Path
 
 
-<<<<<<< HEAD
-def getTeamGroup(team: str, mapToLetters=False) -> Union[int, str]:
-=======
 def getMergedDataFrame():
     files = ["player_shooting.csv", "player_possession.csv", "player_playingtime.csv", "player_passing.csv",
              "player_misc.csv"];
@@ -31,7 +28,6 @@ def getMergedDataFrame():
 
 
 def getTeamGroup(team: str, mapToLetters=False) -> int | str:
->>>>>>> general_plots
     """
     :type team: int | str <- The input team (either in the group number of the corresponding letter in uppercase)
     :rtype: int <- The letter representing the group the team belongs to | returns 0 if the team group could not be found
