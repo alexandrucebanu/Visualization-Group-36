@@ -60,11 +60,6 @@ playersList = [(index, player['player']) for index, player in df_defense.iterrow
 dash.register_page(__name__, path_template='/replace/<player_id>')
 
 
-def layout():
-    return html.Div([dcc.Store('chosen_player', data=player, storage_type='local'), dcc.Store('filters', data={'position': player['position']}, storage_type='local'), html.Header([]),
-        html.Section([html.Aside([html.Span('chevron_left', className='close-aside material-symbols-rounded'), filters.layout(sourceDF, player), html.Div('hi', id='testing')], id='aside'), specific_players.specific_plots_component(player)])], id='general_page')
-
-
 def layout(player_id=None):
     if not player_id:
         return ""
@@ -101,7 +96,9 @@ def layout(player_id=None):
 # -------------------------------------------------------------
 @callback([Output('selected-player-info', 'children'), Output('unknown-player-right', 'style')], [Input('select_player_name_chosen', 'value')])
 def update_selected_player_info(player_id):
-    if player_id:
+    if(player_id==None):
+        return dash.no_update
+    if player_id and player_id != None:
         player_id = int(player_id)
         player = df_defense.iloc[[player_id]].to_dict(orient='records')[0]
         path = playerImageDirectory(player['player'])
@@ -114,7 +111,7 @@ def update_selected_player_info(player_id):
             ]
 
         print('No `player_id` passed...')
-        return ""  # TODO: handle this properly
+        return dash.no_update  # TODO: handle this properly
     player = sourceDF.iloc[[player_id]].to_dict(orient='records')[0]
     return html.Div([dcc.Store('chosen_player', data=player, storage_type='local'), dcc.Store('filters', data={'position': player['position']}, storage_type='local'), html.Header([]),
         html.Section([html.Aside([html.Span('chevron_left', className='close-aside material-symbols-rounded'), filters.layout(sourceDF, player), html.Div('hi', id='testing')], id='aside'), specific_players.specific_plots_component(player)])], id='general_page')

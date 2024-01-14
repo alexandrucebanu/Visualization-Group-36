@@ -170,7 +170,6 @@ h1 {
 
 
 .player-chosen-container {
-    display: flex;
     /*width: 30%;*/
     height: 30%;
     background: #fff;
@@ -183,8 +182,10 @@ h1 {
 }
 
 .half {
-    /*flex: 1;*/
-    display: flex;
+
+    display: block;
+    width:50%;
+    float: left;
     flex-direction: column;
     align-items: center;
 
@@ -210,7 +211,10 @@ h1 {
 }
 
 .player-image img {
-    width: 70%; /* Slightly reduced size */
+    width:100px;
+    height: 140px;
+    object-position: center;
+    object-fit: cover;
     border-radius: 6px; /* Added rounded corners */
     margin-top: 10px; /* Added margin from the top */
 }
@@ -223,10 +227,14 @@ h1 {
 }
 
 .team-flag img {
-    width: 40%;
+    /* width: 40%; */
     border-radius: 20%;
     overflow: hidden;
     margin-top: 5px;
+    width: 30px;
+    border-radius: 2px;
+    display: block;
+    margin: auto;
 }
 
 
@@ -258,13 +266,16 @@ h1 {
 /* Add the following style to ensure the selected player information is displayed properly */
 #selected-player-info {
     text-align: center;
-    margin-top: 20px;
+    /*margin-top: 20px;*/
 }
 
-#selected-player-info img {
-    width: 70%; /* Adjust the width as needed */
+.half .player_image img {
     border-radius: 6px;
     margin-top: 10px;
+    width: 100px;
+    object-position: center;
+    object-fit: cover;
+    height: 140px;
 }
 
 #selected-player-info .player-name {
