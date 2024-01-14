@@ -34,19 +34,19 @@ h1 {
 
 
 #logo {
-    /*width: 78px;*/
-    /*height: 78px;*/
-    /*margin: 20px auto;*/
-    /*z-index: 20;*/
-    /*position: absolute;*/
-    /*background-repeat: no-repeat;*/
-    /*background-size: cover;*/
-    /*top: 76px;*/
-    /*left: calc(50% - 39px);*/
-    /*!*background-position-x: 44%;*!*/
-    /*!*background-position-y: 44%;*!*/
-    /*!*box-shadow: 0 0 4px #00000038;*!*/
-    /*border-radius: 100%;*/
+    width: 78px;
+    height: 78px;
+    margin: 20px auto;
+    z-index: 20;
+    position: absolute;
+    background-repeat: no-repeat;
+    background-size: cover;
+    top: 76px;
+    left: calc(50% - 39px);
+    /*background-position-x: 44%;*/
+    /*background-position-y: 44%;*/
+    /*box-shadow: 0 0 4px #00000038;*/
+    border-radius: 100%;
 }
 
 #search_box {
@@ -403,11 +403,11 @@ header {
     height: 60px;
     padding: 0 30px;
     border-bottom: 1px solid #ededed;
+    border-top: 3px solid #18243b;
     box-shadow: 0 -3px 6px #0000004a;
-    border-top:3px solid #161f2a;
 }
 
-header #logo {
+header #header_logo {
     height: 44px;
     margin-top: 7px;
 }

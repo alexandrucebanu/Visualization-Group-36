@@ -93,7 +93,7 @@ def layout(player_id=None):
         return ""
     player = sourceDF.iloc[[player_id]].to_dict(orient='records')[0]
     return html.Div([dcc.Store('chosen_player', data=player, storage_type='local'), dcc.Store('filters', data={'position': player['position']}, storage_type='local'), html.Header([
-        html.Img(id='logo',src=dash.get_asset_url('logo.png')),
+        html.Img(id='header_logo',src=dash.get_asset_url('logo.png')),
     ]), html.Section(
         [html.Aside([playerInfoBox(player), html.Span('chevron_left', className='close-aside material-symbols-rounded'), filters.layout(sourceDF, player), html.Div('hi', id='testing')], id='aside'), html.Div(id='columns', children=[specific_players.specific_plots_component(player), general_plots.general_plots_component(), ])])],
         id='general_page')
