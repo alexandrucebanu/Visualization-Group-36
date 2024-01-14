@@ -37,6 +37,13 @@ for i in range(1, len(frames)):
 
 sourceDF['age'] = (sourceDF['age']).map(getAgeYears)  # This is the dataframe form which the plots are being applied. Applying filters will limit the rows in this object.
 
+external = pd.read_csv("../src/data/players_22.csv")
+external = external[['short_name', 'wage_eur', 'value_eur']]
+external = external.drop_duplicates(subset='short_name')
+
+sourceDF['short_name'] = sourceDF['player'].str.replace(r'^(\w)\w*\s', r'\1. ')
+sourceDF = sourceDF.merge(external, on='short_name', how='left')
+sourceDF = sourceDF.drop('short_name', axis=1)
 
 def getFilteredDF(filters):
     ## TODO: check if the filtering works as it should
