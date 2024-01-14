@@ -167,3 +167,132 @@ h1 {
     line-height: 31px;
     margin-left: 7px;
 }
+
+.player-chosen-container {
+    display: flex;
+    width: 30%;
+    height: 30%;
+    background: #fff;
+    border: 1px solid #ededed;
+    border-radius: 12px;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.07);
+    overflow: hidden;
+}
+
+.half {
+    /*flex: 1;*/
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.separating-bar {
+    width: 2px;
+    background: #ededed;
+    margin: 5px 0;
+}
+
+.player-image {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    border-bottom-left-radius: 8px;
+    border-top-left-radius: 8px;
+    overflow: hidden;
+    order: -1; /* Move the player image to the top */
+}
+
+.player-image img {
+    width: 70%;  /* Slightly reduced size */
+    border-radius: 6px;  /* Added rounded corners */
+    margin-top: 10px;  /* Added margin from the top */
+}
+
+.player-name {
+    text-align: center;
+    font-weight: 700;
+    font-size: 12px;  /* Slightly smaller font size */
+    margin-top: 5px;  /* Reduced margin */
+}
+
+.team-flag img {
+    width: 40%;
+    border-radius: 20%;
+    overflow: hidden;
+    margin-top: 5px;
+}
+
+
+#search_input_container .Select-control {
+    width: 100%;  /* Set the width to 100% */
+    height: 30px;
+    border: 1px solid rgba(229, 229, 229, 0.7);
+    font-size: 14px;
+    border-radius: 12px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.05);
+}
+
+#search_input_container .Select-menu-outer {
+    border-radius: 12px;
+    overflow: hidden;
+    margin-top: 5px;
+    font-size: 12.5px;
+    border-color: #ededed;
+}
+
+#search_input_container .Select-control .Select-placeholder,
+#search_input_container .Select-control .Select-value {
+    line-height: 30px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Add the following style to ensure the selected player information is displayed properly */
+#selected-player-info {
+    text-align: center;
+    margin-top: 20px;
+}
+
+#selected-player-info img {
+    width: 70%;  /* Adjust the width as needed */
+    border-radius: 6px;
+    margin-top: 10px;
+}
+
+#selected-player-info .player-name {
+    font-weight: 700;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+#selected-player-info .team-flag img {
+    width: 20%;  /* Adjust the width as needed */
+    border-radius: 20%;
+    overflow: hidden;
+    margin-top: 5px;
+}
+
+/* adjusts the dropdown in player_chosen.py */
+#unknown-player-right #select_player_name_chosen {
+    font-size: 14px;  /* Adjust the font size as needed */
+    width: 100%;      /* Adjust the width as needed */
+    margin-bottom: 20px;
+}
+
+#unknown-player-right {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 50%;
+    padding: 20px;
+}
+
+
+
+
+
+
+
