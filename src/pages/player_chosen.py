@@ -69,31 +69,31 @@ def layout(player_id=None):
     if not player_id:
         return ""
 
-    player = df_defense.iloc[[player_id]].to_dict(orient='records')[0]
+    player = sourceDF.iloc[[player_id]].to_dict(orient='records')[0]
     path = playerImageDirectory(player['player'])
     image_path = get_first_vertical_image(path)
-
+    print('salam', image_path)
     if image_path:
         playerImageBox = html.Div(id='player-image-container', className='player-chosen-container', children=[html.Div(className='half', children=[  # Player's image
-                html.Div([html.Img(src=dash.get_asset_url(image_path)), ], className='player-image'), html.Div(f"Player: {player['player']}", className='player-name'),  # Team flag
-                html.Div([html.Img(src=dash.get_asset_url(getCountryFlagPath(getPlayerTeam(player['player'])))), ], className='team-flag'), ]),
+            html.Div([html.Img(src=dash.get_asset_url(image_path)), ], className='player-image'), html.Div(f"Player: {player['player']}", className='player-name'),  # Team flag
+            html.Div([html.Img(src=dash.get_asset_url(getCountryFlagPath(getPlayerTeam(player['player'])))), ], className='team-flag'), ]),
 
-                # Separating bar
-                html.Div(className='separating-bar'),
+            # Separating bar
+            html.Div(className='separating-bar'),
 
-                # Right half (question mark and search bar)
-                html.Div(id='unknown-player-right', className='half', children=[  # Question mark image
-                    html.Div([html.Img(src=dash.get_asset_url('icons/unknown_user_right.svg'))], className='player-image'),
+            # Right half (question mark and search bar)
+            html.Div(id='unknown-player-right', className='half', children=[  # Question mark image
+                html.Div([html.Img(src=dash.get_asset_url('icons/unknown_user_right.svg'))], className='player-image'),
 
-                    # Search bar
-                    dcc.Dropdown(id='select_player_name_chosen', options=[{'label': playerItem[1], 'value': playerItem[0]} for playerItem in playersList], placeholder="Search for a player...", ), ]),
+                # Search bar
+                dcc.Dropdown(id='select_player_name_chosen', options=[{'label': playerItem[1], 'value': playerItem[0]} for playerItem in playersList], placeholder="Search for a player...", ), ]),
 
-                # Selected player information outside of 'unknown-player-right'
-                html.Div(id='selected-player-info', className='half', ), ])
+            # Selected player information outside of 'unknown-player-right'
+            html.Div(id='selected-player-info', className='half', ), ])
     else:
         return html.Div("Image not found")
     return html.Div([dcc.Store('chosen_player', data=player, storage_type='local'), dcc.Store('filters', data={'position': player['position']}, storage_type='local'), html.Header([]),
-        html.Section([html.Aside([playerImageBox,html.Span('chevron_left', className='close-aside material-symbols-rounded'), filters.layout(sourceDF, player), html.Div('hi', id='testing')], id='aside'), specific_players.specific_plots_component(player)])], id='general_page')
+        html.Section([html.Aside([playerImageBox, html.Span('chevron_left', className='close-aside material-symbols-rounded'), filters.layout(sourceDF, player), html.Div('hi', id='testing')], id='aside'), specific_players.specific_plots_component(player)])], id='general_page')
 
 
 # -------------------------------------------------------------

@@ -10,8 +10,6 @@ import unicodedata
 from pathlib import Path
 
 
-
-
 def getTeamGroup(team: str, mapToLetters=False) -> Union[int, str]:
     """
     :type team: int | str <- The input team (either in the group number of the corresponding letter in uppercase)
@@ -20,7 +18,7 @@ def getTeamGroup(team: str, mapToLetters=False) -> Union[int, str]:
     team = team.capitalize()
     print('team: ', team)
     try:
-        group_stats_csv_path = os.path.join(os.path.dirname(__file__), r"C:\uni\Y2Q2\Visualization\proj\notebooks\data\group_stats.csv")
+        group_stats_csv_path = os.path.join(os.path.dirname(__file__), r"data/group_stats.csv")
         df_groups = pd.read_csv(group_stats_csv_path, encoding='utf-8')
 
         filtered = df_groups[df_groups.team == team]
@@ -94,7 +92,6 @@ def get_first_vertical_image(directory_path):
         return None
 
 
-
 def playerImageDirectory(playerName, playerTeam=None, playerGroup=None):
     """
     Generate the directory path for a player's player_images.
@@ -126,6 +123,8 @@ def playerImageDirectory(playerName, playerTeam=None, playerGroup=None):
         directory_path = f"assets/player_images/Group {playerGroup}/{playerTeam} Players/Images_{playerName}"
 
         # Check if the directory exists, otherwise display 'unknown_user2.png'
+        print('2839ns', directory_path)
+
         if os.path.exists(directory_path):
             return directory_path
         else:
