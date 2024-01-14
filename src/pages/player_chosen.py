@@ -19,9 +19,19 @@ def getAgeYears(ageString):
     return int(ageString.split('-')[0])
 
 
-files = ["player_shooting.csv", "player_defense.csv", "player_gca.csv", "player_possession.csv", "player_playingtime.csv", "player_passing.csv", "player_misc.csv"]
+files = ["player_shooting.csv", "player_defense.csv", "player_gca.csv", "player_possession.csv",
+         "player_playingtime.csv", "player_passing.csv", "player_misc.csv"]
 # TODO: bug: when including player_gca.csv the df will be sliced (as there are only 41 rows there) and we merge with it.
 frames = []
+
+
+def extract_surname(full_name):
+    """
+    :param full_name: Takes the full name of the player
+    :return: the
+    """
+    return full_name.split()[-1]
+
 
 counter = 0
 for file in files:
@@ -34,7 +44,20 @@ sourceDF = frames[0]
 for i in range(1, len(frames)):
     sourceDF = pd.merge(sourceDF, frames[i])
 
-sourceDF['age'] = (sourceDF['age']).map(getAgeYears)  # This is the dataframe form which the plots are being applied. Applying filters will limit the rows in this object.
+sourceDF['age'] = (sourceDF['age']).map(
+    getAgeYears)  # This is the dataframe from which the plots are being applied. Applying filters will limit the rows in this object.
+
+# ------------------------------
+# Loading the external dataset:
+# ------------------------------
+
+external = pd.read_csv("../src/data/players_22.csv")
+external = external[['short_name', 'wage_eur', 'value_eur']]
+external = external.drop_duplicates(subset='short_name')
+
+sourceDF['short_name'] = sourceDF['player'].str.replace(r'^(\w)\w*\s', r'\1. ')
+sourceDF = sourceDF.merge(external, on='short_name', how='left')
+sourceDF = sourceDF.drop('short_name', axis=1)
 
 
 def getFilteredDF(filters):
@@ -59,7 +82,10 @@ def layout(player_id=None):
         print('No `player_id` passed...')
         return ""  # TODO: handle this properly
     player = sourceDF.iloc[[player_id]].to_dict(orient='records')[0]
-    return html.Div([dcc.Store('chosen_player', data=player, storage_type='local'), dcc.Store('filters', data={'position': player['position']}, storage_type='local'), html.Aside([filters.layout(sourceDF, player), html.Div('hi', id='testing')], id='aside'), specific_players.specific_plots_component(player)], id='general_page')
+    return html.Div([dcc.Store('chosen_player', data=player, storage_type='local'),
+                     dcc.Store('filters', data={'position': player['position']}, storage_type='local'),
+                     html.Aside([filters.layout(sourceDF, player), html.Div('hi', id='testing')], id='aside'),
+                     specific_players.specific_plots_component(player)], id='general_page')
 
 
 def getPlayerById(playerId):
@@ -69,7 +95,8 @@ def getPlayerById(playerId):
 # -------------------------------------------------------------
 # Callbacks for when the age filter slide is changed: Dana
 # -------------------------------------------------------------
-@callback(Output('age_histogram', 'children'), Output('filters', 'data'), Input('age_slider', 'value'), Input('chosen_positions', 'value'), Input('filters', 'data'))
+@callback(Output('age_histogram', 'children'), Output('filters', 'data'), Input('age_slider', 'value'),
+          Input('chosen_positions', 'value'), Input('filters', 'data'))
 def applyFilters(value, chosenPositions, filters):
     print(chosenPositions)
     a = sourceDF['age']
@@ -78,39 +105,60 @@ def applyFilters(value, chosenPositions, filters):
     global df
     sourceDF['in_bound'] = mask.map(map_in_bound)
     numberOfBins = len(a.unique())
-    fig = px.histogram(sourceDF, x="age", nbins=numberOfBins, color='in_bound', color_discrete_map={"YES": "#2196f3", "NO": "#E9E9E9"})
-    fig.update_layout(yaxis_visible=False, xaxis_title=None, yaxis_showticklabels=False, xaxis_showticklabels=False, showlegend=False)
+    fig = px.histogram(sourceDF, x="age", nbins=numberOfBins, color='in_bound',
+                       color_discrete_map={"YES": "#2196f3", "NO": "#E9E9E9"})
+    fig.update_layout(yaxis_visible=False, xaxis_title=None, yaxis_showticklabels=False, xaxis_showticklabels=False,
+                      showlegend=False)
     fig.update_layout(margin={'l': 0, 't': 0, 'b': 0, 'r': 0}, plot_bgcolor='white')
     newFilters = filters
     newFilters['age'] = value
     newFilters['chosen_positions'] = chosenPositions
-    return dcc.Graph(figure=fig, config={'staticPlot': True}, style={'width': 'calc(100% - 20px)', 'height': '60px', 'margin': '5px auto'}), newFilters
+    return dcc.Graph(figure=fig, config={'staticPlot': True},
+                     style={'width': 'calc(100% - 20px)', 'height': '60px', 'margin': '5px auto'}), newFilters
 
 
 # -------------------------------------------------------------
 # Callbacks for general plots: Alexandru
 # -------------------------------------------------------------
-@callback([Output(component_id='graph1', component_property='figure'), Output(component_id='graph2', component_property='figure')], Input('filters', 'data'), Input('chosen_player', 'data'))  # Updates the position-specific plots based on the position
+@callback([Output(component_id='graph1', component_property='figure'),
+           Output(component_id='graph2', component_property='figure')], Input('filters', 'data'),
+          Input('chosen_player', 'data'))  # Updates the position-specific plots based on the position
 def update_output(filters, chosenPlayer):
     filterDataFrame = getFilteredDF(filters)
     print('The positions available in the DF are: ', filterDataFrame['position'].unique())
     try:
         if chosenPlayer['position'] == 'FW':
-            fig1 = px.scatter(filterDataFrame, x='shots_on_target', y='goals', color=filterDataFrame['offsides'], title='Goal Scoring Efficiency', labels={'shots_on_target': 'Shots on target', 'goals': 'Goals', 'color': 'Number of Offsides'}, hover_data=['player'])
+            fig1 = px.scatter(filterDataFrame, x='shots_on_target', y='goals', color=filterDataFrame['offsides'],
+                              title='Goal Scoring Efficiency',
+                              labels={'shots_on_target': 'Shots on target', 'goals': 'Goals',
+                                      'color': 'Number of Offsides'}, hover_data=['player'])
             fig1.update_layout(coloraxis_colorbar=dict(title='Number of Offsides'))
-            fig2 = px.scatter(filterDataFrame, x='dribbles_completed', y='miscontrols', title='Ball Handling Skills', labels={'dribbles_completed': 'Dribbles Completed', 'miscontrols': 'Miscontrols'}, hover_data=['player'])
+            fig2 = px.scatter(filterDataFrame, x='dribbles_completed', y='miscontrols', title='Ball Handling Skills',
+                              labels={'dribbles_completed': 'Dribbles Completed', 'miscontrols': 'Miscontrols'},
+                              hover_data=['player'])
 
         elif chosenPlayer['position'] == 'MF':
-            fig1 = px.scatter(filterDataFrame, x='gca', y='passes_completed', title='Correlation Between Goal-Creating Actions and Passes Completed', labels={'x': 'Goal-Creating Actions', 'y': 'Passes completed'}, hover_data=['player'])
-            fig2 = px.scatter(filterDataFrame, x='dribbles_completed', y='miscontrols', title='Ball Handling Skills', labels={'dribbles_completed': 'Dribbles Completed', 'miscontrols': 'Miscontrols'}, hover_data=['player'])
+            fig1 = px.scatter(filterDataFrame, x='gca', y='passes_completed',
+                              title='Correlation Between Goal-Creating Actions and Passes Completed',
+                              labels={'x': 'Goal-Creating Actions', 'y': 'Passes completed'}, hover_data=['player'])
+            fig2 = px.scatter(filterDataFrame, x='dribbles_completed', y='miscontrols', title='Ball Handling Skills',
+                              labels={'dribbles_completed': 'Dribbles Completed', 'miscontrols': 'Miscontrols'},
+                              hover_data=['player'])
 
         elif chosenPlayer['position'] == 'DF':
-            fig1 = px.scatter(filterDataFrame, x='blocked_passes', y='clearances', title='Defensive Interventions', labels={'blocked_passes': 'Blocked passes', 'clearances': 'Clearances'}, hover_data=['player'])
-            fig2 = px.scatter(filterDataFrame, x='tackles_won', y='interceptions', title="Analysing player's interception skills", labels={'tackles_won': 'Tackles won', 'interceptions': 'Interceptions'}, hover_data=['player'])
+            fig1 = px.scatter(filterDataFrame, x='blocked_passes', y='clearances', title='Defensive Interventions',
+                              labels={'blocked_passes': 'Blocked passes', 'clearances': 'Clearances'},
+                              hover_data=['player'])
+            fig2 = px.scatter(filterDataFrame, x='tackles_won', y='interceptions',
+                              title="Analysing player's interception skills",
+                              labels={'tackles_won': 'Tackles won', 'interceptions': 'Interceptions'},
+                              hover_data=['player'])
 
         else:  # POSITION==GK
-            fig1 = px.scatter(filterDataFrame, x='gk_save_pct', y='gk_goals_against_per90', title='Goalkeeping Mastery: Balancing Saves and Goals Against')
-            fig2 = px.scatter(filterDataFrame, x='gk_clean_sheets', y='age', title='Comparison of Age and Performance in Goalkeeping')
+            fig1 = px.scatter(filterDataFrame, x='gk_save_pct', y='gk_goals_against_per90',
+                              title='Goalkeeping Mastery: Balancing Saves and Goals Against')
+            fig2 = px.scatter(filterDataFrame, x='gk_clean_sheets', y='age',
+                              title='Comparison of Age and Performance in Goalkeeping')
 
         return fig1, fig2
 
