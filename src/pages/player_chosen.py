@@ -2,9 +2,14 @@ import dash
 from dash import html, dcc, callback, Output, Input
 import os
 import pandas as pd
+<<<<<<< HEAD
 from dataAdapters import getCountryFlagPath, playerImageDirectory, getPlayerTeam, get_first_vertical_image, getTeamGroup
 
 from .components import specific_players
+=======
+from .components import specific_players
+from .components import general_plots
+>>>>>>> general_plots
 from .components import filters
 import plotly.express as px
 
@@ -28,7 +33,10 @@ frames = []
 counter = 0
 for file in files:
     filePath = os.path.join(os.path.dirname(__file__), ('../data/' + file))
+<<<<<<< HEAD
 
+=======
+>>>>>>> general_plots
     frame = pd.read_csv(filePath)
     frames.append(frame)
 sourceDF = frames[0]
@@ -43,11 +51,21 @@ def getFilteredDF(filters):
     ## TODO: check if the filtering works as it should
     a = sourceDF['age']
     b = sourceDF['position']
+<<<<<<< HEAD
     overallMask = ((a >= filters['age'][0]) & (a <= filters['age'][1]))
+=======
+    c = sourceDF['gca']
+    d = sourceDF['passes_completed']
+
+    # Age mask
+    overallMask = ((a >= filters['age'][0]) & (a <= filters['age'][1]))
+    # position mask
+>>>>>>> general_plots
     positionMask = False
     chosenPositions = filters['chosen_positions']
     for chosenPosition in chosenPositions:
         positionMask = ((positionMask) | (b == chosenPosition))
+<<<<<<< HEAD
     overallMask = (overallMask) & positionMask
     sourceDF['in_bound'] = overallMask.map(map_in_bound)
     return sourceDF[sourceDF['in_bound'] == "YES"]
@@ -56,12 +74,25 @@ def getFilteredDF(filters):
 filePath = os.path.join(os.path.dirname(__file__), '../data/player_gca.csv')
 df_defense = pd.read_csv(filePath, encoding='utf-8')
 playersList = [(index, player['player']) for index, player in df_defense.iterrows()]
+=======
+    
+    # General plots filters
+    generalMask1 = ((c >= filters['gca'][0]) & (c <= filters['gca'][1]))
+    generalMask2 = ((d >= filters['passes_completed'][0]) & (d <= filters['passes_completed'][1]))
+    
+    # overall mask
+    overallMask = (overallMask) & positionMask & generalMask1 & generalMask2
+    sourceDF['in_bound'] = overallMask.map(map_in_bound)
+    return sourceDF[sourceDF['in_bound'] == "YES"]
+
+>>>>>>> general_plots
 
 dash.register_page(__name__, path_template='/replace/<player_id>')
 
 
 def layout(player_id=None):
     if not player_id:
+<<<<<<< HEAD
         return ""
 
     player = sourceDF.iloc[[player_id]].to_dict(orient='records')[0]
@@ -116,6 +147,23 @@ def update_selected_player_info(player_id):
     return html.Div([dcc.Store('chosen_player', data=player, storage_type='local'), dcc.Store('filters', data={'position': player['position']}, storage_type='local'), html.Header([]),
         html.Section([html.Aside([html.Span('chevron_left', className='close-aside material-symbols-rounded'), filters.layout(sourceDF, player), html.Div('hi', id='testing')], id='aside'), specific_players.specific_plots_component(player)])], id='general_page')
 
+=======
+        print('No `player_id` passed...')
+        return ""  # TODO: handle this properly
+    player = sourceDF.iloc[[player_id]].to_dict(orient='records')[0]
+    
+    return html.Div([dcc.Store('chosen_player', data=player, storage_type='local'), 
+                dcc.Store('filters', data={'position': player['position']}, storage_type='local'), 
+                html.Aside([filters.layout(sourceDF, player), html.Div('hi', id='testing')], id='aside'), 
+                
+                html.Div(id='columns', children=[
+                    specific_players.specific_plots_component(player),
+                    general_plots.general_plots_component(),
+                ]),
+                ], 
+                id='general_page')
+
+>>>>>>> general_plots
 
 def getPlayerById(playerId):
     return sourceDF.iloc[[playerId]].to_dict(orient='records')[0]
@@ -124,8 +172,14 @@ def getPlayerById(playerId):
 # -------------------------------------------------------------
 # Callbacks for when the age filter slide is changed: Dana
 # -------------------------------------------------------------
+<<<<<<< HEAD
 @callback(Output('age_histogram', 'children'), Output('filters', 'data'), Input('age_slider', 'value'), Input('chosen_positions', 'value'), Input('filters', 'data'))
 def applyFilters(value, chosenPositions, filters):
+=======
+@callback(Output('age_histogram', 'children'), Output('filters', 'data'), 
+            Input('age_slider', 'value'), Input('chosen_positions', 'value'), Input('filters', 'data'), Input('graph1_general', 'relayoutData'))
+def applyFilters(value, chosenPositions, filters, relayoutData):
+>>>>>>> general_plots
     print(chosenPositions)
     a = sourceDF['age']
     mask = ((a >= value[0]) & (a <= value[1]))
@@ -139,11 +193,32 @@ def applyFilters(value, chosenPositions, filters):
     newFilters = filters
     newFilters['age'] = value
     newFilters['chosen_positions'] = chosenPositions
+<<<<<<< HEAD
     return dcc.Graph(figure=fig, config={'staticPlot': True}, style={'width': 'calc(100% - 20px)', 'height': '60px', 'margin': '5px auto'}), newFilters
 
 
 # -------------------------------------------------------------
 # Callbacks for general plots: Alexandru
+=======
+
+    # General plots filtering
+    try:
+        x_min = relayoutData['xaxis.range[0]']
+        x_max = relayoutData['xaxis.range[1]']
+        y_min = relayoutData['yaxis.range[0]']
+        y_max = relayoutData['yaxis.range[1]']
+
+        newFilters['gca'] = [x_min, x_max]
+        newFilters['passes_completed'] = [y_min, y_max]
+    except:
+        newFilters['gca'] = [0, 1000]
+        newFilters['passes_completed'] = [0, 1000]
+
+    return dcc.Graph(figure=fig, config={'staticPlot': True}, style={'width': 'calc(100% - 20px)', 'height': '60px', 'margin': '5px auto'}), newFilters
+
+# -------------------------------------------------------------
+# Callbacks for position specific plots: Alexandru
+>>>>>>> general_plots
 # -------------------------------------------------------------
 @callback([Output(component_id='graph1', component_property='figure'), Output(component_id='graph2', component_property='figure')], Input('filters', 'data'), Input('chosen_player', 'data'))  # Updates the position-specific plots based on the position
 def update_output(filters, chosenPlayer):
@@ -156,7 +231,11 @@ def update_output(filters, chosenPlayer):
             fig2 = px.scatter(filterDataFrame, x='dribbles_completed', y='miscontrols', title='Ball Handling Skills', labels={'dribbles_completed': 'Dribbles Completed', 'miscontrols': 'Miscontrols'}, hover_data=['player'])
 
         elif chosenPlayer['position'] == 'MF':
+<<<<<<< HEAD
             fig1 = px.scatter(filterDataFrame, x='gca', y='passes_completed', title='Correlation Between Goal-Creating Actions and Passes Completed', labels={'x': 'Goal-Creating Actions', 'y': 'Passes completed'}, hover_data=['player'])
+=======
+            fig1 = px.scatter(filterDataFrame, x='gca', y='passes_completed', title='Correlation Between Goal-Creating Actions and Passes Completed', labels={'gca': 'Goal-Creating Actions', 'passes_completed': 'Passes completed'}, hover_data=['player'])
+>>>>>>> general_plots
             fig2 = px.scatter(filterDataFrame, x='dribbles_completed', y='miscontrols', title='Ball Handling Skills', labels={'dribbles_completed': 'Dribbles Completed', 'miscontrols': 'Miscontrols'}, hover_data=['player'])
 
         elif chosenPlayer['position'] == 'DF':
@@ -171,3 +250,44 @@ def update_output(filters, chosenPlayer):
 
     except:
         return dash.no_update
+<<<<<<< HEAD
+=======
+
+# -------------------------------------------------------------
+# Callbacks for general plots: Alicia
+# -------------------------------------------------------------
+@callback([Output(component_id='graph1_general', component_property='figure'), Output(component_id='graph2_general', component_property='figure')], 
+            Input('filters', 'data'))  # Updates the general plots based on filter
+def update_general_plots(filters):
+    filterDataFrame = getFilteredDF(filters)
+    print(filterDataFrame.columns)
+
+    try:
+        fig12 = px.scatter(filterDataFrame, x="gca", y='passes_completed', title='Relation between agility and physical properties', labels={'x': 'Height x Weight [cm * kg]', 'y': 'Agility in Movement'}, hover_data=['player'])
+        fig22 = px.scatter(filterDataFrame, x="tackles_won", y='interceptions', title='Relation between agility and physical properties', labels={'x': 'Height x Weight [cm * kg]', 'y': 'Agility in Movement'}, hover_data=['player'])
+
+        # -------------------------------------
+        # Filtering from General plots: Alicia
+        # -------------------------------------
+
+        # Get the selected range, plot 1
+        #x_min = relayoutData['xaxis.range[0]']
+        #x_max = relayoutData['xaxis.range[1]']
+        #y_min = relayoutData['yaxis.range[0]']
+        #y_max = relayoutData['yaxis.range[1]']
+
+        # Get the selected range, plot 2
+        #x_min2 = relayoutData['xaxis.range[0]']
+        #x_max2 = relayoutData['xaxis.range[1]']
+        #y_min2 = relayoutData['yaxis.range[0]']
+        #y_max2 = relayoutData['yaxis.range[1]']
+
+
+        # newFilters = filters
+        
+
+        return fig12, fig22
+    
+    except:
+        return dash.no_update
+>>>>>>> general_plots

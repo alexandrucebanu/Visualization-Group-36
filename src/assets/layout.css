@@ -15,6 +15,7 @@ a {
 body {
     background: #fff;
     font-family: 'Roboto', sans-serif;
+    margin: 0;
 }
 
 #app_container {
@@ -47,7 +48,6 @@ h1 {
     /*box-shadow: 0 0 4px #00000038;*/
     border-radius: 100%;
 }
-
 
 #search_box {
     background: #fff;
@@ -308,18 +308,51 @@ h1 {
 }
 
 
-#rectangle_specific_plots {
+/*#rectangle_specific_plots {
     margin: 20px;
     margin-top: 0px;
-    /*margin-left: 36px;*/
+    margin-left: 36px;
     background: #fff;
     padding-left: 10px;
     width: 50px;
     height: 1000px;
     width: 50%;
-    /*display: block;*/
+    display: block;
     padding: 20px 0;
-    border-left: 1px solid #ededed;
+    border-left: 1px solid #ededed;*/
+
+#rectangle_specific_plots {
+    /* margin: 20px; */
+    margin-top: 0px;
+    background: #fff;
+    /* height: 1000px; */
+    width: 50%;
+    border-radius: 8px;
+    padding: 20px 0;
+    border: 1px solid #ededed;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.05);
+    float: left;
+}
+
+#rectangle_general_plots {
+    /* margin: 20px; */
+    margin-top: 0px;
+    background: #fff;
+    /* height: 1000px; */
+    width: calc(50% - 10px);
+    border-radius: 8px;
+    padding: 20px 0;
+    border: 1px solid #ededed;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.05);
+    float: left;
+    margin-left: 10px;
+}
+
+#columns {
+    /*display: flex;*/
+    width: calc(100% - 340px);
+    float: left;
+    margin-left: 10px;
 }
 
 #selected_player_subpage {
@@ -404,12 +437,25 @@ header {
     color: #fff;
 }
 
+#general_page {
+    width: calc(100% - 60px);
+    height: auto;
+    margin: 30px;
+}
+
+#aside {
+    width: 330px;
+    float: left;
+}
+
 .filters_block {
     width: 100%;
     background: #fff;
     min-height: 300px;
     /*border: 1px solid #ededed;*/
     /*box-shadow: 0 0 2px rgba(0, 0, 0, 0.05);*/
+    border: 1px solid #ededed;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.05);
     border-radius: 8px;
     padding: 20px;
 }
@@ -584,6 +630,12 @@ header {
     content: 'MF';
 }
 
+#map_filter label:nth-child(2):after {
+    content: 'DF';
+}
+#map_filter label:nth-child(3):after {
+    content: 'MF';
+}
 #map_filter label:nth-child(4):after {
     content: 'FW';
 }
@@ -602,5 +654,3 @@ header {
     left: 155px;
     top: 108px
 }
-
-
