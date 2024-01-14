@@ -1,6 +1,7 @@
 import dash
 from dash import Dash, html, dcc, callback, Output, Input, dash_table
 from ..helpers import fontIcon
+
 from dataAdapters import getMergedDataFrame
 import plotly.express as px
 
