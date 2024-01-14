@@ -31,7 +31,6 @@ for file in files:
     frame = pd.read_csv(filePath)
     frames.append(frame)
 sourceDF = frames[0]
-# print(frames)
 for i in range(1, len(frames)):
     sourceDF = pd.merge(sourceDF, frames[i])
 
@@ -60,6 +59,7 @@ def getFilteredDF(filters):
     sourceDF['in_bound'] = overallMask.map(map_in_bound)
     return sourceDF[sourceDF['in_bound'] == "YES"]
 
+
 filePath = os.path.join(os.path.dirname(__file__), '../data/player_gca.csv')
 df_defense = pd.read_csv(filePath, encoding='utf-8')
 playersList = [(index, player['player']) for index, player in df_defense.iterrows()]
@@ -67,38 +67,36 @@ playersList = [(index, player['player']) for index, player in df_defense.iterrow
 dash.register_page(__name__, path_template='/replace/<player_id>')
 
 
+def getPlayerImageElement(player):
+    path = playerImageDirectory(player['player'])
+    if (path):
+        image_path = get_first_vertical_image(path)
+        return html.Div([html.Img(src=dash.get_asset_url(image_path)), ], className='player-image')
+    else:
+        return html.Div([html.Img(src=dash.get_asset_url('icons/player.png'))], className='invalid_image')
+
+
+def playerInfoBox(player):
+    return html.Div(id='player-image-container', className='player-chosen-container', children=[html.Div(className='half', children=[getPlayerImageElement(player), html.Div(player['player'], className='player-name'),  # Team flag
+        html.Div([html.Img(src=dash.get_asset_url(getCountryFlagPath(getPlayerTeam(player['player'])))), ], className='team-flag'), ]),  # Separating bar
+        html.Div(className='separating-bar'),  # Right half (question mark and search bar)
+        html.Div(id='unknown-player-right', className='half', children=[  # Question mark image
+            html.Div([html.Img(src=dash.get_asset_url('icons/magnifier.png'))], className='unknown-player-icon'),  # Search bar
+            dcc.Dropdown(id='select_player_name_chosen', options=[{'label': playerItem[1], 'value': playerItem[0]} for playerItem in playersList], placeholder="Search for a player...", ), ]),
+
+        # Selected player information outside 'unknown-player-right'
+        html.Div(id='selected-player-info', className='half', ), ])
+
+
 def layout(player_id=None):
     if not player_id:
         return ""
-
     player = sourceDF.iloc[[player_id]].to_dict(orient='records')[0]
-    path = playerImageDirectory(player['player'])
-    image_path = get_first_vertical_image(path)
-    print('salam', image_path)
-    if image_path:
-        playerImageBox = html.Div(id='player-image-container', className='player-chosen-container', children=[html.Div(className='half', children=[  # Player's image
-            html.Div([html.Img(src=dash.get_asset_url(image_path)), ], className='player-image'), html.Div(f"Player: {player['player']}", className='player-name'),  # Team flag
-            html.Div([html.Img(src=dash.get_asset_url(getCountryFlagPath(getPlayerTeam(player['player'])))), ], className='team-flag'), ]),
-
-            # Separating bar
-            html.Div(className='separating-bar'),
-
-            # Right half (question mark and search bar)
-            html.Div(id='unknown-player-right', className='half', children=[  # Question mark image
-                html.Div([html.Img(src=dash.get_asset_url('icons/unknown_user_right.svg'))], className='player-image'),
-
-                # Search bar
-                dcc.Dropdown(id='select_player_name_chosen', options=[{'label': playerItem[1], 'value': playerItem[0]} for playerItem in playersList], placeholder="Search for a player...", ), ]),
-
-            # Selected player information outside of 'unknown-player-right'
-            html.Div(id='selected-player-info', className='half', ), ])
-    else:
-        return html.Div("Image not found")
-    return html.Div([dcc.Store('chosen_player', data=player, storage_type='local'), dcc.Store('filters', data={'position': player['position']}, storage_type='local'), html.Header([]),
-        html.Section([html.Aside([playerImageBox, html.Span('chevron_left', className='close-aside material-symbols-rounded'), filters.layout(sourceDF, player), html.Div('hi', id='testing')], id='aside'), html.Div(id='columns', children=[
-                    specific_players.specific_plots_component(player),
-                    general_plots.general_plots_component(),
-                ])])], id='general_page')
+    return html.Div([dcc.Store('chosen_player', data=player, storage_type='local'), dcc.Store('filters', data={'position': player['position']}, storage_type='local'), html.Header([
+        html.Img(id='logo',src=dash.get_asset_url('logo.png')),
+    ]), html.Section(
+        [html.Aside([playerInfoBox(player), html.Span('chevron_left', className='close-aside material-symbols-rounded'), filters.layout(sourceDF, player), html.Div('hi', id='testing')], id='aside'), html.Div(id='columns', children=[specific_players.specific_plots_component(player), general_plots.general_plots_component(), ])])],
+        id='general_page')
 
 
 # -------------------------------------------------------------
@@ -106,7 +104,7 @@ def layout(player_id=None):
 # -------------------------------------------------------------
 @callback([Output('selected-player-info', 'children'), Output('unknown-player-right', 'style')], [Input('select_player_name_chosen', 'value')])
 def update_selected_player_info(player_id):
-    if(player_id==None):
+    if (player_id == None):
         return dash.no_update
     if player_id and player_id != None:
         player_id = int(player_id)
@@ -116,9 +114,7 @@ def update_selected_player_info(player_id):
 
         if image_path:
             # Return the selected player information and hide the 'unknown-player-right'
-            return [[html.Div([html.Img(src=dash.get_asset_url(image_path)), ], className='player-image'), html.Div(f"Player: {player['player']}", className='player-name'), html.Div([html.Img(src=dash.get_asset_url(getCountryFlagPath(getPlayerTeam(player['player'])))), ], className='team-flag'), ], {'display': 'none'},
-                # Hide the 'unknown-player-right'
-            ]
+            return [[html.Div([html.Img(src=dash.get_asset_url(image_path)), ], className='player-image'), html.Div(player['player'], className='player-name'), html.Div([html.Img(src=dash.get_asset_url(getCountryFlagPath(getPlayerTeam(player['player'])))), ], className='team-flag'), ], {'display': 'none'}, ]
 
         print('No `player_id` passed...')
         return dash.no_update  # TODO: handle this properly
@@ -134,10 +130,8 @@ def getPlayerById(playerId):
 # -------------------------------------------------------------
 # Callbacks for when the age filter slide is changed: Dana
 # -------------------------------------------------------------
-@callback(Output('age_histogram', 'children'), Output('filters', 'data'), 
-            Input('age_slider', 'value'), Input('chosen_positions', 'value'), Input('filters', 'data'), Input('graph1_general', 'relayoutData'))
+@callback(Output('age_histogram', 'children'), Output('filters', 'data'), Input('age_slider', 'value'), Input('chosen_positions', 'value'), Input('filters', 'data'), Input('graph1_general', 'relayoutData'))
 def applyFilters(value, chosenPositions, filters, relayoutData):
-    print(chosenPositions)
     a = sourceDF['age']
     mask = ((a >= value[0]) & (a <= value[1]))
 
@@ -166,13 +160,13 @@ def applyFilters(value, chosenPositions, filters, relayoutData):
 
     return dcc.Graph(figure=fig, config={'staticPlot': True}, style={'width': 'calc(100% - 20px)', 'height': '60px', 'margin': '5px auto'}), newFilters
 
+
 # -------------------------------------------------------------
 # Callbacks for position specific plots: Alexandru
 # -------------------------------------------------------------
 @callback([Output(component_id='graph1', component_property='figure'), Output(component_id='graph2', component_property='figure')], Input('filters', 'data'), Input('chosen_player', 'data'))  # Updates the position-specific plots based on the position
 def update_output(filters, chosenPlayer):
     filterDataFrame = getFilteredDF(filters)
-    print('The positions available in the DF are: ', filterDataFrame['position'].unique())
     try:
         if chosenPlayer['position'] == 'FW':
             fig1 = px.scatter(filterDataFrame, x='shots_on_target', y='goals', color=filterDataFrame['offsides'], title='Goal Scoring Efficiency', labels={'shots_on_target': 'Shots on target', 'goals': 'Goals', 'color': 'Number of Offsides'}, hover_data=['player'])
@@ -196,14 +190,13 @@ def update_output(filters, chosenPlayer):
     except:
         return dash.no_update
 
+
 # -------------------------------------------------------------
 # Callbacks for general plots: Alicia
 # -------------------------------------------------------------
-@callback([Output(component_id='graph1_general', component_property='figure'), Output(component_id='graph2_general', component_property='figure')], 
-            Input('filters', 'data'))  # Updates the general plots based on filter
+@callback([Output(component_id='graph1_general', component_property='figure'), Output(component_id='graph2_general', component_property='figure')], Input('filters', 'data'))  # Updates the general plots based on filter
 def update_general_plots(filters):
     filterDataFrame = getFilteredDF(filters)
-    print(filterDataFrame.columns)
 
     try:
         fig12 = px.scatter(filterDataFrame, x="gca", y='passes_completed', title='Relation between agility and physical properties', labels={'x': 'Height x Weight [cm * kg]', 'y': 'Agility in Movement'}, hover_data=['player'])
@@ -214,22 +207,20 @@ def update_general_plots(filters):
         # -------------------------------------
 
         # Get the selected range, plot 1
-        #x_min = relayoutData['xaxis.range[0]']
-        #x_max = relayoutData['xaxis.range[1]']
-        #y_min = relayoutData['yaxis.range[0]']
-        #y_max = relayoutData['yaxis.range[1]']
+        # x_min = relayoutData['xaxis.range[0]']
+        # x_max = relayoutData['xaxis.range[1]']
+        # y_min = relayoutData['yaxis.range[0]']
+        # y_max = relayoutData['yaxis.range[1]']
 
         # Get the selected range, plot 2
-        #x_min2 = relayoutData['xaxis.range[0]']
-        #x_max2 = relayoutData['xaxis.range[1]']
-        #y_min2 = relayoutData['yaxis.range[0]']
-        #y_max2 = relayoutData['yaxis.range[1]']
-
+        # x_min2 = relayoutData['xaxis.range[0]']
+        # x_max2 = relayoutData['xaxis.range[1]']
+        # y_min2 = relayoutData['yaxis.range[0]']
+        # y_max2 = relayoutData['yaxis.range[1]']
 
         # newFilters = filters
-        
 
         return fig12, fig22
-    
+
     except:
         return dash.no_update

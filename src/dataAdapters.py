@@ -11,8 +11,7 @@ from pathlib import Path
 
 
 def getMergedDataFrame():
-    files = ["player_shooting.csv", "player_possession.csv", "player_playingtime.csv", "player_passing.csv",
-             "player_misc.csv"];
+    files = ["player_shooting.csv", "player_possession.csv", "player_playingtime.csv", "player_passing.csv", "player_misc.csv"];
     frames = []
 
     counter = 0
@@ -127,28 +126,24 @@ def playerImageDirectory(playerName, playerTeam=None, playerGroup=None):
             # In case the name of the player team is not provided, getPlayerTeam() is used to look it up
             playerTeam = getPlayerTeam(playerName)
         if not playerGroup:
-            print('group: ', playerGroup)
             # In case the name of the player team group is not provided, playerTeam() is used to look it up
             playerGroup = getTeamGroup(playerTeam, mapToLetters=True)
 
         # Handle exceptions here if needed
         # TODO: handle exceptions <- IR Iran for example
 
-        print(f"Player: {playerName}, Team: {playerTeam}, Group: {playerGroup}")
-
         # formatted_player_name = playerName.encode('unicode-escape').decode('utf-8')
         directory_path = f"assets/player_images/Group {playerGroup}/{playerTeam} Players/Images_{playerName}"
 
         # Check if the directory exists, otherwise display 'unknown_user2.png'
-        print('2839ns', directory_path)
 
         if os.path.exists(directory_path):
             return directory_path
         else:
-            return "icons/unknown_user_left.svg"
+            return None
     except Exception as e:
         print(f"Error generating player image directory: {e}")
-        return "icons/unknown_user_left.svg"
+        return "icons/player.png"
 
 
 def getCountryFlagPath(countryName: str):
@@ -168,6 +163,3 @@ def getCountryFlagPath(countryName: str):
         if country:
             countryCode = country.alpha_2.lower()
     return "flags/{}.png".format(countryCode)
-
-
-print(playerImageDirectory("Aaron Ramsey"))

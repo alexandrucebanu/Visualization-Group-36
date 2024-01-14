@@ -34,19 +34,19 @@ h1 {
 
 
 #logo {
-    width: 78px;
-    height: 78px;
-    margin: 20px auto;
-    z-index: 20;
-    position: absolute;
-    background-repeat: no-repeat;
-    background-size: cover;
-    top: 76px;
-    left: calc(50% - 39px);
-    /*background-position-x: 44%;*/
-    /*background-position-y: 44%;*/
-    /*box-shadow: 0 0 4px #00000038;*/
-    border-radius: 100%;
+    /*width: 78px;*/
+    /*height: 78px;*/
+    /*margin: 20px auto;*/
+    /*z-index: 20;*/
+    /*position: absolute;*/
+    /*background-repeat: no-repeat;*/
+    /*background-size: cover;*/
+    /*top: 76px;*/
+    /*left: calc(50% - 39px);*/
+    /*!*background-position-x: 44%;*!*/
+    /*!*background-position-y: 44%;*!*/
+    /*!*box-shadow: 0 0 4px #00000038;*!*/
+    /*border-radius: 100%;*/
 }
 
 #search_box {
@@ -176,7 +176,7 @@ h1 {
     padding-bottom: 10px;
     border-bottom: 1px solid #ededed;
     /*border-radius: 8px;*/
-    margin: 10px;
+    /* margin: 10px; */
     /*box-shadow: 0 0 2px rgba(0, 0, 0, 0.07);*/
     overflow: hidden;
 }
@@ -184,34 +184,38 @@ h1 {
 .half {
 
     display: block;
-    width:50%;
+    width: 50%;
     float: left;
     flex-direction: column;
     align-items: center;
 
 }
+
 .half:first-child {
     padding-right: 10px;
     border-right: 1px solid #ededed;
 }
+
 .half:nth-child(2) {
     padding-left: 10px;
 }
 
 
 .player-image {
-    display: flex;
-    justify-content: center;
+    /* display: flex; */
+    /* justify-content: center; */
     align-items: center;
     width: 100%;
     border-bottom-left-radius: 8px;
     border-top-left-radius: 8px;
     overflow: hidden;
     order: -1; /* Move the player image to the top */
+    width: fit-content;
+    margin: auto;
 }
 
 .player-image img {
-    width:100px;
+    width: 100px;
     height: 140px;
     object-position: center;
     object-fit: cover;
@@ -222,8 +226,8 @@ h1 {
 .player-name {
     text-align: center;
     font-weight: 700;
-    font-size: 12px; /* Slightly smaller font size */
-    margin-top: 5px; /* Reduced margin */
+    font-size: 14px;
+    margin-top: 5px;
 }
 
 .team-flag img {
@@ -231,10 +235,10 @@ h1 {
     border-radius: 20%;
     overflow: hidden;
     margin-top: 5px;
-    width: 30px;
+    width: 20px;
     border-radius: 2px;
     display: block;
-    margin: auto;
+    margin: 5px auto;
 }
 
 
@@ -278,18 +282,12 @@ h1 {
     height: 140px;
 }
 
-#selected-player-info .player-name {
+.half .player-name {
     font-weight: 700;
-    font-size: 12px;
-    margin-top: 5px;
+    font-size: 14px;
+    margin-top: 10px;
 }
 
-#selected-player-info .team-flag img {
-    width: 20%; /* Adjust the width as needed */
-    border-radius: 20%;
-    overflow: hidden;
-    margin-top: 5px;
-}
 
 /* adjusts the dropdown in player_chosen.py */
 #unknown-player-right #select_player_name_chosen {
@@ -299,10 +297,11 @@ h1 {
 }
 
 #unknown-player-right {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    display: block;
+    float: right;
+    /*flex-direction: column;*/
+    /*justify-content: center;*/
+    /*align-items: cent?er;*/
     width: 50%;
     padding: 20px;
 }
@@ -327,10 +326,10 @@ h1 {
     background: #fff;
     /* height: 1000px; */
     width: 50%;
-    border-radius: 8px;
+    /* border-radius: 8px; */
     padding: 20px 0;
-    border: 1px solid #ededed;
-    box-shadow: 0 0 2px rgba(0, 0, 0, 0.05);
+    /* border: 1px solid #ededed; */
+    /* box-shadow: 0 0 2px rgba(0, 0, 0, 0.05); */
     float: left;
 }
 
@@ -340,12 +339,13 @@ h1 {
     background: #fff;
     /* height: 1000px; */
     width: calc(50% - 10px);
-    border-radius: 8px;
+    /* border-radius: 8px; */
     padding: 20px 0;
-    border: 1px solid #ededed;
-    box-shadow: 0 0 2px rgba(0, 0, 0, 0.05);
+    /* border: 1px solid #ededed; */
+    /* box-shadow: 0 0 2px rgba(0, 0, 0, 0.05); */
     float: left;
     margin-left: 10px;
+    border-left: 1px solid #f7f7f7;
 }
 
 #columns {
@@ -353,6 +353,7 @@ h1 {
     width: calc(100% - 340px);
     float: left;
     margin-left: 10px;
+    border-left: 1px solid #edededed;
 }
 
 #selected_player_subpage {
@@ -392,9 +393,10 @@ h1 {
 }
 
 #general_page section {
-    width: calc(100% - 60px);
+    width: calc(100%);
     height: auto;
-    margin: 4px 30px;
+    margin: 4px;
+    overflow: hidden;
 }
 
 header {
@@ -402,8 +404,13 @@ header {
     padding: 0 30px;
     border-bottom: 1px solid #ededed;
     box-shadow: 0 -3px 6px #0000004a;
+    border-top:3px solid #161f2a;
 }
 
+header #logo {
+    height: 44px;
+    margin-top: 7px;
+}
 
 #aside {
     width: 330px;
@@ -414,7 +421,7 @@ header {
 #aside .close-aside {
     cursor: pointer;
     position: absolute;
-    right: -32px;
+    right: -22px;
     width: 25px;
     height: 25px;
     border: 1px solid #ededed;
@@ -438,9 +445,9 @@ header {
 }
 
 #general_page {
-    width: calc(100% - 60px);
+    width: 100%;
     height: auto;
-    margin: 30px;
+    margin: 0;
 }
 
 #aside {
@@ -454,9 +461,9 @@ header {
     min-height: 300px;
     /*border: 1px solid #ededed;*/
     /*box-shadow: 0 0 2px rgba(0, 0, 0, 0.05);*/
-    border: 1px solid #ededed;
-    box-shadow: 0 0 2px rgba(0, 0, 0, 0.05);
-    border-radius: 8px;
+    /* border: 1px solid #ededed; */
+    /* box-shadow: 0 0 2px rgba(0, 0, 0, 0.05); */
+    /* border-radius: 8px; */
     padding: 20px;
 }
 
@@ -633,9 +640,11 @@ header {
 #map_filter label:nth-child(2):after {
     content: 'DF';
 }
+
 #map_filter label:nth-child(3):after {
     content: 'MF';
 }
+
 #map_filter label:nth-child(4):after {
     content: 'FW';
 }
@@ -653,4 +662,34 @@ header {
 #map_filter label:nth-child(4) {
     left: 155px;
     top: 108px
+}
+
+.invalid_image {
+    width: 100px;
+    display: block;
+    margin: auto;
+    height: 140px;
+    padding-top: 20px;
+    border: 2px solid #ededed;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.05) inset;
+    /*background: #00305712;*/
+    border-radius: 8px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+.invalid_image img {
+    width: 90px;
+    display: block;
+    margin: 5px auto;
+}
+
+.unknown-player-icon {
+
+}
+
+.unknown-player-icon img {
+    width: 60px;
+    display: block;
+    margin: 40px auto;
 }
