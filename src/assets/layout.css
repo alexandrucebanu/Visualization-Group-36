@@ -13,7 +13,7 @@ a {
 }
 
 body {
-    background: #f8f8f8;
+    background: #fff;
     font-family: 'Roboto', sans-serif;
 }
 
@@ -171,14 +171,15 @@ h1 {
 #rectangle_specific_plots {
     margin: 20px;
     margin-top: 0px;
+    /*margin-left: 36px;*/
     background: #fff;
+    padding-left: 10px;
     width: 50px;
     height: 1000px;
     width: 50%;
-    border-radius: 8px;
+    /*display: block;*/
     padding: 20px 0;
-    border: 1px solid #ededed;
-    box-shadow: 0 0 2px rgba(0, 0, 0, 0.05);
+    border-left: 1px solid #ededed;
 }
 
 #selected_player_subpage {
@@ -217,23 +218,58 @@ h1 {
     margin-top: 10px;
 }
 
-#general_page {
+#general_page section {
     width: calc(100% - 60px);
     height: auto;
-    margin: 30px;
+    margin: 4px 30px;
 }
+
+header {
+    height: 60px;
+    padding: 0 30px;
+    border-bottom: 1px solid #ededed;
+    box-shadow: 0 -3px 6px #0000004a;
+}
+
 
 #aside {
     width: 330px;
     float: left;
+    position: relative;
+}
+
+#aside .close-aside {
+    cursor: pointer;
+    position: absolute;
+    right: -32px;
+    width: 25px;
+    height: 25px;
+    border: 1px solid #ededed;
+    background: #fff;
+    border-radius: 7px;
+    color: #000000b3;
+    line-height: 24px;
+    font-size: 19px;
+    text-align: center;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.1);
+    top: calc(50vh - 70px);
+    z-index: 10000;
+}
+
+#aside .close-aside:hover {
+    background: #232b33;
+    border-color: #232b33;
+    box-shadow: 0 0 2px rgba(35, 43, 51, 0.09);
+
+    color: #fff;
 }
 
 .filters_block {
     width: 100%;
     background: #fff;
     min-height: 300px;
-    border: 1px solid #ededed;
-    box-shadow: 0 0 2px rgba(0, 0, 0, 0.05);
+    /*border: 1px solid #ededed;*/
+    /*box-shadow: 0 0 2px rgba(0, 0, 0, 0.05);*/
     border-radius: 8px;
     padding: 20px;
 }
@@ -375,6 +411,7 @@ h1 {
     color: rgba(255, 255, 255, 0);
     position: absolute;
 }
+
 #map_filter label::selection {
     color: rgba(255, 255, 255, 0);
     position: absolute;
@@ -398,12 +435,15 @@ h1 {
 #map_filter label:nth-child(1):after {
     content: 'GK';
 }
+
 #map_filter label:nth-child(2):after {
     content: 'DF';
 }
+
 #map_filter label:nth-child(3):after {
     content: 'MF';
 }
+
 #map_filter label:nth-child(4):after {
     content: 'FW';
 }
