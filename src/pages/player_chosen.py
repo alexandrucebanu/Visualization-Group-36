@@ -148,7 +148,6 @@ def update_selected_player_info(player_id):
                 {'display': 'none'},  # Hide the 'unknown-player-right'
             ]
 
-=======
         print('No `player_id` passed...')
         return ""  # TODO: handle this properly
     player = sourceDF.iloc[[player_id]].to_dict(orient='records')[0]
