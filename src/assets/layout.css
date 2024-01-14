@@ -13,13 +13,13 @@ a {
 }
 
 body {
-    background: #f8f8f8;
+    background: #fff;
     font-family: 'Roboto', sans-serif;
 }
 
 #app_container {
-    width: calc(100% - 60px);
-    margin: 30px;
+    width: 100%;
+    display: block;
 }
 
 input {
@@ -168,6 +168,7 @@ h1 {
     margin-left: 7px;
 }
 
+
 .player-chosen-container {
     display: flex;
     width: 30%;
@@ -294,5 +295,301 @@ h1 {
 
 
 
+
+=======
+#rectangle_specific_plots {
+    margin: 20px;
+    margin-top: 0px;
+    /*margin-left: 36px;*/
+    background: #fff;
+    padding-left: 10px;
+    width: 50px;
+    height: 1000px;
+    width: 50%;
+    /*display: block;*/
+    padding: 20px 0;
+    border-left: 1px solid #ededed;
+}
+
+#selected_player_subpage {
+    justify-content: space-around;
+    align-items: center;
+    background: #ddffdf;
+    width: 400px;
+    height: 350px;
+    border-radius: 25px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    padding: 10px;
+}
+
+#picture_of_soccer_player, #search_for_bookmarked_players {
+    display: flex;
+    flex-direction: column; /* Stacks children vertically */
+    justify-content: center; /* Centers children vertically in the container */
+    align-items: center; /* Centers children horizontally in the container */
+    background: #ffffff;
+    width: 180px;
+    height: 320px;
+    border-radius: 25px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    margin: 10px;
+}
+
+#the_actual_picture, #the_search_bar {
+    background: #8b8b8b;
+    width: 150px;
+    height: 250px;
+    border-radius: 25px;
+    margin-top: -20px;
+}
+
+.player-name, .player-name-search {
+    margin-top: 10px;
+}
+
+#general_page section {
+    width: calc(100% - 60px);
+    height: auto;
+    margin: 4px 30px;
+}
+
+header {
+    height: 60px;
+    padding: 0 30px;
+    border-bottom: 1px solid #ededed;
+    box-shadow: 0 -3px 6px #0000004a;
+}
+
+
+#aside {
+    width: 330px;
+    float: left;
+    position: relative;
+}
+
+#aside .close-aside {
+    cursor: pointer;
+    position: absolute;
+    right: -32px;
+    width: 25px;
+    height: 25px;
+    border: 1px solid #ededed;
+    background: #fff;
+    border-radius: 7px;
+    color: #000000b3;
+    line-height: 24px;
+    font-size: 19px;
+    text-align: center;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.1);
+    top: calc(50vh - 70px);
+    z-index: 10000;
+}
+
+#aside .close-aside:hover {
+    background: #232b33;
+    border-color: #232b33;
+    box-shadow: 0 0 2px rgba(35, 43, 51, 0.09);
+
+    color: #fff;
+}
+
+.filters_block {
+    width: 100%;
+    background: #fff;
+    min-height: 300px;
+    /*border: 1px solid #ededed;*/
+    /*box-shadow: 0 0 2px rgba(0, 0, 0, 0.05);*/
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.block_title {
+    font-weight: bold;
+    font-size: 17px;
+    color: rgb(51, 51, 51);
+    letter-spacing: 0.4px;
+    margin-bottom: 30px;
+}
+
+.tab_switch {
+    width: 90%;
+    margin: 20px auto;
+    overflow: hidden;
+    overflow: hidden;
+    line-height: 30px;
+    border-radius: 8px;
+    font-size: 13px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.05);
+    font-weight: 500;
+
+}
+
+.tab_switch .tab_switch_option {
+    width: 50%;
+    color: #3b3b3b;
+    cursor: pointer;
+    border-right: 1px solid #ededed;
+    padding: 0 10px;
+    float: left;
+}
+
+.tab_switch .tab_switch_option {
+    width: 50%;
+    color: #3b3b3b;
+    cursor: pointer;
+    padding: 0 10px;
+    border: 1px solid rgba(205, 205, 205, 0.8);
+    float: left;
+}
+
+.tab_switch .tab_switch_option:first-child {
+    border-radius: 8px 0 0 8px;
+}
+
+.tab_switch .tab_switch_option:last-child {
+    border-radius: 0 8px 8px 0;
+
+}
+
+.tab_switch .tab_switch_option .font_icon {
+    float: left;
+    font-size: 19px;
+    line-height: 30px;
+    margin-right: 5px;
+}
+
+.tab_switch .tab_switch_option.active {
+    background: #009688;
+    border-color: #008a7d;
+    color: #fff;
+}
+
+.filter_block {
+    margin-bottom: 25px;
+}
+
+.filter_block h3 {
+    font-weight: 500;
+    color: #000;
+    margin-bottom: 16px;
+    display: block;
+    font-size: 14px;
+    text-align: center;
+}
+
+#age_slider {
+    padding: 0 10px !important;
+    margin-top: -10px;
+}
+
+#wage_filter {
+    border-bottom: 1px solid #ededed;
+    padding-bottom: 46px;
+}
+
+#map_filter {
+    width: 250px;
+    height: 150px;
+    background-size: cover;
+    margin: 20px auto;
+    border-radius: 8px;
+    position: relative;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+}
+
+.position_marker {
+    position: absolute;
+    background: #000;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    background: #fff;
+    color: #000;
+    font-size: 12px;
+    text-align: center;
+    line-height: 24px;
+    font-weight: bold;
+    transition: 0.4s;
+
+}
+
+.position_marker:hover {
+    background: #ef8702;
+    color: #fff;
+}
+
+#map_filter input[type=checkbox] {
+    background: #fff;
+    border: 1px solid #fff;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    height: 23px;
+    border-radius: 50%;
+    width: 23px;
+    z-index: 1;
+    cursor: pointer;
+}
+
+#map_filter input[type=checkbox]:checked {
+    background: #ff9100;
+    border-color: #ff9100;
+}
+
+#map_filter label {
+    color: rgba(255, 255, 255, 0);
+    position: absolute;
+}
+
+#map_filter label::selection {
+    color: rgba(255, 255, 255, 0);
+    position: absolute;
+}
+
+#map_filter label::after {
+    position: absolute;
+    left: 4px;
+    top: 5px;
+    z-index: 10000;
+    color: #000 !important;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+#map_filter label:nth-child(1) {
+    left: 12px;
+    top: 64px
+}
+
+#map_filter label:nth-child(1):after {
+    content: 'GK';
+}
+
+#map_filter label:nth-child(2):after {
+    content: 'DF';
+}
+
+#map_filter label:nth-child(3):after {
+    content: 'MF';
+}
+
+#map_filter label:nth-child(4):after {
+    content: 'FW';
+}
+
+#map_filter label:nth-child(2) {
+    left: 75px;
+    top: 20px
+}
+
+#map_filter label:nth-child(3) {
+    left: 114px;
+    top: 64px
+}
+
+#map_filter label:nth-child(4) {
+    left: 155px;
+    top: 108px
+}
 
 
