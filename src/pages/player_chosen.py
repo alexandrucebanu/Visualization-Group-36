@@ -128,6 +128,23 @@ def getPlayerById(playerId):
     return sourceDF.iloc[[playerId]].to_dict(orient='records')[0]
 
 
+def relayoutData_filtering(relayoutData, newFilters: dict, var1: str, var2: str):
+    # General plots filtering, plot 1
+    try:
+        x_min = relayoutData['xaxis.range[0]']
+        x_max = relayoutData['xaxis.range[1]']
+        y_min = relayoutData['yaxis.range[0]']
+        y_max = relayoutData['yaxis.range[1]']
+
+        newFilters[var1] = [x_min, x_max]
+        newFilters[var2] = [y_min, y_max]
+    except:
+        newFilters[var1] = [0, 10e4]
+        newFilters[var2] = [0, 10e4]
+    
+    return newFilters
+
+
 # -------------------------------------------------------------
 # Callbacks for when the age filter slide is changed: Dana
 # -------------------------------------------------------------
@@ -149,32 +166,8 @@ def applyFilters(value, chosenPositions, filters, relayoutData_general1, relayou
     newFilters = filters
     newFilters['age'] = value
     newFilters['chosen_positions'] = chosenPositions
-
-    # General plots filtering, plot 1
-    try:
-        x_min = relayoutData_general1['xaxis.range[0]']
-        x_max = relayoutData_general1['xaxis.range[1]']
-        y_min = relayoutData_general1['yaxis.range[0]']
-        y_max = relayoutData_general1['yaxis.range[1]']
-
-        newFilters['gca'] = [x_min, x_max]
-        newFilters['passes_completed'] = [y_min, y_max]
-    except:
-        newFilters['gca'] = [0, 1000]
-        newFilters['passes_completed'] = [0, 1000]
-
-    # General plots filtering, plot 2
-    try:
-        x_min2 = relayoutData_general2['xaxis.range[0]']
-        x_max2 = relayoutData_general2['xaxis.range[1]']
-        y_min2 = relayoutData_general2['yaxis.range[0]']
-        y_max2 = relayoutData_general2['yaxis.range[1]']
-
-        newFilters['tackles_won'] = [x_min2, x_max2]
-        newFilters['interceptions'] = [y_min2, y_max2]
-    except:
-        newFilters['tackles_won'] = [0, 1000]
-        newFilters['interceptions'] = [0, 1000]
+    newFilters = relayoutData_filtering(relayoutData_general1, newFilters, 'gca', 'passes_completed')
+    newFilters = relayoutData_filtering(relayoutData_general2, newFilters, 'tackles_won', 'interceptions')
 
     return dcc.Graph(figure=fig, config={'staticPlot': True}, style={'width': 'calc(100% - 20px)', 'height': '60px', 'margin': '5px auto'}), newFilters
 
