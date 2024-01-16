@@ -42,12 +42,14 @@ sourceDF['age'] = (sourceDF['age']).map(getAgeYears)  # This is the dataframe fo
 # Merge data with external source
 external = pd.read_csv(os.path.join(os.path.dirname(__file__), ('../data/' + 'players_22.csv')))
 external = external[['short_name', 'wage_eur', 'value_eur', 'preferred_foot',
-    'movement_sprint_speed', 'movement_reactions',
-    'power_jumping', 'power_stamina']]
+                        'movement_sprint_speed', 'movement_reactions',
+                        'power_jumping', 'power_stamina']]
 external = external.drop_duplicates(subset='short_name')
 sourceDF['short_name'] = sourceDF['player'].str.replace(r'^(\w)\w*\s', r'\1. ')
 sourceDF = sourceDF.merge(external, on='short_name', how='left')
 sourceDF = sourceDF.drop('short_name', axis=1)
+
+
 
 
 def intervalMask(df, var, filters):
@@ -58,6 +60,26 @@ def intervalMask(df, var, filters):
 
 def getFilteredDF(filters):
     ## TODO: check if the filtering works as it should
+
+    # All interval masks
+    variables = ['age', 'movement_sprint_speed', 'movement_reactions', 
+    
+                    # General plots
+                    'power_jumping', 'power_stamina',
+                    
+                    # Specific plots
+                    'shots_on_target', 'goals', 
+                    'dribbles_completed', 'miscontrols', 
+                    'gca', 'passes_completed',
+                    'dribbles_completed', 'miscontrols', 
+                    'blocked_passes', 'clearances', 
+                    'tackles_won', 'interceptions',
+                    #'gk_save_pct', 'gk_goals_against_per90', 
+                    #'gk_clean_sheets', 'age'
+                ]
+
+    variables = [var for var in variables if var in filters.keys()]
+    interval_masks = reduce(lambda x, y: x & y, [intervalMask(sourceDF, var, filters) for var in variables])
 
     # position mask
     a = sourceDF['position']
@@ -73,17 +95,13 @@ def getFilteredDF(filters):
     for preferredFoot in preferredFoot:
         footMask = ((footMask) | (b == preferredFoot))
 
-    # All interval masks
-    variables = ['age', 'movement_sprint_speed', 'movement_reactions', 'power_jumping', 'power_stamina']
-
-    interval_masks = reduce(lambda x, y: x & y, [intervalMask(sourceDF, var, filters) for var in variables])
-
     # Return the filtered dataframe
     overallMask = (interval_masks) & positionMask & footMask
     sourceDF['in_bound'] = overallMask.map(map_in_bound)
+    
     return sourceDF[sourceDF['in_bound'] == "YES"]
 
-
+# Goal keeper data
 filePath = os.path.join(os.path.dirname(__file__), '../data/player_gca.csv')
 df_defense = pd.read_csv(filePath, encoding='utf-8')
 playersList = [(index, player['player']) for index, player in df_defense.iterrows()]
@@ -116,7 +134,7 @@ def layout(player_id=None):
     if not player_id:
         return ""
     player = sourceDF.iloc[[player_id]].to_dict(orient='records')[0]
-    print(player)
+    #print(player)
     return html.Div([dcc.Store('chosen_player', data=player, storage_type='local'), dcc.Store('filters', data={'position': player['position']}, storage_type='local'), getAppHeader(),
         html.Section([html.Aside([playerInfoBox(player), html.Span('chevron_left', className='close-aside material-symbols-rounded'), filters.layout(sourceDF, player)], id='aside'), html.Div(id='columns', children=[specific_players.specific_plots_component(player), general_plots.general_plots_component(), ])])], id='general_page')
 
@@ -172,9 +190,13 @@ def relayoutData_filtering(relayoutData, newFilters: dict, var1: str, var2: str)
 @callback(Output('age_histogram', 'children'), Output('filters', 'data'), 
             Input('age_slider', 'value'), Input('chosen_positions', 'value'), 
             Input('foot_preference', 'value'),
-            Input('filters', 'data'), Input('graph1_general', 'relayoutData'),
-            Input('graph2_general', 'relayoutData'))
-def applyFilters(value, chosenPositions, footPreference, filters, relayoutData_general1, relayoutData_general2):
+            Input('filters', 'data'), 
+            Input('graph1_general', 'relayoutData'),
+            Input('graph2_general', 'relayoutData'),
+            Input('graph1', 'relayoutData'),
+            Input('graph2', 'relayoutData'),
+            )
+def applyFilters(value, chosenPositions, footPreference, filters, relayoutData_general1, relayoutData_general2, relayoutData_specific1, relayoutData_specific2):
     a = sourceDF['age']
     mask = ((a >= value[0]) & (a <= value[1]))
 
@@ -192,16 +214,46 @@ def applyFilters(value, chosenPositions, footPreference, filters, relayoutData_g
     newFilters['age'] = value
     newFilters['chosen_positions'] = chosenPositions
     newFilters['preferred_foot'] = footPreference
-    newFilters = relayoutData_filtering(relayoutData_general1, newFilters, 'movement_sprint_speed', 'power_stamina')
-    newFilters = relayoutData_filtering(relayoutData_general2, newFilters, 'power_jumping', 'movement_reactions')
 
+    parameter_list_general = [
+                        # General plots
+                        [relayoutData_general1, newFilters, 'movement_sprint_speed', 'power_stamina'],
+                        [relayoutData_general2, newFilters, 'power_jumping', 'movement_reactions']
+                        ]
+                        
+    parameter_list_specific = [
+                        # Specific plots
+
+                        {'FW': [relayoutData_specific1, newFilters, 'shots_on_target', 'goals']},
+                        {'FW': [relayoutData_specific2, newFilters, 'dribbles_completed', 'miscontrols']},
+                        
+                        {'MF': [relayoutData_specific1, newFilters,'gca', 'passes_completed']},
+                        {'MF': [relayoutData_specific2, newFilters, 'dribbles_completed', 'miscontrols']},
+                        
+                        {'DF': [relayoutData_specific1, newFilters,'blocked_passes', 'clearances']},
+                        {'DF': [relayoutData_specific2, newFilters, 'tackles_won', 'interceptions']}
+                        
+                        #[relayoutData_specific1, newFilters,'gk_save_pct', 'gk_goals_against_per90'],
+                        #[relayoutData_specific2, newFilters,'gk_clean_sheets', 'age']
+                    ]
+
+    for params in parameter_list_general:
+        newFilters = relayoutData_filtering(*params)
+        
+    for params in parameter_list_specific:
+        if chosenPositions == list(*params.keys()):
+            newFilters = relayoutData_filtering(*params[chosenPositions])
+
+    print(chosenPositions)
+        
     return dcc.Graph(figure=fig, config={'staticPlot': True}, style={'width': 'calc(100% - 20px)', 'height': '60px', 'margin': '5px auto'}), newFilters
 
 
 # -------------------------------------------------------------
 # Callbacks for position specific plots: Alexandru
 # -------------------------------------------------------------
-@callback([Output(component_id='graph1', component_property='figure'), Output(component_id='graph2', component_property='figure')], Input('filters', 'data'), Input('chosen_player', 'data'))  # Updates the position-specific plots based on the position
+@callback([Output(component_id='graph1', component_property='figure'), Output(component_id='graph2', component_property='figure')], 
+            Input('filters', 'data'), Input('chosen_player', 'data'))  # Updates the position-specific plots based on the position
 def update_output(filters, chosenPlayer):
     filterDataFrame = getFilteredDF(filters)
     try:
