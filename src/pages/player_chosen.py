@@ -45,10 +45,6 @@ def intervalMask(df, var, filters):
 def getFilteredDF(filters):
     ## TODO: check if the filtering works as it should
 
-    # All interval masks
-    variables = ['age', 'gca', 'passes_completed', 'tackles_won', 'interceptions']
-    overallMask = reduce(lambda x, y: x & y, [intervalMask(sourceDF, var, filters) for var in variables])
-    
     # position mask
     b = sourceDF['position']
     positionMask = False
@@ -56,8 +52,12 @@ def getFilteredDF(filters):
     for chosenPosition in chosenPositions:
         positionMask = ((positionMask) | (b == chosenPosition))
 
+    # All interval masks
+    variables = ['age', 'gca', 'passes_completed', 'tackles_won', 'interceptions']
+    interval_masks = reduce(lambda x, y: x & y, [intervalMask(sourceDF, var, filters) for var in variables])
+    
     # Return the filtered dataframe
-    overallMask = (overallMask) & positionMask
+    overallMask = (interval_masks) & positionMask
     sourceDF['in_bound'] = overallMask.map(map_in_bound)
     return sourceDF[sourceDF['in_bound'] == "YES"]
 
