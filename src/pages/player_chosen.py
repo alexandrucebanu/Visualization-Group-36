@@ -8,7 +8,7 @@ from .components import general_plots
 from .components import filters
 import plotly.express as px
 
-possiblePositions = ['MF', 'DF', 'GK', 'FW']
+possiblePositions = ['MF', 'DF', 'GK', 'FW'] 
 
 
 def map_in_bound(value):
@@ -43,6 +43,8 @@ def getFilteredDF(filters):
     b = sourceDF['position']
     c = sourceDF['gca']
     d = sourceDF['passes_completed']
+    e = sourceDF['tackles_won']
+    f = sourceDF['interceptions']
 
     # Age mask
     overallMask = ((a >= filters['age'][0]) & (a <= filters['age'][1]))
@@ -52,10 +54,16 @@ def getFilteredDF(filters):
     for chosenPosition in chosenPositions:
         positionMask = ((positionMask) | (b == chosenPosition))
 
-    # General plots filters
+    # General plots filters, plot 1
     generalMask1 = ((c >= filters['gca'][0]) & (c <= filters['gca'][1]))
     generalMask2 = ((d >= filters['passes_completed'][0]) & (d <= filters['passes_completed'][1]))
-    overallMask = (overallMask) & positionMask & generalMask1 & generalMask2
+
+    # General plots filters, plot 2
+    generalMask3 = ((e >= filters['tackles_won'][0]) & (e <= filters['tackles_won'][1]))
+    generalMask4 = ((f >= filters['interceptions'][0]) & (f <= filters['interceptions'][1]))
+    
+    # Overall mask
+    overallMask = (overallMask) & positionMask & generalMask1 & generalMask2 & generalMask3 & generalMask4
     sourceDF['in_bound'] = overallMask.map(map_in_bound)
     return sourceDF[sourceDF['in_bound'] == "YES"]
 
@@ -130,8 +138,11 @@ def getPlayerById(playerId):
 # -------------------------------------------------------------
 # Callbacks for when the age filter slide is changed: Dana
 # -------------------------------------------------------------
-@callback(Output('age_histogram', 'children'), Output('filters', 'data'), Input('age_slider', 'value'), Input('chosen_positions', 'value'), Input('filters', 'data'), Input('graph1_general', 'relayoutData'))
-def applyFilters(value, chosenPositions, filters, relayoutData):
+@callback(Output('age_histogram', 'children'), Output('filters', 'data'), 
+            Input('age_slider', 'value'), Input('chosen_positions', 'value'), 
+            Input('filters', 'data'), Input('graph1_general', 'relayoutData'),
+            Input('graph2_general', 'relayoutData'))
+def applyFilters(value, chosenPositions, filters, relayoutData_general1, relayoutData_general2):
     a = sourceDF['age']
     mask = ((a >= value[0]) & (a <= value[1]))
 
@@ -141,22 +152,36 @@ def applyFilters(value, chosenPositions, filters, relayoutData):
     fig = px.histogram(sourceDF, x="age", nbins=numberOfBins, color='in_bound', color_discrete_map={"YES": "#2196f3", "NO": "#E9E9E9"})
     fig.update_layout(yaxis_visible=False, xaxis_title=None, yaxis_showticklabels=False, xaxis_showticklabels=False, showlegend=False)
     fig.update_layout(margin={'l': 0, 't': 0, 'b': 0, 'r': 0}, plot_bgcolor='white')
+    
     newFilters = filters
     newFilters['age'] = value
     newFilters['chosen_positions'] = chosenPositions
 
-    # General plots filtering
+    # General plots filtering, plot 1
     try:
-        x_min = relayoutData['xaxis.range[0]']
-        x_max = relayoutData['xaxis.range[1]']
-        y_min = relayoutData['yaxis.range[0]']
-        y_max = relayoutData['yaxis.range[1]']
+        x_min = relayoutData_general1['xaxis.range[0]']
+        x_max = relayoutData_general1['xaxis.range[1]']
+        y_min = relayoutData_general1['yaxis.range[0]']
+        y_max = relayoutData_general1['yaxis.range[1]']
 
         newFilters['gca'] = [x_min, x_max]
         newFilters['passes_completed'] = [y_min, y_max]
     except:
         newFilters['gca'] = [0, 1000]
         newFilters['passes_completed'] = [0, 1000]
+
+    # General plots filtering, plot 2
+    try:
+        x_min2 = relayoutData_general2['xaxis.range[0]']
+        x_max2 = relayoutData_general2['xaxis.range[1]']
+        y_min2 = relayoutData_general2['yaxis.range[0]']
+        y_max2 = relayoutData_general2['yaxis.range[1]']
+
+        newFilters['tackles_won'] = [x_min2, x_max2]
+        newFilters['interceptions'] = [y_min2, y_max2]
+    except:
+        newFilters['tackles_won'] = [0, 1000]
+        newFilters['interceptions'] = [0, 1000]
 
     return dcc.Graph(figure=fig, config={'staticPlot': True}, style={'width': 'calc(100% - 20px)', 'height': '60px', 'margin': '5px auto'}), newFilters
 
@@ -194,31 +219,15 @@ def update_output(filters, chosenPlayer):
 # -------------------------------------------------------------
 # Callbacks for general plots: Alicia
 # -------------------------------------------------------------
-@callback([Output(component_id='graph1_general', component_property='figure'), Output(component_id='graph2_general', component_property='figure')], Input('filters', 'data'))  # Updates the general plots based on filter
+@callback([Output(component_id='graph1_general', component_property='figure'), Output(component_id='graph2_general', component_property='figure')], 
+            Input('filters', 'data'))  # Updates the general plots based on filter
 def update_general_plots(filters):
     filterDataFrame = getFilteredDF(filters)
 
+    # TODO: Change the parameters of the plots!
     try:
         fig12 = px.scatter(filterDataFrame, x="gca", y='passes_completed', title='Relation between agility and physical properties', labels={'x': 'Height x Weight [cm * kg]', 'y': 'Agility in Movement'}, hover_data=['player'])
         fig22 = px.scatter(filterDataFrame, x="tackles_won", y='interceptions', title='Relation between agility and physical properties', labels={'x': 'Height x Weight [cm * kg]', 'y': 'Agility in Movement'}, hover_data=['player'])
-
-        # -------------------------------------
-        # Filtering from General plots: Alicia
-        # -------------------------------------
-
-        # Get the selected range, plot 1
-        # x_min = relayoutData['xaxis.range[0]']
-        # x_max = relayoutData['xaxis.range[1]']
-        # y_min = relayoutData['yaxis.range[0]']
-        # y_max = relayoutData['yaxis.range[1]']
-
-        # Get the selected range, plot 2
-        # x_min2 = relayoutData['xaxis.range[0]']
-        # x_max2 = relayoutData['xaxis.range[1]']
-        # y_min2 = relayoutData['yaxis.range[0]']
-        # y_max2 = relayoutData['yaxis.range[1]']
-
-        # newFilters = filters
 
         return fig12, fig22
 
