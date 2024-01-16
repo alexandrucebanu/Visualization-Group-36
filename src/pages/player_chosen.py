@@ -37,6 +37,15 @@ for i in range(1, len(frames)):
 
 sourceDF['age'] = (sourceDF['age']).map(getAgeYears)  # This is the dataframe form which the plots are being applied. Applying filters will limit the rows in this object.
 
+external = pd.read_csv(os.path.join(os.path.dirname(__file__), ('../data/' + 'players_22.csv')))
+external = external[['short_name', 'wage_eur', 'value_eur']]
+external = external.drop_duplicates(subset='short_name')
+
+sourceDF['short_name'] = sourceDF['player'].str.replace(r'^(\w)\w*\s', r'\1. ')
+sourceDF = sourceDF.merge(external, on='short_name', how='left')
+sourceDF = sourceDF.drop('short_name', axis=1)
+
+
 def intervalMask(df, var, filters):
     a = df[var]
     mask = ((a >= filters[var][0]) & (a <= filters[var][1]))
@@ -212,7 +221,7 @@ def update_general_plots(filters):
 
     # TODO: Change the parameters of the plots!
     try:
-        fig12 = px.scatter(filterDataFrame, x="gca", y='passes_completed', title='Relation between agility and physical properties', labels={'x': 'Height x Weight [cm * kg]', 'y': 'Agility in Movement'}, hover_data=['player'])
+        fig12 = px.scatter(filterDataFrame, x="power_jumping", y='passes_completed', title='Relation between agility and physical properties', labels={'x': 'Height x Weight [cm * kg]', 'y': 'Agility in Movement'}, hover_data=['player'])
         fig22 = px.scatter(filterDataFrame, x="tackles_won", y='interceptions', title='Relation between agility and physical properties', labels={'x': 'Height x Weight [cm * kg]', 'y': 'Agility in Movement'}, hover_data=['player'])
 
         return fig12, fig22
