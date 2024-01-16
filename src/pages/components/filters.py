@@ -39,8 +39,8 @@ def layout(sourceDF,chosenPlayer):
         html.Div(
             [html.H3('Filter based on position'), html.Div([
             dcc.Checklist(['Left','Right'], 
-                [chosenPlayer['position']],
-                id='foot_preference')], 
+                ['Left','Right'],
+                id='foot_preference')],
             id='foot_filter', className='filter_block', style={'backgroundImage': 'url({})'.format(dash.get_asset_url('icons/football_shoes.png'))})]), 
             # map_filter has something to do with the image appearing..... change id to foot_filter
 

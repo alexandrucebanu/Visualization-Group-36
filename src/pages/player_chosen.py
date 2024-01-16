@@ -57,11 +57,18 @@ def getFilteredDF(filters):
     ## TODO: check if the filtering works as it should
 
     # position mask
-    b = sourceDF['position']
+    a = sourceDF['position']
     positionMask = False
     chosenPositions = filters['chosen_positions']
     for chosenPosition in chosenPositions:
-        positionMask = ((positionMask) | (b == chosenPosition))
+        positionMask = ((positionMask) | (a == chosenPosition))
+
+    # foot preference mask
+    b = sourceDF['preferred_foot']
+    footMask = False
+    preferredFoot = filters['preferred_foot']
+    for preferredFoot in preferredFoot:
+        footMask = ((footMask) | (b == preferredFoot))
 
     # All interval masks
     variables = ['age', 'movement_sprint_speed', 'movement_reactions', 'power_jumping', 'power_stamina']
@@ -69,7 +76,7 @@ def getFilteredDF(filters):
     interval_masks = reduce(lambda x, y: x & y, [intervalMask(sourceDF, var, filters) for var in variables])
     
     # Return the filtered dataframe
-    overallMask = (interval_masks) & positionMask
+    overallMask = (interval_masks) & positionMask & footMask
     sourceDF['in_bound'] = overallMask.map(map_in_bound)
     return sourceDF[sourceDF['in_bound'] == "YES"]
 
@@ -162,9 +169,10 @@ def relayoutData_filtering(relayoutData, newFilters: dict, var1: str, var2: str)
 # -------------------------------------------------------------
 @callback(Output('age_histogram', 'children'), Output('filters', 'data'), 
             Input('age_slider', 'value'), Input('chosen_positions', 'value'), 
+            Input('foot_preference', 'value'),
             Input('filters', 'data'), Input('graph1_general', 'relayoutData'),
             Input('graph2_general', 'relayoutData'))
-def applyFilters(value, chosenPositions, filters, relayoutData_general1, relayoutData_general2):
+def applyFilters(value, chosenPositions, footPreference, filters, relayoutData_general1, relayoutData_general2):
     a = sourceDF['age']
     mask = ((a >= value[0]) & (a <= value[1]))
 
@@ -181,6 +189,7 @@ def applyFilters(value, chosenPositions, filters, relayoutData_general1, relayou
     newFilters = filters
     newFilters['age'] = value
     newFilters['chosen_positions'] = chosenPositions
+    newFilters['preferred_foot'] = footPreference
     newFilters = relayoutData_filtering(relayoutData_general1, newFilters, 'movement_sprint_speed', 'power_stamina')
     newFilters = relayoutData_filtering(relayoutData_general2, newFilters, 'power_jumping', 'movement_reactions')
 
