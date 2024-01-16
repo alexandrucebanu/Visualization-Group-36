@@ -38,7 +38,7 @@ def layout():
 
 # The following is only a dummy code for other members to have a template of how they can access chosen player information.
 # It displays the name of the chosen player in the first block on the right-side. Feel free to delete it later.
-# Go make something great! 😀
+# Go make so:wqmething great! 😀
 @callback(Output('first_placeholder', 'children'), Input('chosen_player', 'data'))
 def updateFirstPlaceHolder(chosenPlayer):
     return "Chosen player is : {}".format(chosenPlayer['player'])

@@ -39,6 +39,16 @@ for i in range(1, len(frames)):
 
 sourceDF['age'] = (sourceDF['age']).map(getAgeYears)  # This is the dataframe form which the plots are being applied. Applying filters will limit the rows in this object.
 
+# Merge data with external source
+external = pd.read_csv(os.path.join(os.path.dirname(__file__), ('../data/' + 'players_22.csv')))
+external = external[['short_name', 'wage_eur', 'value_eur', 'preferred_foot',
+    'movement_sprint_speed', 'movement_reactions',
+    'power_jumping', 'power_stamina']]
+external = external.drop_duplicates(subset='short_name')
+sourceDF['short_name'] = sourceDF['player'].str.replace(r'^(\w)\w*\s', r'\1. ')
+sourceDF = sourceDF.merge(external, on='short_name', how='left')
+sourceDF = sourceDF.drop('short_name', axis=1)
+
 
 def intervalMask(df, var, filters):
     a = df[var]
@@ -57,7 +67,8 @@ def getFilteredDF(filters):
         positionMask = ((positionMask) | (b == chosenPosition))
 
     # All interval masks
-    variables = ['age', 'gca', 'passes_completed', 'tackles_won', 'interceptions']
+    variables = ['age', 'movement_sprint_speed', 'movement_reactions', 'power_jumping', 'power_stamina']
+
     interval_masks = reduce(lambda x, y: x & y, [intervalMask(sourceDF, var, filters) for var in variables])
 
     # Return the filtered dataframe
@@ -98,6 +109,7 @@ def layout(player_id=None):
     if not player_id:
         return ""
     player = sourceDF.iloc[[player_id]].to_dict(orient='records')[0]
+    print(player)
     return html.Div([dcc.Store('chosen_player', data=player, storage_type='local'), dcc.Store('filters', data={'position': player['position']}, storage_type='local'), getAppHeader(),
         html.Section([html.Aside([playerInfoBox(player), html.Span('chevron_left', className='close-aside material-symbols-rounded'), filters.layout(sourceDF, player)], id='aside'), html.Div(id='columns', children=[specific_players.specific_plots_component(player), general_plots.general_plots_component(), ])])], id='general_page')
 
@@ -165,8 +177,9 @@ def applyFilters(value, chosenPositions, filters, relayoutData_general1, relayou
     newFilters = filters
     newFilters['age'] = value
     newFilters['chosen_positions'] = chosenPositions
-    newFilters = relayoutData_filtering(relayoutData_general1, newFilters, 'gca', 'passes_completed')
-    newFilters = relayoutData_filtering(relayoutData_general2, newFilters, 'tackles_won', 'interceptions')
+
+    newFilters = relayoutData_filtering(relayoutData_general1, newFilters, 'movement_sprint_speed', 'power_stamina')
+    newFilters = relayoutData_filtering(relayoutData_general2, newFilters, 'power_jumping', 'movement_reactions')
 
     return dcc.Graph(figure=fig, config={'staticPlot': True}, style={'width': 'calc(100% - 20px)', 'height': '60px', 'margin': '5px auto'}), newFilters
 
@@ -210,8 +223,8 @@ def update_general_plots(filters):
 
     # TODO: Change the parameters of the plots!
     try:
-        fig12 = px.scatter(filterDataFrame, x="gca", y='passes_completed', title='Relation between agility and physical properties', labels={'x': 'Height x Weight [cm * kg]', 'y': 'Agility in Movement'}, hover_data=['player'])
-        fig22 = px.scatter(filterDataFrame, x="tackles_won", y='interceptions', title='Relation between agility and physical properties', labels={'x': 'Height x Weight [cm * kg]', 'y': 'Agility in Movement'}, hover_data=['player'])
+        fig12 = px.scatter(filterDataFrame, x="movement_sprint_speed", y='power_stamina', title='Sprint Speed and Stamina', labels={'movement_sprint_speed': 'Sprint Speed [FIFA scores]', 'power_stamina': 'Stamina [FIFA scores]'}, hover_data=['player'])
+        fig22 = px.scatter(filterDataFrame, x="power_jumping", y='movement_reactions', title='Power Jumping and Movement Reaction', labels={'power_jumping': 'Power Jumping [FIFA Scores]', 'movement_reactions': 'Movement Reactions [FIFA Scores]'}, hover_data=['player'])
 
         return fig12, fig22
 
