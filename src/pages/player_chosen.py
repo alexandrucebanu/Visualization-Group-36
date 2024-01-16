@@ -8,8 +8,9 @@ from .components import general_plots
 from .components import filters
 import plotly.express as px
 from functools import reduce
+from pages.components.header import getAppHeader
 
-possiblePositions = ['MF', 'DF', 'GK', 'FW'] 
+possiblePositions = ['MF', 'DF', 'GK', 'FW']
 
 
 def map_in_bound(value):
@@ -22,6 +23,7 @@ def getAgeYears(ageString):
     return int(ageString.split('-')[0])
 
 
+# TODO: wrap the generation of the merged dataset with a separate module/function.
 files = ["player_shooting.csv", "player_defense.csv", "player_gca.csv", "player_possession.csv", "player_playingtime.csv", "player_passing.csv", "player_misc.csv"]
 # TODO: bug: when including player_gca.csv the df will be sliced (as there are only 41 rows there) and we merge with it.
 frames = []
@@ -37,10 +39,12 @@ for i in range(1, len(frames)):
 
 sourceDF['age'] = (sourceDF['age']).map(getAgeYears)  # This is the dataframe form which the plots are being applied. Applying filters will limit the rows in this object.
 
+
 def intervalMask(df, var, filters):
     a = df[var]
     mask = ((a >= filters[var][0]) & (a <= filters[var][1]))
     return mask
+
 
 def getFilteredDF(filters):
     ## TODO: check if the filtering works as it should
@@ -55,11 +59,12 @@ def getFilteredDF(filters):
     # All interval masks
     variables = ['age', 'gca', 'passes_completed', 'tackles_won', 'interceptions']
     interval_masks = reduce(lambda x, y: x & y, [intervalMask(sourceDF, var, filters) for var in variables])
-    
+
     # Return the filtered dataframe
     overallMask = (interval_masks) & positionMask
     sourceDF['in_bound'] = overallMask.map(map_in_bound)
     return sourceDF[sourceDF['in_bound'] == "YES"]
+
 
 filePath = os.path.join(os.path.dirname(__file__), '../data/player_gca.csv')
 df_defense = pd.read_csv(filePath, encoding='utf-8')
@@ -93,11 +98,8 @@ def layout(player_id=None):
     if not player_id:
         return ""
     player = sourceDF.iloc[[player_id]].to_dict(orient='records')[0]
-    return html.Div([dcc.Store('chosen_player', data=player, storage_type='local'), dcc.Store('filters', data={'position': player['position']}, storage_type='local'), html.Header([
-        html.Img(id='header_logo',src=dash.get_asset_url('logo.png')),
-    ]), html.Section(
-        [html.Aside([playerInfoBox(player), html.Span('chevron_left', className='close-aside material-symbols-rounded'), filters.layout(sourceDF, player), html.Div('hi', id='testing')], id='aside'), html.Div(id='columns', children=[specific_players.specific_plots_component(player), general_plots.general_plots_component(), ])])],
-        id='general_page')
+    return html.Div([dcc.Store('chosen_player', data=player, storage_type='local'), dcc.Store('filters', data={'position': player['position']}, storage_type='local'), getAppHeader(),
+        html.Section([html.Aside([playerInfoBox(player), html.Span('chevron_left', className='close-aside material-symbols-rounded'), filters.layout(sourceDF, player)], id='aside'), html.Div(id='columns', children=[specific_players.specific_plots_component(player), general_plots.general_plots_component(), ])])], id='general_page')
 
 
 # -------------------------------------------------------------
@@ -141,17 +143,14 @@ def relayoutData_filtering(relayoutData, newFilters: dict, var1: str, var2: str)
     except:
         newFilters[var1] = [0, 10e4]
         newFilters[var2] = [0, 10e4]
-    
+
     return newFilters
 
 
 # -------------------------------------------------------------
 # Callbacks for when the age filter slide is changed: Dana
 # -------------------------------------------------------------
-@callback(Output('age_histogram', 'children'), Output('filters', 'data'), 
-            Input('age_slider', 'value'), Input('chosen_positions', 'value'), 
-            Input('filters', 'data'), Input('graph1_general', 'relayoutData'),
-            Input('graph2_general', 'relayoutData'))
+@callback(Output('age_histogram', 'children'), Output('filters', 'data'), Input('age_slider', 'value'), Input('chosen_positions', 'value'), Input('filters', 'data'), Input('graph1_general', 'relayoutData'), Input('graph2_general', 'relayoutData'))
 def applyFilters(value, chosenPositions, filters, relayoutData_general1, relayoutData_general2):
     a = sourceDF['age']
     mask = ((a >= value[0]) & (a <= value[1]))
@@ -162,7 +161,7 @@ def applyFilters(value, chosenPositions, filters, relayoutData_general1, relayou
     fig = px.histogram(sourceDF, x="age", nbins=numberOfBins, color='in_bound', color_discrete_map={"YES": "#2196f3", "NO": "#E9E9E9"})
     fig.update_layout(yaxis_visible=False, xaxis_title=None, yaxis_showticklabels=False, xaxis_showticklabels=False, showlegend=False)
     fig.update_layout(margin={'l': 0, 't': 0, 'b': 0, 'r': 0}, plot_bgcolor='white')
-    
+
     newFilters = filters
     newFilters['age'] = value
     newFilters['chosen_positions'] = chosenPositions
@@ -205,8 +204,7 @@ def update_output(filters, chosenPlayer):
 # -------------------------------------------------------------
 # Callbacks for general plots: Alicia
 # -------------------------------------------------------------
-@callback([Output(component_id='graph1_general', component_property='figure'), Output(component_id='graph2_general', component_property='figure')], 
-            Input('filters', 'data'))  # Updates the general plots based on filter
+@callback([Output(component_id='graph1_general', component_property='figure'), Output(component_id='graph2_general', component_property='figure')], Input('filters', 'data'))  # Updates the general plots based on filter
 def update_general_plots(filters):
     filterDataFrame = getFilteredDF(filters)
 
