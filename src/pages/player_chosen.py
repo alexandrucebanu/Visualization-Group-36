@@ -170,15 +170,17 @@ def applyFilters(value, chosenPositions, filters, relayoutData_general1, relayou
 
     global df
     sourceDF['in_bound'] = mask.map(map_in_bound)
+
+    # Age/wage histogram
     numberOfBins = len(a.unique())
     fig = px.histogram(sourceDF, x="age", nbins=numberOfBins, color='in_bound', color_discrete_map={"YES": "#2196f3", "NO": "#E9E9E9"})
     fig.update_layout(yaxis_visible=False, xaxis_title=None, yaxis_showticklabels=False, xaxis_showticklabels=False, showlegend=False)
     fig.update_layout(margin={'l': 0, 't': 0, 'b': 0, 'r': 0}, plot_bgcolor='white')
     
+    # Apply filters
     newFilters = filters
     newFilters['age'] = value
     newFilters['chosen_positions'] = chosenPositions
-    
     newFilters = relayoutData_filtering(relayoutData_general1, newFilters, 'movement_sprint_speed', 'power_stamina')
     newFilters = relayoutData_filtering(relayoutData_general2, newFilters, 'power_jumping', 'movement_reactions')
 

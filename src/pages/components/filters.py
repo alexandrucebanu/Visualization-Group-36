@@ -34,13 +34,16 @@ def layout(sourceDF,chosenPlayer):
                 id='chosen_positions')], 
             id='map_filter', className='filter_block', style={'backgroundImage': 'url({})'.format(dash.get_asset_url('backgrounds/field.png'))})]), 
         
+
         # Filter based on foot preference
         html.Div(
-            [html.H3('Foot Preference Filter'), html.Div([
+            [html.H3('Filter based on position'), html.Div([
             dcc.Checklist(['Left','Right'], 
                 [chosenPlayer['position']],
                 id='foot_preference')], 
-            id='foot_filter', className='filter_block', style={'backgroundImage': 'url({})'.format(dash.get_asset_url('icons/football_shoes.png'))})]),
+            id='foot_filter', className='filter_block', style={'backgroundImage': 'url({})'.format(dash.get_asset_url('icons/football_shoes.png'))})]), 
+            # map_filter has something to do with the image appearing..... change id to foot_filter
+
         ])],
 
         className="filters_block")

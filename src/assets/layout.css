@@ -561,6 +561,16 @@ header #header_logo {
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
 }
 
+#foot_filter {
+    width: 250px;
+    height: 150px;
+    background-size: cover;
+    margin: 20px auto;
+    border-radius: 8px;
+    position: relative;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+}
+
 .position_marker {
     position: absolute;
     background: #000;
@@ -662,6 +672,64 @@ header #header_logo {
 #map_filter label:nth-child(4) {
     left: 155px;
     top: 108px
+}
+
+
+#foot_filter input[type=checkbox] {
+    background: #fff;
+    border: 1px solid #fff;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    height: 32px;
+    border-radius: 50%;
+    width: 32px;
+    z-index: 1;
+    cursor: pointer;
+    position: relative;
+}
+
+#foot_filter input[type=checkbox]:checked {
+    background: #ff9100;
+    border-color: #ff9100;
+}
+
+#foot_filter label {
+    color: rgba(255, 255, 255, 0);
+    position: absolute;
+}
+
+#foot_filter label::selection {
+    color: rgba(255, 255, 255, 0);
+    position: absolute;
+}
+
+#foot_filter label::after {
+    position: absolute;
+    left: 4px;
+    top: 5px;
+    transform: translate(0%, 40%); /* Center the label */
+    z-index: 10000;
+    color: #000 !important;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+#foot_filter label:nth-child(1):after {
+    content: 'Left';
+}
+
+#foot_filter label:nth-child(2):after {
+    content: 'Right';
+}
+
+#foot_filter label:nth-child(1) { /*Left foot*/
+    left: 45%;
+    top: 75px
+}
+
+#foot_filter label:nth-child(2) { /*Right foot*/
+    left: 67%;
+    top: 75px
 }
 
 .invalid_image {
