@@ -7,6 +7,7 @@ from .components import specific_players
 from .components import general_plots
 from .components import filters
 import plotly.express as px
+from functools import reduce
 
 possiblePositions = ['MF', 'DF', 'GK', 'FW'] 
 
@@ -36,37 +37,29 @@ for i in range(1, len(frames)):
 
 sourceDF['age'] = (sourceDF['age']).map(getAgeYears)  # This is the dataframe form which the plots are being applied. Applying filters will limit the rows in this object.
 
+def intervalMask(df, var, filters):
+    a = df[var]
+    mask = ((a >= filters[var][0]) & (a <= filters[var][1]))
+    return mask
 
 def getFilteredDF(filters):
     ## TODO: check if the filtering works as it should
-    a = sourceDF['age']
-    b = sourceDF['position']
-    c = sourceDF['gca']
-    d = sourceDF['passes_completed']
-    e = sourceDF['tackles_won']
-    f = sourceDF['interceptions']
 
-    # Age mask
-    overallMask = ((a >= filters['age'][0]) & (a <= filters['age'][1]))
+    # All interval masks
+    variables = ['age', 'gca', 'passes_completed', 'tackles_won', 'interceptions']
+    overallMask = reduce(lambda x, y: x & y, [intervalMask(sourceDF, var, filters) for var in variables])
+    
     # position mask
+    b = sourceDF['position']
     positionMask = False
     chosenPositions = filters['chosen_positions']
     for chosenPosition in chosenPositions:
         positionMask = ((positionMask) | (b == chosenPosition))
 
-    # General plots filters, plot 1
-    generalMask1 = ((c >= filters['gca'][0]) & (c <= filters['gca'][1]))
-    generalMask2 = ((d >= filters['passes_completed'][0]) & (d <= filters['passes_completed'][1]))
-
-    # General plots filters, plot 2
-    generalMask3 = ((e >= filters['tackles_won'][0]) & (e <= filters['tackles_won'][1]))
-    generalMask4 = ((f >= filters['interceptions'][0]) & (f <= filters['interceptions'][1]))
-    
-    # Overall mask
-    overallMask = (overallMask) & positionMask & generalMask1 & generalMask2 & generalMask3 & generalMask4
+    # Return the filtered dataframe
+    overallMask = (overallMask) & positionMask
     sourceDF['in_bound'] = overallMask.map(map_in_bound)
     return sourceDF[sourceDF['in_bound'] == "YES"]
-
 
 filePath = os.path.join(os.path.dirname(__file__), '../data/player_gca.csv')
 df_defense = pd.read_csv(filePath, encoding='utf-8')
