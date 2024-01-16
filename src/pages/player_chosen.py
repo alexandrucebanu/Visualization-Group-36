@@ -8,8 +8,9 @@ from .components import general_plots
 from .components import filters
 import plotly.express as px
 from functools import reduce
+from pages.components.header import getAppHeader
 
-possiblePositions = ['MF', 'DF', 'GK', 'FW'] 
+possiblePositions = ['MF', 'DF', 'GK', 'FW']
 
 
 def map_in_bound(value):
@@ -22,6 +23,7 @@ def getAgeYears(ageString):
     return int(ageString.split('-')[0])
 
 
+# TODO: wrap the generation of the merged dataset with a separate module/function.
 files = ["player_shooting.csv", "player_defense.csv", "player_gca.csv", "player_possession.csv", "player_playingtime.csv", "player_passing.csv", "player_misc.csv"]
 # TODO: bug: when including player_gca.csv the df will be sliced (as there are only 41 rows there) and we merge with it.
 frames = []
@@ -39,9 +41,9 @@ sourceDF['age'] = (sourceDF['age']).map(getAgeYears)  # This is the dataframe fo
 
 # Merge data with external source
 external = pd.read_csv(os.path.join(os.path.dirname(__file__), ('../data/' + 'players_22.csv')))
-external = external[['short_name', 'wage_eur', 'value_eur', 'preferred_foot', 
-                        'movement_sprint_speed', 'movement_reactions', 
-                        'power_jumping', 'power_stamina']]
+external = external[['short_name', 'wage_eur', 'value_eur', 'preferred_foot',
+    'movement_sprint_speed', 'movement_reactions',
+    'power_jumping', 'power_stamina']]
 external = external.drop_duplicates(subset='short_name')
 sourceDF['short_name'] = sourceDF['player'].str.replace(r'^(\w)\w*\s', r'\1. ')
 sourceDF = sourceDF.merge(external, on='short_name', how='left')
@@ -52,6 +54,7 @@ def intervalMask(df, var, filters):
     a = df[var]
     mask = ((a >= filters[var][0]) & (a <= filters[var][1]))
     return mask
+
 
 def getFilteredDF(filters):
     ## TODO: check if the filtering works as it should
@@ -72,13 +75,14 @@ def getFilteredDF(filters):
 
     # All interval masks
     variables = ['age', 'movement_sprint_speed', 'movement_reactions', 'power_jumping', 'power_stamina']
- 
+
     interval_masks = reduce(lambda x, y: x & y, [intervalMask(sourceDF, var, filters) for var in variables])
-    
+
     # Return the filtered dataframe
     overallMask = (interval_masks) & positionMask & footMask
     sourceDF['in_bound'] = overallMask.map(map_in_bound)
     return sourceDF[sourceDF['in_bound'] == "YES"]
+
 
 filePath = os.path.join(os.path.dirname(__file__), '../data/player_gca.csv')
 df_defense = pd.read_csv(filePath, encoding='utf-8')
@@ -112,11 +116,9 @@ def layout(player_id=None):
     if not player_id:
         return ""
     player = sourceDF.iloc[[player_id]].to_dict(orient='records')[0]
-    return html.Div([dcc.Store('chosen_player', data=player, storage_type='local'), dcc.Store('filters', data={'position': player['position']}, storage_type='local'), html.Header([
-        html.Img(id='header_logo',src=dash.get_asset_url('logo.png')),
-    ]), html.Section(
-        [html.Aside([playerInfoBox(player), html.Span('chevron_left', className='close-aside material-symbols-rounded'), filters.layout(sourceDF, player), html.Div('hi', id='testing')], id='aside'), html.Div(id='columns', children=[specific_players.specific_plots_component(player), general_plots.general_plots_component(), ])])],
-        id='general_page')
+    print(player)
+    return html.Div([dcc.Store('chosen_player', data=player, storage_type='local'), dcc.Store('filters', data={'position': player['position']}, storage_type='local'), getAppHeader(),
+        html.Section([html.Aside([playerInfoBox(player), html.Span('chevron_left', className='close-aside material-symbols-rounded'), filters.layout(sourceDF, player)], id='aside'), html.Div(id='columns', children=[specific_players.specific_plots_component(player), general_plots.general_plots_component(), ])])], id='general_page')
 
 
 # -------------------------------------------------------------
@@ -160,7 +162,7 @@ def relayoutData_filtering(relayoutData, newFilters: dict, var1: str, var2: str)
     except:
         newFilters[var1] = [0, 10e4]
         newFilters[var2] = [0, 10e4]
-    
+
     return newFilters
 
 
@@ -229,8 +231,7 @@ def update_output(filters, chosenPlayer):
 # -------------------------------------------------------------
 # Callbacks for general plots: Alicia
 # -------------------------------------------------------------
-@callback([Output(component_id='graph1_general', component_property='figure'), Output(component_id='graph2_general', component_property='figure')], 
-            Input('filters', 'data'))  # Updates the general plots based on filter
+@callback([Output(component_id='graph1_general', component_property='figure'), Output(component_id='graph2_general', component_property='figure')], Input('filters', 'data'))  # Updates the general plots based on filter
 def update_general_plots(filters):
     filterDataFrame = getFilteredDF(filters)
 
