@@ -412,6 +412,11 @@ header #header_logo {
     margin-top: 7px;
 }
 
+header #bookmarked_checkout {
+    height: 44px;
+    margin-top: 7px;
+}
+
 #aside {
     width: 330px;
     float: left;
@@ -806,3 +811,20 @@ header #header_logo {
     margin: 10px;
 
 }
+
+#box_container {
+    width: 400px;
+    height: 1000px;
+    /* float: right; */
+    z-index: 999;
+    background-color: #EFEFEF;
+    position: fixed;
+    right: 0;
+}
+
+#rectangle {
+    position: absolute;
+    top: 60;
+    right: 0;
+}
+

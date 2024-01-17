@@ -1,5 +1,5 @@
 import dash
-from dash import html, dcc, callback, Output, Input
+from dash import html, dcc, callback, Output, Input, State
 import os
 import pandas as pd
 from dataAdapters import getCountryFlagPath, playerImageDirectory, getPlayerTeam, get_first_vertical_image, getTeamGroup
@@ -132,8 +132,10 @@ def layout(player_id=None):
         return ""
     player = sourceDF.iloc[[player_id]].to_dict(orient='records')[0]
     #print(player)
-    return html.Div([dcc.Store('chosen_player', data=player, storage_type='local'), dcc.Store('filters', data={'position': player['position']}, storage_type='local'), getAppHeader(),
-        html.Section([html.Aside([playerInfoBox(player), html.Span('chevron_left', className='close-aside material-symbols-rounded'), filters.layout(sourceDF, player)], id='aside'), html.Div(id='columns', children=[specific_players.specific_plots_component(player), general_plots.general_plots_component(), ])])], id='general_page')
+    return html.Div([dcc.Store('chosen_player', data=player, storage_type='local'), 
+                dcc.Store('filters', data={'position': player['position']}, storage_type='local'), 
+                getAppHeader(),
+        html.Section([html.Aside([playerInfoBox(player), html.Span('chevron_left', className='close-aside material-symbols-rounded'), filters.layout(sourceDF, player)], id='aside'), html.Div(id='columns', children=[specific_players.specific_plots_component(player), general_plots.general_plots_component()])])], id='general_page')
 
 
 # -------------------------------------------------------------
@@ -295,3 +297,18 @@ def update_general_plots(filters):
 
     except:
         return dash.no_update
+
+
+@callback(
+    Output('box_container', 'style'),
+    Input('checkout', 'n_clicks'),
+    State('box_container', 'style'),
+    prevent_initial_call=True
+)
+def update_output(n_clicks, style):
+    print(type(style))
+    if n_clicks % 2 == 1:  # Show box on odd clicks
+        style['display'] = 'block'
+    else:  # Hide box on even clicks
+        style['display'] = 'none'
+    return style
