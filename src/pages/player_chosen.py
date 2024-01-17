@@ -49,9 +49,6 @@ sourceDF['short_name'] = sourceDF['player'].str.replace(r'^(\w)\w*\s', r'\1. ')
 sourceDF = sourceDF.merge(external, on='short_name', how='left')
 sourceDF = sourceDF.drop('short_name', axis=1)
 
-
-
-
 def intervalMask(df, var, filters):
     a = df[var]
     mask = ((a >= filters[var][0]) & (a <= filters[var][1]))
@@ -73,13 +70,13 @@ def getFilteredDF(filters):
                     'gca', 'passes_completed',
                     'dribbles_completed', 'miscontrols', 
                     'blocked_passes', 'clearances', 
-                    'tackles_won', 'interceptions',
+                    'tackles_won', 'interceptions'
                     #'gk_save_pct', 'gk_goals_against_per90', 
                     #'gk_clean_sheets', 'age'
                 ]
 
-    variables = [var for var in variables if var in filters.keys()]
-    interval_masks = reduce(lambda x, y: x & y, [intervalMask(sourceDF, var, filters) for var in variables])
+    variables_relevant = [var for var in variables if var in filters.keys()]
+    interval_masks = reduce(lambda x, y: x & y, [intervalMask(sourceDF, var, filters) for var in variables_relevant])
 
     # position mask
     a = sourceDF['position']
@@ -188,7 +185,9 @@ def relayoutData_filtering(relayoutData, newFilters: dict, var1: str, var2: str)
 # Callbacks for when the age filter slide is changed: Dana
 # -------------------------------------------------------------
 @callback(Output('age_histogram', 'children'), Output('filters', 'data'), 
-            Input('age_slider', 'value'), Input('chosen_positions', 'value'), 
+            Input('age_slider', 'value'), 
+            Input('chosen_positions', 'value'), 
+            Input('chosen_player', 'data'),
             Input('foot_preference', 'value'),
             Input('filters', 'data'), 
             Input('graph1_general', 'relayoutData'),
@@ -196,7 +195,7 @@ def relayoutData_filtering(relayoutData, newFilters: dict, var1: str, var2: str)
             Input('graph1', 'relayoutData'),
             Input('graph2', 'relayoutData'),
             )
-def applyFilters(value, chosenPositions, footPreference, filters, relayoutData_general1, relayoutData_general2, relayoutData_specific1, relayoutData_specific2):
+def applyFilters(value, chosenPositions, chosenPlayer, footPreference, filters, relayoutData_general1, relayoutData_general2, relayoutData_specific1, relayoutData_specific2):
     a = sourceDF['age']
     mask = ((a >= value[0]) & (a <= value[1]))
 
@@ -239,12 +238,12 @@ def applyFilters(value, chosenPositions, footPreference, filters, relayoutData_g
 
     for params in parameter_list_general:
         newFilters = relayoutData_filtering(*params)
-        
-    for params in parameter_list_specific:
-        if chosenPositions == list(*params.keys()):
-            newFilters = relayoutData_filtering(*params[chosenPositions])
 
-    print(chosenPositions)
+    for params in parameter_list_specific:
+        if chosenPlayer['position'] == list(params.keys())[0]:
+            newFilters = relayoutData_filtering(*params[chosenPlayer['position']])
+
+    #print(chosenPositions)
         
     return dcc.Graph(figure=fig, config={'staticPlot': True}, style={'width': 'calc(100% - 20px)', 'height': '60px', 'margin': '5px auto'}), newFilters
 
