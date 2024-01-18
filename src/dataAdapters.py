@@ -32,7 +32,7 @@ def getTeamGroup(team: str, mapToLetters=False) -> int | str:
     :rtype: int <- The letter representing the group the team belongs to | returns 0 if the team group could not be found
     """
     team = team.capitalize()
-    print('team: ', team)
+    # print('team: ', team)
     try:
         group_stats_csv_path = os.path.join(os.path.dirname(__file__), r"data/group_stats.csv")
         df_groups = pd.read_csv(group_stats_csv_path, encoding='utf-8')
@@ -121,6 +121,7 @@ def playerImageDirectory(playerName, playerTeam=None, playerGroup=None):
     :return: The directory path for the player's player_images
     :rtype: str
     """
+    print('name: ', playerName)
     try:
         if not playerTeam:
             # In case the name of the player team is not provided, getPlayerTeam() is used to look it up

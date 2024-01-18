@@ -2,6 +2,7 @@ import dash
 from dash import html, dcc, callback, Output, Input, State
 import os
 import pandas as pd
+from dash.exceptions import PreventUpdate
 from dataAdapters import getCountryFlagPath, playerImageDirectory, getPlayerTeam, get_first_vertical_image, getTeamGroup
 from .components import specific_players
 from .components import general_plots
@@ -9,6 +10,7 @@ from .components import filters
 import plotly.express as px
 from functools import reduce
 from pages.components.header import getAppHeader
+
 
 possiblePositions = ['MF', 'DF', 'GK', 'FW']
 
@@ -120,46 +122,110 @@ def playerInfoBox(player):
         html.Div([html.Img(src=dash.get_asset_url(getCountryFlagPath(getPlayerTeam(player['player'])))), ], className='team-flag'), ]),  # Separating bar
         html.Div(className='separating-bar'),  # Right half (question mark and search bar)
         html.Div(id='unknown-player-right', className='half', children=[  # Question mark image
-            html.Div([html.Img(src=dash.get_asset_url('icons/magnifier.png'))], className='unknown-player-icon'),  # Search bar
+            html.Div([html.Img(id='unknown-player-icon', src=dash.get_asset_url('icons/magnifier.png'))], className='unknown-player-icon'),  # Search bar
             dcc.Dropdown(id='select_player_name_chosen', options=[{'label': playerItem[1], 'value': playerItem[0]} for playerItem in playersList], placeholder="Search for a player...", ), ]),
 
         # Selected player information outside 'unknown-player-right'
-        html.Div(id='selected-player-info', className='half', ), ])
+        html.Div(id='selected-player-info',children = [html.Button(id='bookmark_clicked',className='hidden')], className='half', ),
+
+
+                                                                                                ])
+        #html.Div
 
 
 def layout(player_id=None):
     if not player_id:
         return ""
     player = sourceDF.iloc[[player_id]].to_dict(orient='records')[0]
-    #print(player)
-    return html.Div([dcc.Store('chosen_player', data=player, storage_type='local'), 
-                dcc.Store('filters', data={'position': player['position']}, storage_type='local'), 
-                getAppHeader(),
-        html.Section([html.Aside([playerInfoBox(player), html.Span('chevron_left', className='close-aside material-symbols-rounded'), filters.layout(sourceDF, player)], id='aside'), html.Div(id='columns', children=[specific_players.specific_plots_component(player), general_plots.general_plots_component()])])], id='general_page')
+    return html.Div([
+        dcc.Store(id='clicked_player', storage_type='local'),
+        dcc.Store(id='chosen_player', data=player, storage_type='local'),
+        dcc.Store(id='bookmarked_players', storage_type='local', data=[]),
+        dcc.Store(id='filters', data={'position': player['position']}, storage_type='local'),
+        html.Header([
+            html.Img(id='header_logo', src=dash.get_asset_url('logo.png')),
+        ]),
+        html.Section([
+            html.Aside([playerInfoBox(player), html.Span('chevron_left', className='close-aside material-symbols-rounded'), filters.layout(sourceDF, player), html.Div('hi', id='testing')], id='aside'),
+            html.Div(id='columns', children=[specific_players.specific_plots_component(player), general_plots.general_plots_component(), ])
+        ], id='general_page')
+    ])
 
 
 # -------------------------------------------------------------
 # Callbacks to update player box based on chosen players: Akseniia
 # -------------------------------------------------------------
-@callback([Output('selected-player-info', 'children'), Output('unknown-player-right', 'style')], [Input('select_player_name_chosen', 'value')])
-def update_selected_player_info(player_id):
-    if (player_id == None):
-        return dash.no_update
-    if player_id and player_id != None:
-        player_id = int(player_id)
-        player = df_defense.iloc[[player_id]].to_dict(orient='records')[0]
-        path = playerImageDirectory(player['player'])
-        image_path = get_first_vertical_image(path)
 
-        if image_path:
-            # Return the selected player information and hide the 'unknown-player-right'
-            return [[html.Div([html.Img(src=dash.get_asset_url(image_path)), ], className='player-image'), html.Div(player['player'], className='player-name'), html.Div([html.Img(src=dash.get_asset_url(getCountryFlagPath(getPlayerTeam(player['player'])))), ], className='team-flag'), ], {'display': 'none'}, ]
+@callback(
+    [Output('selected-player-info', 'children'), Output('unknown-player-icon', 'style'), Output('clicked_player', 'data')],
+    [Input('select_player_name_chosen', 'value'),
+     Input('graph1', 'clickData'), Input('graph2', 'clickData'), Input('graph1_general', 'clickData'),
+     Input('graph2_general', 'clickData')]
+)
+def update_selected_player_info(player_id, click_data_graph1, click_data_graph2, click_data_general1, click_data_general2):
+    try:
+        # If none of the inputs are provided, prevent updating
+        if all(value is None for value in
+               [player_id, click_data_graph1, click_data_graph2, click_data_general1, click_data_general2]):
+            raise PreventUpdate
 
-        print('No `player_id` passed...')
-        return dash.no_update  # TODO: handle this properly
-    player = sourceDF.iloc[[player_id]].to_dict(orient='records')[0]
-    return html.Div([dcc.Store('chosen_player', data=player, storage_type='local'), dcc.Store('filters', data={'position': player['position']}, storage_type='local'), html.Header([]),
-        html.Section([html.Aside([html.Span('chevron_left', className='close-aside material-symbols-rounded'), filters.layout(sourceDF, player), html.Div('hi', id='testing')], id='aside'), specific_players.specific_plots_component(player)])], id='general_page')
+        if player_id is not None:
+            playerID = int(player_id)
+            player_name=sourceDF.iloc[[playerID]].to_dict(orient='records')[0]['player']
+
+        elif click_data_graph1 is not None:
+            player_name = click_data_graph1['points'][0]['customdata'][0]
+            playerID = int(sourceDF.index[sourceDF['player']==player_name][0])
+
+        elif click_data_graph2 is not None:
+            player_name = click_data_graph2['points'][0]['customdata'][0]
+            playerID = int(sourceDF.index[sourceDF['player'] == player_name][0])
+
+        elif click_data_general1 is not None:
+            player_name = click_data_general1['points'][0]['customdata'][0]
+            playerID = int(sourceDF.index[sourceDF['player'] == player_name][0])
+
+        elif click_data_general2 is not None:
+            player_name = click_data_general2['points'][0]['customdata'][0]
+            playerID = int(sourceDF.index[sourceDF['player'] == player_name][0])
+
+        else:
+            raise PreventUpdate
+
+        path = playerImageDirectory(player_name)
+
+
+        if path:
+            image_path = get_first_vertical_image(path)
+
+            selected_player_info = [
+                html.Div([html.Img(src=dash.get_asset_url(image_path)), ], className='player-image'),
+                html.Div(player_name, className='player-name'),
+                html.Div(
+                    [html.Img(src=dash.get_asset_url(getCountryFlagPath(getPlayerTeam(player_name)))), ],
+                    className='team-flag'),
+            ]
+        else:
+            selected_player_info = [
+                html.Div([html.Img(src=dash.get_asset_url('icons/player.png')), ], className='player-image'),
+                html.Div(player_name, className='player-name'),
+                html.Div(
+                    [html.Img(src=dash.get_asset_url(getCountryFlagPath(getPlayerTeam(player_name)))), ],
+                    className='team-flag'),
+            ]
+        selected_player_info+=[
+            html.Button(id='bookmark_clicked',children='Bookmark me!!!')
+        ]
+        unknown_player_icon_style = {'display': 'none'} if not all(value is None for value in [player_id, click_data_graph1, click_data_graph2, click_data_general1, click_data_general2]) else {'display': 'block'}
+
+        return selected_player_info, unknown_player_icon_style, playerID
+
+    except PreventUpdate:
+        raise PreventUpdate
+
+
+
+
 
 
 def getPlayerById(playerId):
@@ -312,3 +378,12 @@ def update_output(n_clicks, style):
     else:  # Hide box on even clicks
         style['display'] = 'none'
     return style
+
+@callback(Output('bookmarked_players','data'),Input('bookmark_clicked','n_clicks'),Input('clicked_player','data'),Input('bookmarked_players','data'))
+def addPlayerToBookmarks(n_clicks,clickedPlayer,currentBookmarks):
+    try:
+        if n_clicks > 0:
+            currentBookmarks += [clickedPlayer]
+    except:
+        return dash.no_update
+    return list(set(currentBookmarks))
