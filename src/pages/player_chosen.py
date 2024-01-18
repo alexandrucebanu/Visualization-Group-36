@@ -142,9 +142,7 @@ def layout(player_id=None):
         dcc.Store(id='chosen_player', data=player, storage_type='local'),
         dcc.Store(id='bookmarked_players', storage_type='local', data=[]),
         dcc.Store(id='filters', data={'position': player['position']}, storage_type='local'),
-        html.Header([
-            html.Img(id='header_logo', src=dash.get_asset_url('logo.png')),
-        ]),
+        getAppHeader(),
         html.Section([
             html.Aside([playerInfoBox(player), html.Span('chevron_left', className='close-aside material-symbols-rounded'), filters.layout(sourceDF, player), html.Div('hi', id='testing')], id='aside'),
             html.Div(id='columns', children=[specific_players.specific_plots_component(player), general_plots.general_plots_component(), ])
