@@ -825,3 +825,18 @@ header #header_logo {
     margin: auto; /* Center the box in the container */
 }
 
+#box_container {
+    width: 400px;
+    height: 1000px;
+    /* float: right; */
+    z-index: 999;
+    background-color: #EFEFEF;
+    position: fixed;
+    right: 0;
+}
+
+#rectangle {
+    position: absolute;
+    top: 60;
+    right: 0;
+}

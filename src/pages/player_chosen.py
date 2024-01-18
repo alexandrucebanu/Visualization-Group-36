@@ -363,6 +363,10 @@ def update_general_plots(filters):
         return dash.no_update
 
 
+
+# -------------------------------------------------------------
+# Bookmark box : Alicia
+# -------------------------------------------------------------
 @callback(
     Output('box_container', 'style'),
     Input('checkout', 'n_clicks'),
@@ -377,6 +381,11 @@ def update_output(n_clicks, style):
         style['display'] = 'none'
     return style
 
+
+
+# -------------------------------------------------------------
+# Callbacks for adding the clicked player to bookmarks: Akseniia
+# -------------------------------------------------------------
 @callback(Output('bookmarked_players','data'),Input('bookmark_clicked','n_clicks'),Input('clicked_player','data'),Input('bookmarked_players','data'))
 def addPlayerToBookmarks(n_clicks,clickedPlayer,currentBookmarks):
     try:
