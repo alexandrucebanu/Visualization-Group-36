@@ -806,3 +806,22 @@ header #header_logo {
     margin: 10px;
 
 }
+
+.chosen_player_name, .chosen_player_age, .chosen_player_height, .chosen_player_fouls, .chosen_player_cards{
+    text-align: center;
+    font-weight: 700;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+.player-info-box {
+    display: flex;
+    border: 1px solid #ccc; /* Light grey border */
+    border-radius: 10px; /* Rounded corners */
+    padding: 20px; /* Space between the content and the border */
+    background-color: #fff; /* White background */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Slight shadow for depth */
+    width: 300px; /* Fixed width, adjust as needed */
+    margin: auto; /* Center the box in the container */
+}
+

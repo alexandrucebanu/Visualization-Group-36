@@ -43,7 +43,7 @@ sourceDF['age'] = (sourceDF['age']).map(getAgeYears)  # This is the dataframe fo
 external = pd.read_csv(os.path.join(os.path.dirname(__file__), ('../data/' + 'players_22.csv')))
 external = external[['short_name', 'wage_eur', 'value_eur', 'preferred_foot',
     'movement_sprint_speed', 'movement_reactions',
-    'power_jumping', 'power_stamina']]
+    'power_jumping', 'power_stamina', 'height_cm', 'weight_kg']]
 external = external.drop_duplicates(subset='short_name')
 sourceDF['short_name'] = sourceDF['player'].str.replace(r'^(\w)\w*\s', r'\1. ')
 sourceDF = sourceDF.merge(external, on='short_name', how='left')
@@ -103,7 +103,6 @@ def getPlayerImageElement(player):
 def playerInfoBox(player):
     return html.Div(id='player-image-container', className='player-chosen-container', children=[html.Div(className='half', children=[getPlayerImageElement(player), html.Div(player['player'], className='player-name'),  # Team flag
         html.Div([html.Img(src=dash.get_asset_url(getCountryFlagPath(getPlayerTeam(player['player'])))), ], className='team-flag'), ]),  # Separating bar
-        html.Div(className='separating-bar'),  # Right half (question mark and search bar)
         html.Div(id='unknown-player-right', className='half', children=[  # Question mark image
             html.Div([html.Img(src=dash.get_asset_url('icons/magnifier.png'))], className='unknown-player-icon'),  # Search bar
             dcc.Dropdown(id='select_player_name_chosen', options=[{'label': playerItem[1], 'value': playerItem[0]} for playerItem in playersList], placeholder="Search for a player...", ), ]),
@@ -117,8 +116,19 @@ def layout(player_id=None):
         return ""
     player = sourceDF.iloc[[player_id]].to_dict(orient='records')[0]
     print(player)
-    return html.Div([dcc.Store('chosen_player', data=player, storage_type='local'), dcc.Store('filters', data={'position': player['position']}, storage_type='local'), getAppHeader(),
-        html.Section([html.Aside([playerInfoBox(player), html.Span('chevron_left', className='close-aside material-symbols-rounded'), filters.layout(sourceDF, player)], id='aside'), html.Div(id='columns', children=[specific_players.specific_plots_component(player), general_plots.general_plots_component(), ])])], id='general_page')
+    return html.Div([
+        dcc.Store('chosen_player', data=player, storage_type='local'),
+        dcc.Store('filters', data={'position': player['position']}, storage_type='local'),
+        getAppHeader(),
+        html.Section([html.Aside([
+            playerInfoBox(player),
+        html.Span('chevron_left', className='close-aside material-symbols-rounded'),
+        filters.layout(sourceDF, player)
+                                  ], id='aside'),
+            html.Div(id='columns', children=[
+                specific_players.specific_plots_component(player),
+                general_plots.general_plots_component(),
+            ])])], id='general_page')
 
 
 # -------------------------------------------------------------
