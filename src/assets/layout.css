@@ -412,11 +412,6 @@ header #header_logo {
     margin-top: 7px;
 }
 
-header #bookmarked_checkout {
-    height: 44px;
-    margin-top: 7px;
-}
-
 #aside {
     width: 330px;
     float: left;
@@ -812,19 +807,21 @@ header #bookmarked_checkout {
 
 }
 
-#box_container {
-    width: 400px;
-    height: 1000px;
-    /* float: right; */
-    z-index: 999;
-    background-color: #EFEFEF;
-    position: fixed;
-    right: 0;
+.chosen_player_name, .chosen_player_age, .chosen_player_height, .chosen_player_fouls, .chosen_player_cards{
+    text-align: center;
+    font-weight: 700;
+    font-size: 12px;
+    margin-top: 5px;
 }
 
-#rectangle {
-    position: absolute;
-    top: 60;
-    right: 0;
+.player-info-box {
+    display: flex;
+    border: 1px solid #ccc; /* Light grey border */
+    border-radius: 10px; /* Rounded corners */
+    padding: 20px; /* Space between the content and the border */
+    background-color: #fff; /* White background */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Slight shadow for depth */
+    width: 300px; /* Fixed width, adjust as needed */
+    margin: auto; /* Center the box in the container */
 }
 
