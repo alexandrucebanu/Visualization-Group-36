@@ -143,17 +143,27 @@ def layout(player_id=None):
     if not player_id:
         return ""
     player = sourceDF.iloc[[player_id]].to_dict(orient='records')[0]
-    return html.Div([
+    return html.Div(id='parent_player_chosen', children=[
         dcc.Store(id='clicked_player', storage_type='local'),
         dcc.Store(id='chosen_player', data=player, storage_type='local'),
         dcc.Store(id='bookmarked_players', storage_type='local', data=[]),
         dcc.Store(id='filters', data={'position': player['position']}, storage_type='local'),
         getAppHeader(),
         html.Section([
-            html.Aside([playerInfoBox(player), html.Span('chevron_left', className='close-aside material-symbols-rounded'), filters.layout(sourceDF, player), html.Div('hi', id='testing')], id='aside'),
+            html.Aside(children=[
+                html.Div(className='aside_content', children=[
+                    playerInfoBox(player), filters.layout(sourceDF, player), html.Div('hi', id='testing')
+                ]), html.Span('chevron_left', id='close_aside', className='close-aside material-symbols-rounded')], id='aside'),
             html.Div(id='columns', children=[specific_players.specific_plots_component(player), general_plots.general_plots_component(), ])
         ], id='general_page')
-    ])
+    ], className='player_chosen_show_aside')
+
+
+@callback(Output('parent_player_chosen', 'className'), Input('close_aside', 'n_clicks'), State('parent_player_chosen', 'className'), prevent_initial_call=True)
+def toggleAside(n_clicks, currentClass):
+    if currentClass == 'player_chosen_show_aside':
+        return 'player_chosen_hide_aside'
+    return 'player_chosen_show_aside'
 
 
 # -------------------------------------------------------------
@@ -346,8 +356,10 @@ def update_general_plots(filters):
 )
 def update_output(n_clicks, style):
     if n_clicks >= 1:  # Show box on odd clicks
+        style['right'] = '0';
         style['display'] = 'block'
     else:  # Hide box on even clicks
+        style['right'] = '-500px';
         style['display'] = 'none'
     return style, style
 

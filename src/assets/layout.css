@@ -355,12 +355,6 @@ h1 {
     border-left: 1px solid #f7f7f7;
 }
 
-#columns {
-    /*display: flex;*/
-    width: calc(100% - 340px);
-    float: left;
-    margin-left: 10px;
-}
 
 #selected_player_subpage {
     justify-content: space-around;
@@ -422,13 +416,26 @@ header #bookmarked_checkout {
     margin-top: 7px;
 }
 
-#aside {
+.player_chosen_show_aside #aside {
     width: 330px;
+    opacity: 1;
+}
+
+.aside_content {
+    width: 328px !important;
+}
+
+.player_chosen_hide_aside #aside {
+    width: 10px !important;
+    opacity: 0;
+}
+
+#aside {
     float: left;
     position: relative;
     min-height: 100vh !important;
+    transition: 0.5s;
     border-right: 1px solid #edededed;
-
 }
 
 #aside .close-aside {
@@ -903,6 +910,7 @@ header #bookmarked_checkout {
     color: #fff;
     line-height: 18px;
     border-radius: 7px;
+    font-family: 'Roboto';
 }
 
 #checkout span {
@@ -913,6 +921,7 @@ header #bookmarked_checkout {
 #bookmarks_sidebar_back {
     width: calc(100% - 400px);
     height: 100vh;
+    transition: 0.5s;
     background: #000000d4;
     position: fixed;
     top: 0;
@@ -982,4 +991,28 @@ header #bookmarked_checkout {
     margin: 10px 0;
     border-bottom: 1px solid #ededed;
     padding: 15px 0;
+}
+
+
+#columns {
+    /*display: flex;*/
+    width: calc(100% - 340px);
+    transition: 0.5s;
+    float: left;
+    margin-left: 10px;
+}
+
+.player_chosen_show_aside #columns {
+    /*display: flex;*/
+    /*width: calc(100% - 340px);*/
+    /*transition: 0.5s;*/
+    /*float: left;*/
+    /*margin-left: 10px;*/
+}
+
+
+.player_chosen_hide_aside #columns {
+    /*display: flex;*/
+    /*width: calc(100% - 20px);*/
+    /*margin-left: 0;*/
 }
