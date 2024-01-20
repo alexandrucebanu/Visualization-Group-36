@@ -1003,16 +1003,16 @@ header #bookmarked_checkout {
 }
 
 .player_chosen_show_aside #columns {
-    /*display: flex;*/
-    /*width: calc(100% - 340px);*/
-    /*transition: 0.5s;*/
-    /*float: left;*/
-    /*margin-left: 10px;*/
+    display: flex;
+    width: calc(100% - 340px);
+    transition: 0.5s;
+    float: left;
+    margin-left: 10px;
 }
 
 
 .player_chosen_hide_aside #columns {
-    /*display: flex;*/
-    /*width: calc(100% - 20px);*/
-    /*margin-left: 0;*/
+    display: flex;
+    width: calc(100% - 20px);
+    margin-left: 0;
 }
