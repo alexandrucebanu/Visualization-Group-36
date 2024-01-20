@@ -154,72 +154,42 @@ def layout(player_id=None):
 # Callbacks to update player box based on chosen players: Akseniia
 # -------------------------------------------------------------
 
-@callback(
-    [Output('selected-player-info', 'children'), Output('unknown-player-icon', 'style'), Output('clicked_player', 'data')],
-    [Input('select_player_name_chosen', 'value'),
-     Input('graph1', 'clickData'), Input('graph2', 'clickData'), Input('graph1_general', 'clickData'),
-     Input('graph2_general', 'clickData')]
-)
-def update_selected_player_info(player_id, click_data_graph1, click_data_graph2, click_data_general1, click_data_general2):
-    try:
-        # If none of the inputs are provided, prevent updating
-        if all(value is None for value in
-               [player_id, click_data_graph1, click_data_graph2, click_data_general1, click_data_general2]):
-            raise PreventUpdate
-
-        if player_id is not None:
-            playerID = int(player_id)
-            player_name=sourceDF.iloc[[playerID]].to_dict(orient='records')[0]['player']
-
-        elif click_data_graph1 is not None:
-            player_name = click_data_graph1['points'][0]['customdata'][0]
-            playerID = int(sourceDF.index[sourceDF['player']==player_name][0])
-
-        elif click_data_graph2 is not None:
-            player_name = click_data_graph2['points'][0]['customdata'][0]
-            playerID = int(sourceDF.index[sourceDF['player'] == player_name][0])
-
-        elif click_data_general1 is not None:
-            player_name = click_data_general1['points'][0]['customdata'][0]
-            playerID = int(sourceDF.index[sourceDF['player'] == player_name][0])
-
-        elif click_data_general2 is not None:
-            player_name = click_data_general2['points'][0]['customdata'][0]
-            playerID = int(sourceDF.index[sourceDF['player'] == player_name][0])
-
-        else:
-            raise PreventUpdate
-
-        path = playerImageDirectory(player_name)
+@callback(Output('bookmarked_players', 'data'), Input('clicked_player', 'n_clicks'), State('bookmarked_players', 'data'), State('clicked_player', 'data'), prevent_initial_call=True)
+def addBookmark(n_clicks, bookmarkedPlayerIDS, clickedPlayerID):
+    print("Current bookmarks: ", bookmarkedPlayerIDS)
+    print("Bookmarking ", clickedPlayerID)
+    return (bookmarkedPlayerIDS + [clickedPlayerID])
 
 
-        if path:
-            image_path = get_first_vertical_image(path)
+@callback(Output('clicked_player', 'children'), Input('clicked_player', 'data'), prevent_initial_call=True)
+def updateClickedPlayer(clickedPlayerID):
+    player = sourceDF.iloc[[clickedPlayerID]].to_dict(orient='records')[0]
+    return [
+        getPlayerImageElement(player['player']),
+        html.Div(player['player'], className='player-name'),  # Team flag
+        html.Div([html.Img(src=dash.get_asset_url(getCountryFlagPath(getPlayerTeam(player['player'])))), ], className='team-flag'),
+        html.Button(id='bookmark_clicked_player', children=[fontIcon('star'), 'Bookmark'])
+    ]
 
-            selected_player_info = [
-                html.Div([html.Img(src=dash.get_asset_url(image_path)), ], className='player-image'),
-                html.Div(player_name, className='player-name'),
-                html.Div(
-                    [html.Img(src=dash.get_asset_url(getCountryFlagPath(getPlayerTeam(player_name)))), ],
-                    className='team-flag'),
-            ]
-        else:
-            selected_player_info = [
-                html.Div([html.Img(src=dash.get_asset_url('icons/player.png')), ], className='player-image'),
-                html.Div(player_name, className='player-name'),
-                html.Div(
-                    [html.Img(src=dash.get_asset_url(getCountryFlagPath(getPlayerTeam(player_name)))), ],
-                    className='team-flag'),
-            ]
-        selected_player_info+=[
-            html.Button(id='bookmark_clicked',children='Bookmark me!!!')
-        ]
-        unknown_player_icon_style = {'display': 'none'} if not all(value is None for value in [player_id, click_data_graph1, click_data_graph2, click_data_general1, click_data_general2]) else {'display': 'block'}
 
-        return selected_player_info, unknown_player_icon_style, playerID
+@callback(Output('clicked_player', 'data', allow_duplicate=True), Input('graph1', 'clickData'), prevent_initial_call=True)
+def updateClickedPlayer(clickData):
+    return int(sourceDF.index[sourceDF['player'] == clickData['points'][0]['customdata'][0]][0])
 
-    except PreventUpdate:
-        raise PreventUpdate
+
+@callback(Output('clicked_player', 'data', allow_duplicate=True), Input('graph2', 'clickData'), prevent_initial_call=True)
+def updateClickedPlayer(clickData):
+    return int(sourceDF.index[sourceDF['player'] == clickData['points'][0]['customdata'][0]][0])
+
+
+@callback(Output('clicked_player', 'data', allow_duplicate=True), Input('graph1_general', 'clickData'), prevent_initial_call=True)
+def updateClickedPlayer(clickData):
+    return int(sourceDF.index[sourceDF['player'] == clickData['points'][0]['customdata'][0]][0])
+
+
+@callback(Output('clicked_player', 'data', allow_duplicate=True), Input('graph2_general', 'clickData'), prevent_initial_call=True)
+def updateClickedPlayer(clickData):
+    return int(sourceDF.index[sourceDF['player'] == clickData['points'][0]['customdata'][0]][0])
 
 
 def getPlayerById(playerId):
@@ -366,10 +336,11 @@ def update_general_plots(filters):
     prevent_initial_call=True
 )
 def update_output(n_clicks, style):
-    print(type(style))
-    if n_clicks % 2 == 1:  # Show box on odd clicks
+    if n_clicks >= 1:  # Show box on odd clicks
+        style['right'] = '0'
         style['display'] = 'block'
     else:  # Hide box on even clicks
+        style['right'] = '-500px'
         style['display'] = 'none'
     return style
 
