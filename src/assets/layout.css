@@ -866,6 +866,8 @@ header #bookmarked_checkout {
 #bookmark_clicked_player:hover {
     color: #fff;
     background: #f8b305;
+    box-shadow: 0 0 9px #f8b30587;
+    transition: 0.4s;
     border-color: #f8bf05;
 }
 

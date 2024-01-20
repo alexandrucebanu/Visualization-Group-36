@@ -170,11 +170,12 @@ def toggleAside(n_clicks, currentClass):
 # Callbacks to update player box based on chosen players: Akseniia
 # -------------------------------------------------------------
 
-@callback(Output('bookmarked_players', 'data'), Input('clicked_player', 'n_clicks'), State('bookmarked_players', 'data'), State('clicked_player', 'data'), prevent_initial_call=True)
+@callback(Output('bookmarked_players', 'data'), Input('bookmark_clicked_player', 'n_clicks'), State('bookmarked_players', 'data'), State('clicked_player', 'data'), prevent_initial_call=True)
 def addBookmark(n_clicks, bookmarkedPlayerIDS, clickedPlayerID):
-    print("Current bookmarks: ", bookmarkedPlayerIDS)
-    print("Bookmarking ", clickedPlayerID)
+    if n_clicks == None:
+        return dash.no_update
     return (bookmarkedPlayerIDS + [clickedPlayerID])
+    return dash.no_update
 
 
 @callback(Output('clicked_player', 'children'), Input('clicked_player', 'data'), prevent_initial_call=True)
