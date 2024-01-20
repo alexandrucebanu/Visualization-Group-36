@@ -7,49 +7,20 @@ from dataAdapters import getCountryFlagPath, playerImageDirectory, getPlayerTeam
 from .components import specific_players
 from .components import general_plots
 from .components import filters
+from .helper_functions import import_data
 import plotly.express as px
 from functools import reduce
 from pages.components.header import getAppHeader
 
+sourceDF = import_data.importData()
 
 possiblePositions = ['MF', 'DF', 'GK', 'FW']
-
 
 def map_in_bound(value):
     if (value):
         return "YES"
     return "NO"
 
-
-def getAgeYears(ageString):
-    return int(ageString.split('-')[0])
-
-
-# TODO: wrap the generation of the merged dataset with a separate module/function.
-files = ["player_shooting.csv", "player_defense.csv", "player_gca.csv", "player_possession.csv", "player_playingtime.csv", "player_passing.csv", "player_misc.csv"]
-# TODO: bug: when including player_gca.csv the df will be sliced (as there are only 41 rows there) and we merge with it.
-frames = []
-
-counter = 0
-for file in files:
-    filePath = os.path.join(os.path.dirname(__file__), ('../data/' + file))
-    frame = pd.read_csv(filePath)
-    frames.append(frame)
-sourceDF = frames[0]
-for i in range(1, len(frames)):
-    sourceDF = pd.merge(sourceDF, frames[i])
-
-sourceDF['age'] = (sourceDF['age']).map(getAgeYears)  # This is the dataframe form which the plots are being applied. Applying filters will limit the rows in this object.
-
-# Merge data with external source
-external = pd.read_csv(os.path.join(os.path.dirname(__file__), ('../data/' + 'players_22.csv')))
-external = external[['short_name', 'wage_eur', 'value_eur', 'preferred_foot',
-                        'movement_sprint_speed', 'movement_reactions',
-                        'power_jumping', 'power_stamina']]
-external = external.drop_duplicates(subset='short_name')
-sourceDF['short_name'] = sourceDF['player'].str.replace(r'^(\w)\w*\s', r'\1. ')
-sourceDF = sourceDF.merge(external, on='short_name', how='left')
-sourceDF = sourceDF.drop('short_name', axis=1)
 
 def intervalMask(df, var, filters):
     a = df[var]
@@ -222,6 +193,10 @@ def update_selected_player_info(player_id, click_data_graph1, click_data_graph2,
         raise PreventUpdate
 
 
+
+
+
+
 def getPlayerById(playerId):
     return sourceDF.iloc[[playerId]].to_dict(orient='records')[0]
 
@@ -359,6 +334,10 @@ def update_general_plots(filters):
         return dash.no_update
 
 
+
+# -------------------------------------------------------------
+# Bookmark box : Alicia
+# -------------------------------------------------------------
 @callback(
     Output('box_container', 'style'),
     Input('checkout', 'n_clicks'),
@@ -373,6 +352,11 @@ def update_output(n_clicks, style):
         style['display'] = 'none'
     return style
 
+
+
+# -------------------------------------------------------------
+# Callbacks for adding the clicked player to bookmarks: Akseniia
+# -------------------------------------------------------------
 @callback(Output('bookmarked_players','data'),Input('bookmark_clicked','n_clicks'),Input('clicked_player','data'),Input('bookmarked_players','data'))
 def addPlayerToBookmarks(n_clicks,clickedPlayer,currentBookmarks):
     try:
