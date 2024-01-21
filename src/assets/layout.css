@@ -348,7 +348,9 @@ h1 {
     float: left;
     margin-left: 10px;
     border-left: 1px solid #f7f7f7;
+
 }
+
 
 #columns {
     /*display: flex;*/
@@ -837,6 +839,17 @@ header #header_logo {
 
 #rectangle {
     position: absolute;
-    top: 60;
+    top: 60px;
     right: 0;
+}
+
+#graph_inside_rectangle_general {
+    justify-content: space-between; /* Space out the children evenly */
+    align-items: center; /* Align items vertically in the center */
+    max-width: 100%; /* Ensure it doesn't exceed the width of the page */
+}
+
+#graph2_general, #graph1_general {
+    float: left;
+    width: 50%;
 }

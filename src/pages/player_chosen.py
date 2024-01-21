@@ -7,10 +7,10 @@ from dataAdapters import getCountryFlagPath, playerImageDirectory, getPlayerTeam
 from .components import specific_players
 from .components import general_plots
 from .components import filters
+from .components import altered_general_page
 import plotly.express as px
 from functools import reduce
 from pages.components.header import getAppHeader
-
 
 possiblePositions = ['MF', 'DF', 'GK', 'FW']
 
@@ -26,7 +26,8 @@ def getAgeYears(ageString):
 
 
 # TODO: wrap the generation of the merged dataset with a separate module/function.
-files = ["player_shooting.csv", "player_defense.csv", "player_gca.csv", "player_possession.csv", "player_playingtime.csv", "player_passing.csv", "player_misc.csv"]
+files = ["player_shooting.csv", "player_defense.csv", "player_gca.csv", "player_possession.csv",
+         "player_playingtime.csv", "player_passing.csv", "player_misc.csv"]
 # TODO: bug: when including player_gca.csv the df will be sliced (as there are only 41 rows there) and we merge with it.
 frames = []
 
@@ -39,17 +40,19 @@ sourceDF = frames[0]
 for i in range(1, len(frames)):
     sourceDF = pd.merge(sourceDF, frames[i])
 
-sourceDF['age'] = (sourceDF['age']).map(getAgeYears)  # This is the dataframe form which the plots are being applied. Applying filters will limit the rows in this object.
+sourceDF['age'] = (sourceDF['age']).map(
+    getAgeYears)  # This is the dataframe form which the plots are being applied. Applying filters will limit the rows in this object.
 
 # Merge data with external source
-external = pd.read_csv(os.path.join(os.path.dirname(__file__), ('../data/' + 'players_22.csv')))
+external = pd.read_csv(os.path.join(os.path.dirname(__file__), ('../data/' + 'players_22.csv')), low_memory=False)
 external = external[['short_name', 'wage_eur', 'value_eur', 'preferred_foot',
-                        'movement_sprint_speed', 'movement_reactions',
-                        'power_jumping', 'power_stamina']]
+                     'movement_sprint_speed', 'movement_reactions',
+                     'power_jumping', 'power_stamina', 'height_cm']]
 external = external.drop_duplicates(subset='short_name')
 sourceDF['short_name'] = sourceDF['player'].str.replace(r'^(\w)\w*\s', r'\1. ')
 sourceDF = sourceDF.merge(external, on='short_name', how='left')
 sourceDF = sourceDF.drop('short_name', axis=1)
+
 
 def intervalMask(df, var, filters):
     a = df[var]
@@ -61,21 +64,21 @@ def getFilteredDF(filters):
     ## TODO: check if the filtering works as it should
 
     # All interval masks
-    variables = ['age', 'movement_sprint_speed', 'movement_reactions', 
-    
-                    # General plots
-                    'power_jumping', 'power_stamina',
-                    
-                    # Specific plots
-                    'shots_on_target', 'goals', 
-                    'dribbles_completed', 'miscontrols', 
-                    'gca', 'passes_completed',
-                    'dribbles_completed', 'miscontrols', 
-                    'blocked_passes', 'clearances', 
-                    'tackles_won', 'interceptions'
-                    #'gk_save_pct', 'gk_goals_against_per90', 
-                    #'gk_clean_sheets', 'age'
-                ]
+    variables = ['age', 'movement_sprint_speed', 'movement_reactions',
+
+                 # General plots
+                 'power_jumping', 'power_stamina',
+
+                 # Specific plots
+                 'shots_on_target', 'goals',
+                 'dribbles_completed', 'miscontrols',
+                 'gca', 'passes_completed',
+                 'dribbles_completed', 'miscontrols',
+                 'blocked_passes', 'clearances',
+                 'tackles_won', 'interceptions'
+                 # 'gk_save_pct', 'gk_goals_against_per90',
+                 # 'gk_clean_sheets', 'age'
+                 ]
 
     variables_relevant = [var for var in variables if var in filters.keys()]
     interval_masks = reduce(lambda x, y: x & y, [intervalMask(sourceDF, var, filters) for var in variables_relevant])
@@ -97,8 +100,9 @@ def getFilteredDF(filters):
     # Return the filtered dataframe
     overallMask = (interval_masks) & positionMask & footMask
     sourceDF['in_bound'] = overallMask.map(map_in_bound)
-    
+
     return sourceDF[sourceDF['in_bound'] == "YES"]
+
 
 # Goal keeper data
 filePath = os.path.join(os.path.dirname(__file__), '../data/player_gca.csv')
@@ -118,19 +122,27 @@ def getPlayerImageElement(player):
 
 
 def playerInfoBox(player):
-    return html.Div(id='player-image-container', className='player-chosen-container', children=[html.Div(className='half', children=[getPlayerImageElement(player), html.Div(player['player'], className='player-name'),  # Team flag
-        html.Div([html.Img(src=dash.get_asset_url(getCountryFlagPath(getPlayerTeam(player['player'])))), ], className='team-flag'), ]),  # Separating bar
+    return html.Div(id='player-image-container', className='player-chosen-container', children=[
+        html.Div(className='half',
+                 children=[getPlayerImageElement(player), html.Div(player['player'], className='player-name'),
+                           # Team flag
+                           html.Div([html.Img(
+                               src=dash.get_asset_url(getCountryFlagPath(getPlayerTeam(player['player'])))), ],
+                                    className='team-flag'), ]),  # Separating bar
         html.Div(className='separating-bar'),  # Right half (question mark and search bar)
         html.Div(id='unknown-player-right', className='half', children=[  # Question mark image
-            html.Div([html.Img(id='unknown-player-icon', src=dash.get_asset_url('icons/magnifier.png'))], className='unknown-player-icon'),  # Search bar
-            dcc.Dropdown(id='select_player_name_chosen', options=[{'label': playerItem[1], 'value': playerItem[0]} for playerItem in playersList], placeholder="Search for a player...", ), ]),
+            html.Div([html.Img(id='unknown-player-icon', src=dash.get_asset_url('icons/magnifier.png'))],
+                     className='unknown-player-icon'),  # Search bar
+            dcc.Dropdown(id='select_player_name_chosen',
+                         options=[{'label': playerItem[1], 'value': playerItem[0]} for playerItem in playersList],
+                         placeholder="Search for a player...", ), ]),
 
         # Selected player information outside 'unknown-player-right'
-        html.Div(id='selected-player-info',children = [html.Button(id='bookmark_clicked',className='hidden')], className='half', ),
+        html.Div(id='selected-player-info', children=[html.Button(id='bookmark_clicked', className='hidden')],
+                 className='half', ),
 
-
-                                                                                                ])
-        #html.Div
+        ])
+    # html.Div
 
 
 def layout(player_id=None):
@@ -144,8 +156,11 @@ def layout(player_id=None):
         dcc.Store(id='filters', data={'position': player['position']}, storage_type='local'),
         getAppHeader(),
         html.Section([
-            html.Aside([playerInfoBox(player), html.Span('chevron_left', className='close-aside material-symbols-rounded'), filters.layout(sourceDF, player), html.Div('hi', id='testing')], id='aside'),
-            html.Div(id='columns', children=[specific_players.specific_plots_component(player), general_plots.general_plots_component(), ])
+            html.Aside(
+                [playerInfoBox(player), html.Span('chevron_left', className='close-aside material-symbols-rounded'),
+                 filters.layout(sourceDF, player), html.Div('hi', id='testing')], id='aside'),
+            html.Div(id='columns', children=[altered_general_page.main_page_changed(player)])
+            # html.Div(id='columns', children=[specific_players.specific_plots_component(player), general_plots.general_plots_component() ])
         ], id='general_page')
     ])
 
@@ -155,28 +170,25 @@ def layout(player_id=None):
 # -------------------------------------------------------------
 
 @callback(
-    [Output('selected-player-info', 'children'), Output('unknown-player-icon', 'style'), Output('clicked_player', 'data')],
+    [Output('selected-player-info', 'children'), Output('unknown-player-icon', 'style'),
+     Output('clicked_player', 'data')],
     [Input('select_player_name_chosen', 'value'),
-     Input('graph1', 'clickData'), Input('graph2', 'clickData'), Input('graph1_general', 'clickData'),
+     Input('graph1', 'clickData'), Input('graph1_general', 'clickData'),
      Input('graph2_general', 'clickData')]
 )
-def update_selected_player_info(player_id, click_data_graph1, click_data_graph2, click_data_general1, click_data_general2):
+def update_selected_player_info(player_id, click_data_graph1, click_data_general1, click_data_general2):
     try:
         # If none of the inputs are provided, prevent updating
         if all(value is None for value in
-               [player_id, click_data_graph1, click_data_graph2, click_data_general1, click_data_general2]):
+               [player_id, click_data_graph1, click_data_general1, click_data_general2]):
             raise PreventUpdate
 
         if player_id is not None:
             playerID = int(player_id)
-            player_name=sourceDF.iloc[[playerID]].to_dict(orient='records')[0]['player']
+            player_name = sourceDF.iloc[[playerID]].to_dict(orient='records')[0]['player']
 
         elif click_data_graph1 is not None:
             player_name = click_data_graph1['points'][0]['customdata'][0]
-            playerID = int(sourceDF.index[sourceDF['player']==player_name][0])
-
-        elif click_data_graph2 is not None:
-            player_name = click_data_graph2['points'][0]['customdata'][0]
             playerID = int(sourceDF.index[sourceDF['player'] == player_name][0])
 
         elif click_data_general1 is not None:
@@ -191,7 +203,6 @@ def update_selected_player_info(player_id, click_data_graph1, click_data_graph2,
             raise PreventUpdate
 
         path = playerImageDirectory(player_name)
-
 
         if path:
             image_path = get_first_vertical_image(path)
@@ -211,19 +222,17 @@ def update_selected_player_info(player_id, click_data_graph1, click_data_graph2,
                     [html.Img(src=dash.get_asset_url(getCountryFlagPath(getPlayerTeam(player_name)))), ],
                     className='team-flag'),
             ]
-        selected_player_info+=[
-            html.Button(id='bookmark_clicked',children='Bookmark me!!!')
+        selected_player_info += [
+            html.Button(id='bookmark_clicked', children='Bookmark me!!!')
         ]
-        unknown_player_icon_style = {'display': 'none'} if not all(value is None for value in [player_id, click_data_graph1, click_data_graph2, click_data_general1, click_data_general2]) else {'display': 'block'}
+        unknown_player_icon_style = {'display': 'none'} if not all(
+            value is None for value in [player_id, click_data_graph1, click_data_general1, click_data_general2]) else {
+            'display': 'block'}
 
         return selected_player_info, unknown_player_icon_style, playerID
 
     except PreventUpdate:
         raise PreventUpdate
-
-
-
-
 
 
 def getPlayerById(playerId):
@@ -248,20 +257,25 @@ def relayoutData_filtering(relayoutData, newFilters: dict, var1: str, var2: str)
 
 
 # -------------------------------------------------------------
+# Callbacks for dropdown menu interacts with parallel coordinate plot: Mr. Alexandru :)
+# -------------------------------------------------------------
+
+
+# -------------------------------------------------------------
 # Callbacks for when the age filter slide is changed: Dana
 # -------------------------------------------------------------
-@callback(Output('age_histogram', 'children'), Output('filters', 'data'), 
-            Input('age_slider', 'value'), 
-            Input('chosen_positions', 'value'), 
-            Input('chosen_player', 'data'),
-            Input('foot_preference', 'value'),
-            Input('filters', 'data'), 
-            Input('graph1_general', 'relayoutData'),
-            Input('graph2_general', 'relayoutData'),
-            Input('graph1', 'relayoutData'),
-            Input('graph2', 'relayoutData'),
-            )
-def applyFilters(value, chosenPositions, chosenPlayer, footPreference, filters, relayoutData_general1, relayoutData_general2, relayoutData_specific1, relayoutData_specific2):
+@callback(Output('age_histogram', 'children'), Output('filters', 'data'),
+          Input('age_slider', 'value'),
+          Input('chosen_positions', 'value'),
+          Input('chosen_player', 'data'),
+          Input('foot_preference', 'value'),
+          Input('filters', 'data'),
+          Input('graph1_general', 'relayoutData'),
+          Input('graph2_general', 'relayoutData'),
+          Input('graph1', 'relayoutData')
+          )
+def applyFilters(value, chosenPositions, chosenPlayer, footPreference, filters, relayoutData_general1,
+                 relayoutData_general2, relayoutData_specific1):
     a = sourceDF['age']
     mask = ((a >= value[0]) & (a <= value[1]))
 
@@ -270,10 +284,12 @@ def applyFilters(value, chosenPositions, chosenPlayer, footPreference, filters, 
 
     # Age/wage histogram
     numberOfBins = len(a.unique())
-    fig = px.histogram(sourceDF, x="age", nbins=numberOfBins, color='in_bound', color_discrete_map={"YES": "#2196f3", "NO": "#E9E9E9"})
-    fig.update_layout(yaxis_visible=False, xaxis_title=None, yaxis_showticklabels=False, xaxis_showticklabels=False, showlegend=False)
+    fig = px.histogram(sourceDF, x="age", nbins=numberOfBins, color='in_bound',
+                       color_discrete_map={"YES": "#2196f3", "NO": "#E9E9E9"})
+    fig.update_layout(yaxis_visible=False, xaxis_title=None, yaxis_showticklabels=False, xaxis_showticklabels=False,
+                      showlegend=False)
     fig.update_layout(margin={'l': 0, 't': 0, 'b': 0, 'r': 0}, plot_bgcolor='white')
-    
+
     # Apply filters
     newFilters = filters
     newFilters['age'] = value
@@ -281,26 +297,23 @@ def applyFilters(value, chosenPositions, chosenPlayer, footPreference, filters, 
     newFilters['preferred_foot'] = footPreference
 
     parameter_list_general = [
-                        # General plots
-                        [relayoutData_general1, newFilters, 'movement_sprint_speed', 'power_stamina'],
-                        [relayoutData_general2, newFilters, 'power_jumping', 'movement_reactions']
-                        ]
-                        
-    parameter_list_specific = [
-                        # Specific plots
+        # General plots
+        [relayoutData_general1, newFilters, 'movement_sprint_speed', 'power_stamina'],
+        [relayoutData_general2, newFilters, 'power_jumping', 'movement_reactions']
+    ]
 
-                        {'FW': [relayoutData_specific1, newFilters, 'shots_on_target', 'goals']},
-                        {'FW': [relayoutData_specific2, newFilters, 'dribbles_completed', 'miscontrols']},
-                        
-                        {'MF': [relayoutData_specific1, newFilters,'gca', 'passes_completed']},
-                        {'MF': [relayoutData_specific2, newFilters, 'dribbles_completed', 'miscontrols']},
-                        
-                        {'DF': [relayoutData_specific1, newFilters,'blocked_passes', 'clearances']},
-                        {'DF': [relayoutData_specific2, newFilters, 'tackles_won', 'interceptions']}
-                        
-                        #[relayoutData_specific1, newFilters,'gk_save_pct', 'gk_goals_against_per90'],
-                        #[relayoutData_specific2, newFilters,'gk_clean_sheets', 'age']
-                    ]
+    parameter_list_specific = [
+        # Specific plots
+
+        {'FW': [relayoutData_specific1, newFilters, 'shots_on_target', 'goals']},
+
+        {'MF': [relayoutData_specific1, newFilters, 'gca', 'passes_completed']},
+
+        {'DF': [relayoutData_specific1, newFilters, 'blocked_passes', 'clearances']},
+
+        # [relayoutData_specific1, newFilters,'gk_save_pct', 'gk_goals_against_per90'],
+        # [relayoutData_specific2, newFilters,'gk_clean_sheets', 'age']
+    ]
 
     for params in parameter_list_general:
         newFilters = relayoutData_filtering(*params)
@@ -309,37 +322,44 @@ def applyFilters(value, chosenPositions, chosenPlayer, footPreference, filters, 
         if chosenPlayer['position'] == list(params.keys())[0]:
             newFilters = relayoutData_filtering(*params[chosenPlayer['position']])
 
-    #print(chosenPositions)
-        
-    return dcc.Graph(figure=fig, config={'staticPlot': True}, style={'width': 'calc(100% - 20px)', 'height': '60px', 'margin': '5px auto'}), newFilters
+    # print(chosenPositions)
+
+    return dcc.Graph(figure=fig, config={'staticPlot': True},
+                     style={'width': 'calc(100% - 20px)', 'height': '60px', 'margin': '5px auto'}), newFilters
 
 
 # -------------------------------------------------------------
 # Callbacks for position specific plots: Alexandru
 # -------------------------------------------------------------
-@callback([Output(component_id='graph1', component_property='figure'), Output(component_id='graph2', component_property='figure')], 
-            Input('filters', 'data'), Input('chosen_player', 'data'))  # Updates the position-specific plots based on the position
-def update_output(filters, chosenPlayer):
+@callback(Output(component_id='graph1', component_property='figure'),
+          Input('filters', 'data'), Input('chosen_player', 'data'),
+          Input('attributes_dropdown', 'value'))  # Updates the position-specific plots based on the position
+def update_output(filters, chosenPlayer, attribute):
     filterDataFrame = getFilteredDF(filters)
     try:
         if chosenPlayer['position'] == 'FW':
-            fig1 = px.scatter(filterDataFrame, x='shots_on_target', y='goals', color=filterDataFrame['offsides'], title='Goal Scoring Efficiency', labels={'shots_on_target': 'Shots on target', 'goals': 'Goals', 'color': 'Number of Offsides'}, hover_data=['player'])
-            fig1.update_layout(coloraxis_colorbar=dict(title='Number of Offsides'))
-            fig2 = px.scatter(filterDataFrame, x='dribbles_completed', y='miscontrols', title='Ball Handling Skills', labels={'dribbles_completed': 'Dribbles Completed', 'miscontrols': 'Miscontrols'}, hover_data=['player'])
+            fig1 = px.parallel_coordinates(filterDataFrame, color="birth_year", dimensions=attribute)
+        # if chosenPlayer['position'] == 'FW':
+        #     fig1 = px.scatter(filterDataFrame, x='shots_on_target', y='goals', color=filterDataFrame['offsides'], title='Goal Scoring Efficiency', labels={'shots_on_target': 'Shots on target', 'goals': 'Goals', 'color': 'Number of Offsides'}, hover_data=['player'])
+        #     fig1.update_layout(coloraxis_colorbar=dict(title='Number of Offsides'))
+        #     fig2 = px.scatter(filterDataFrame, x='dribbles_completed', y='miscontrols', title='Ball Handling Skills', labels={'dribbles_completed': 'Dribbles Completed', 'miscontrols': 'Miscontrols'}, hover_data=['player'])
 
         elif chosenPlayer['position'] == 'MF':
-            fig1 = px.scatter(filterDataFrame, x='gca', y='passes_completed', title='Correlation Between Goal-Creating Actions and Passes Completed', labels={'gca': 'Goal-Creating Actions', 'passes_completed': 'Passes completed'}, hover_data=['player'])
-            fig2 = px.scatter(filterDataFrame, x='dribbles_completed', y='miscontrols', title='Ball Handling Skills', labels={'dribbles_completed': 'Dribbles Completed', 'miscontrols': 'Miscontrols'}, hover_data=['player'])
+            fig1 = px.parallel_coordinates(filterDataFrame, color="birth_year", dimensions=attribute)
+            # fig1 = px.scatter(filterDataFrame, x='gca', y='passes_completed', title='Correlation Between Goal-Creating Actions and Passes Completed', labels={'gca': 'Goal-Creating Actions', 'passes_completed': 'Passes completed'}, hover_data=['player'])
+            # fig2 = px.scatter(filterDataFrame, x='dribbles_completed', y='miscontrols', title='Ball Handling Skills', labels={'dribbles_completed': 'Dribbles Completed', 'miscontrols': 'Miscontrols'}, hover_data=['player'])
 
         elif chosenPlayer['position'] == 'DF':
-            fig1 = px.scatter(filterDataFrame, x='blocked_passes', y='clearances', title='Defensive Interventions', labels={'blocked_passes': 'Blocked passes', 'clearances': 'Clearances'}, hover_data=['player'])
-            fig2 = px.scatter(filterDataFrame, x='tackles_won', y='interceptions', title="Analysing player's interception skills", labels={'tackles_won': 'Tackles won', 'interceptions': 'Interceptions'}, hover_data=['player'])
+            fig1 = px.parallel_coordinates(filterDataFrame, color="birth_year", dimensions=attribute)
+            # fig1 = px.scatter(filterDataFrame, x='blocked_passes', y='clearances', title='Defensive Interventions', labels={'blocked_passes': 'Blocked passes', 'clearances': 'Clearances'}, hover_data=['player'])
+            # fig2 = px.scatter(filterDataFrame, x='tackles_won', y='interceptions', title="Analysing player's interception skills", labels={'tackles_won': 'Tackles won', 'interceptions': 'Interceptions'}, hover_data=['player'])
 
         else:  # POSITION==GK
-            fig1 = px.scatter(filterDataFrame, x='gk_save_pct', y='gk_goals_against_per90', title='Goalkeeping Mastery: Balancing Saves and Goals Against')
-            fig2 = px.scatter(filterDataFrame, x='gk_clean_sheets', y='age', title='Comparison of Age and Performance in Goalkeeping')
+            fig1 = px.parallel_coordinates(filterDataFrame, color="birth_year", dimensions=attribute)
+            # fig1 = px.scatter(filterDataFrame, x='gk_save_pct', y='gk_goals_against_per90', title='Goalkeeping Mastery: Balancing Saves and Goals Against')
+            # fig2 = px.scatter(filterDataFrame, x='gk_clean_sheets', y='age', title='Comparison of Age and Performance in Goalkeeping')
 
-        return fig1, fig2
+        return fig1
 
     except:
         return dash.no_update
@@ -348,20 +368,27 @@ def update_output(filters, chosenPlayer):
 # -------------------------------------------------------------
 # Callbacks for general plots: Alicia
 # -------------------------------------------------------------
-@callback([Output(component_id='graph1_general', component_property='figure'), Output(component_id='graph2_general', component_property='figure')], Input('filters', 'data'))  # Updates the general plots based on filter
+@callback([Output(component_id='graph1_general', component_property='figure'),
+           Output(component_id='graph2_general', component_property='figure')],
+          Input('filters', 'data'))  # Updates the general plots based on filter
 def update_general_plots(filters):
     filterDataFrame = getFilteredDF(filters)
 
     # TODO: Change the parameters of the plots!
     try:
-        fig12 = px.scatter(filterDataFrame, x="movement_sprint_speed", y='power_stamina', title='Sprint Speed and Stamina', labels={'movement_sprint_speed': 'Sprint Speed [FIFA scores]', 'power_stamina': 'Stamina [FIFA scores]'}, hover_data=['player'])
-        fig22 = px.scatter(filterDataFrame, x="power_jumping", y='movement_reactions', title='Power Jumping and Movement Reaction', labels={'power_jumping': 'Power Jumping [FIFA Scores]', 'movement_reactions': 'Movement Reactions [FIFA Scores]'}, hover_data=['player'])
+        fig12 = px.scatter(filterDataFrame, x="movement_sprint_speed", y='power_stamina',
+                           title='Sprint Speed and Stamina',
+                           labels={'movement_sprint_speed': 'Sprint Speed [FIFA scores]',
+                                   'power_stamina': 'Stamina [FIFA scores]'}, hover_data=['player'])
+        fig22 = px.scatter(filterDataFrame, x="power_jumping", y='movement_reactions',
+                           title='Power Jumping and Movement Reaction',
+                           labels={'power_jumping': 'Power Jumping [FIFA Scores]',
+                                   'movement_reactions': 'Movement Reactions [FIFA Scores]'}, hover_data=['player'])
 
         return fig12, fig22
 
     except:
         return dash.no_update
-
 
 
 # -------------------------------------------------------------
@@ -382,12 +409,12 @@ def update_output(n_clicks, style):
     return style
 
 
-
 # -------------------------------------------------------------
 # Callbacks for adding the clicked player to bookmarks: Akseniia
 # -------------------------------------------------------------
-@callback(Output('bookmarked_players','data'),Input('bookmark_clicked','n_clicks'),Input('clicked_player','data'),Input('bookmarked_players','data'))
-def addPlayerToBookmarks(n_clicks,clickedPlayer,currentBookmarks):
+@callback(Output('bookmarked_players', 'data'), Input('bookmark_clicked', 'n_clicks'), Input('clicked_player', 'data'),
+          Input('bookmarked_players', 'data'))
+def addPlayerToBookmarks(n_clicks, clickedPlayer, currentBookmarks):
     try:
         if n_clicks > 0:
             currentBookmarks += [clickedPlayer]
