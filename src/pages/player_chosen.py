@@ -142,7 +142,7 @@ def toggleAside(n_clicks, currentClass):
 # Callbacks to update player box based on chosen players: Akseniia
 # -------------------------------------------------------------
 
-@callback(Output('bookmarked_players', 'data'), Input('clicked_player', 'n_clicks'), State('bookmarked_players', 'data'), State('clicked_player', 'data'), prevent_initial_call=True)
+@callback(Output('bookmarked_players', 'data',allow_duplicate=True), Input('clicked_player', 'n_clicks'), State('bookmarked_players', 'data'), State('clicked_player', 'data'), prevent_initial_call=True)
 def addBookmark(n_clicks, bookmarkedPlayerIDS, clickedPlayerID):
     print("Current bookmarks: ", bookmarkedPlayerIDS)
     print("Bookmarking ", clickedPlayerID)
@@ -319,6 +319,10 @@ def update_general_plots(filters):
         return dash.no_update
 
 
+
+# -------------------------------------------------------------
+# Bookmark box : Alicia
+# -------------------------------------------------------------
 @callback(
     Output('bookmarks_sidebar_back', 'style', allow_duplicate=True),
     Output('bookmarks_sidebar', 'style', allow_duplicate=True),
@@ -377,3 +381,15 @@ def clearBookmarks(n_clicks):
 #     except:
 #         return dash.no_update
 #     return list(set(currentBookmarks))
+
+# -------------------------------------------------------------
+# Callbacks for adding the clicked player to bookmarks: Akseniia
+# -------------------------------------------------------------
+@callback(Output('bookmarked_players', 'data', allow_duplicate=True), Input('bookmark_clicked', 'n_clicks'), Input('clicked_player', 'data'), Input('bookmarked_players', 'data'), prevent_initial_call=True)
+def addPlayerToBookmarks(n_clicks, clickedPlayer, currentBookmarks):
+    try:
+        if n_clicks > 0:
+            currentBookmarks += [clickedPlayer]
+    except:
+        return dash.no_update
+    return list(set(currentBookmarks))

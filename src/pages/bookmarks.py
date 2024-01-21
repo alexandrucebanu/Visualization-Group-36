@@ -8,7 +8,10 @@ import plotly.graph_objects as go
 from .helper_functions import import_data
 from sklearn.preprocessing import StandardScaler 
 import pandas as pd
+from .helper_functions import import_data
 
+# from .player_chosen import sourceDF, getPlayerImageElement
+sourceDF = import_data.importData()
 
 dash.register_page(__name__, path_template='/bookmarks')
 
@@ -59,7 +62,8 @@ min_vals = df_standardised.min()
 df_standardised[titles] = df_standardised[titles] - min_vals
 
 
-def layout():
+def layout(player_id=None):
+    # player = sourceDF.iloc[[player_id]].to_dict(orient='records')[0]
     return html.Div(id='bookmarks_page', children=[
         dcc.Store('chosen_player', storage_type='local'),
         getAppHeader(),
@@ -67,14 +71,16 @@ def layout():
         html.Section([
 
             html.Aside(id='aside', children=[
-                html.Div(className='placeholder', children='Chosen Player Box'),
+                html.Div(id='chosen_player_box', className='player-info-box', children=[
+                    'HIIII'
+                ]),
+
                 html.Div(className='placeholder', children='Bookmarked Players'),
             ]),
 
             addTabs(),
             
         ])
-
     ])
 
 
@@ -171,3 +177,17 @@ def render_content(tab):
         return makeRadar(titles_shooting)
     elif tab == 'tab-defense':
         return makeRadar(titles_defense)
+@callback(Output('chosen_player_box', 'children'), Input('chosen_player', 'data'))
+def updateFirstPlaceHolder(chosenPlayer):
+    print(chosenPlayer)
+    return [
+                    html.Img(src='assets/icons/player.png', className='player-image'),
+                    html.Div(className='player-details',style={'borderLeft':'1px solid #ededed','paddingLeft':'12px'}, children=[
+                        html.H4(chosenPlayer['player'], className='chosen_player_name'),
+                        html.Div(className='separating-bar'),
+                        html.P('AGE: {}'.format(chosenPlayer['age']), className='chosen_player_age'),
+                        html.P('HEIGHT: {}'.format(chosenPlayer['height_cm']), className='chosen_player_height'),
+                        html.P('FOULS: {}'.format(chosenPlayer['fouls']), className='chosen_player_fouls'),
+                        html.P('CARDS: yellow: {}, red: {}, yellow2: {}'.format(chosenPlayer['cards_yellow'], chosenPlayer['cards_red'], chosenPlayer['cards_yellow_red']), className='chosen_player_cards'),
+                    ])
+                ]
