@@ -6,7 +6,6 @@ from dash import Input, Output
 from dash import dcc
 import plotly.graph_objects as go
 from .helper_functions import import_data
-from sklearn.preprocessing import StandardScaler
 import pandas as pd
 from .helper_functions import import_data
 

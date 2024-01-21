@@ -11,6 +11,15 @@ positionForHumanDictionary = {'FW': 'Forward', 'GK': 'Goalkeeper', 'MF': 'Middle
 # App layout
 # --------------------------------------------------------------------------------------------------------------
 
+
+def featureNamesTransformed(name):
+    mapping = {
+        'gca':'goal creating actions'
+    }
+    if name in list(mapping.keys()):
+        return mapping[name]
+    return name
+
 def main_page_changed(player=None):
     position = player['position']
     positionAttributes = {
@@ -35,7 +44,7 @@ def main_page_changed(player=None):
                                                 style={'color': '#243E4C', "margin-top": "10px", "text-align":"center"}),
                                         html.Br(),
                                         dcc.Dropdown(id="attributes_dropdown",
-                                                     options=[option for option in positionAttributes[position]],
+                                                     options=[{'label':featureNamesTransformed(option).replace('_',' ').capitalize(),'value':option} for option in positionAttributes[position]],
                                                      value = defaultSelectedAttributes[position], multi=True, style={"width":"75%", "margin":"auto"})
                                         ]), html.Br(),
                 html.Div(id='graph_inside_rectangle', children=[dcc.Graph(id='graph1', figure={}, style={
