@@ -193,7 +193,7 @@ def updateFirstPlaceHolder(chosenPlayer):
             html.H4(chosenPlayer['player'], className='chosen_player_name'),
             html.Div(className='separating-bar'),
             html.P('AGE: {}'.format(chosenPlayer['age']), className='chosen_player_age'),
-            html.P('HEIGHT: {}'.format(chosenPlayer['height_cm']), className='chosen_player_height'),
+            # html.P('HEIGHT: {}'.format(chosenPlayer['height_cm']), className='chosen_player_height'),
             html.P('FOULS: {}'.format(chosenPlayer['fouls']), className='chosen_player_fouls'),
             html.P('CARDS: yellow: {}, red: {}, yellow2: {}'.format(chosenPlayer['cards_yellow'], chosenPlayer['cards_red'], chosenPlayer['cards_yellow_red']), className='chosen_player_cards'),
         ])
