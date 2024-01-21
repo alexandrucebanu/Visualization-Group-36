@@ -9,7 +9,6 @@ from .helper_functions import import_data
 from sklearn.preprocessing import StandardScaler 
 import pandas as pd
 
-
 dash.register_page(__name__, path_template='/bookmarks')
 
 
@@ -62,6 +61,8 @@ df_standardised[titles] = df_standardised[titles] - min_vals
 def layout():
     return html.Div(id='bookmarks_page', children=[
         dcc.Store('chosen_player', storage_type='local'),
+        dcc.Store(id='bookmarked_players', storage_type='local', data=[]),
+
         getAppHeader(),
         
         html.Section([
@@ -126,10 +127,10 @@ def addTabs():
     ])
 
 
-def makeRadar(titles):
+def makeRadar(titles, bookmarkedPlayerIDS):
     fig = go.Figure()
 
-    for player_ID in chosen_players:
+    for player_ID in bookmarkedPlayerIDS:
         
         fig.add_trace(go.Scatterpolar(
             theta=titles,
@@ -157,17 +158,24 @@ def makeRadar(titles):
 
 
 @callback(Output('tabs-content-classes', 'children'),
-              Input('tabs-with-classes', 'value'))
-def render_content(tab):
+              Input('tabs-with-classes', 'value'),
+              Input('bookmarked_players', 'data'))
+def render_content(tab, bookmarkedPlayerIDS):
+    # Get list of bookmarked players
+    bookmarkedPlayerIDS = list(set(bookmarkedPlayerIDS))
+    bookmarkedPlayerIDS = [i for i in bookmarkedPlayerIDS if i != None]
+    
+    # Returns the appropriate radar chart
     if tab == 'tab-stats':
-        return makeRadar(titles_stats)
+        return makeRadar(titles_stats, bookmarkedPlayerIDS)
     elif tab == 'tab-passing':
-        return makeRadar(titles_passing)
+        return makeRadar(titles_passing, bookmarkedPlayerIDS)
     elif tab == 'tab-set-piece':
-        return makeRadar(titles_set_piece)
+        return makeRadar(titles_set_piece, bookmarkedPlayerIDS)
     elif tab == 'tab-gca':
-        return makeRadar(titles_gca)
+        return makeRadar(titles_gca, bookmarkedPlayerIDS)
     elif tab == 'tab-shooting':
-        return makeRadar(titles_shooting)
+        return makeRadar(titles_shooting, bookmarkedPlayerIDS)
     elif tab == 'tab-defense':
-        return makeRadar(titles_defense)
+        return makeRadar(titles_defense, bookmarkedPlayerIDS)
+
