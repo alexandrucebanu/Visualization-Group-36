@@ -353,8 +353,16 @@ h1 {
     float: left;
     margin-left: 10px;
     border-left: 1px solid #f7f7f7;
+
 }
 
+
+#columns {
+    /*display: flex;*/
+    width: calc(100% - 340px);
+    float: left;
+    margin-left: 10px;
+}
 
 #selected_player_subpage {
     justify-content: space-around;
@@ -368,10 +376,6 @@ h1 {
 }
 
 #picture_of_soccer_player, #search_for_bookmarked_players {
-    display: flex;
-    flex-direction: column; /* Stacks children vertically */
-    justify-content: center; /* Centers children vertically in the container */
-    align-items: center; /* Centers children horizontally in the container */
     background: #ffffff;
     width: 180px;
     height: 320px;
@@ -1005,16 +1009,26 @@ header #bookmarked_checkout {
 }
 
 .player_chosen_show_aside #columns {
-    /*display: flex;*/
-    /*width: calc(100% - 340px);*/
-    /*transition: 0.5s;*/
-    /*float: left;*/
-    /*margin-left: 10px;*/
+    width: calc(100% - 340px);
+    transition: 0.5s;
+    float: left;
+    margin-left: 10px;
 }
 
 
 .player_chosen_hide_aside #columns {
-    /*display: flex;*/
-    /*width: calc(100% - 20px);*/
-    /*margin-left: 0;*/
+    width: calc(100% - 20px);
+    margin-left: 0;
 }
+
+#graph_inside_rectangle_general {
+    justify-content: space-between; /* Space out the children evenly */
+    align-items: center; /* Align items vertically in the center */
+    max-width: 100%; /* Ensure it doesn't exceed the width of the page */
+}
+
+#graph2_general, #graph1_general {
+    float: left;
+    width: 50%;
+}
+

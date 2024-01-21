@@ -11,6 +11,7 @@ from .helper_functions import import_data
 import plotly.express as px
 from functools import reduce
 from pages.components.header import getAppHeader
+from pages.components import altered_general_page
 from .helpers import fontIcon
 
 
@@ -126,9 +127,9 @@ def layout(player_id=None):
                 html.Div(className='aside_content', children=[
                     playerInfoBox(player), filters.layout(sourceDF, player), html.Div('hi', id='testing')
                 ]), html.Span('chevron_left', id='close_aside', className='close-aside material-symbols-rounded')], id='aside'),
-            html.Div(id='columns', children=[specific_players.specific_plots_component(player), general_plots.general_plots_component(), ])
-        ], id='general_page')
-    ], className='player_chosen_show_aside')
+            html.Div(id='columns', children=[altered_general_page.main_page_changed(player)])
+        ], id='general_page', className='player_chosen_show_aside')])
+
 
 
 @callback(Output('parent_player_chosen', 'className'), Input('close_aside', 'n_clicks'), State('parent_player_chosen', 'className'), prevent_initial_call=True)
@@ -142,7 +143,7 @@ def toggleAside(n_clicks, currentClass):
 # Callbacks to update player box based on chosen players: Akseniia
 # -------------------------------------------------------------
 
-@callback(Output('bookmarked_players', 'data'), Input('bookmark_clicked_player', 'n_clicks'), State('bookmarked_players', 'data'), State('clicked_player', 'data'), prevent_initial_call=True)
+@callback(Output('bookmarked_players', 'data', allow_duplicate=True), Input('clicked_player', 'n_clicks'), State('bookmarked_players', 'data'), State('clicked_player', 'data'), prevent_initial_call=True)
 def addBookmark(n_clicks, bookmarkedPlayerIDS, clickedPlayerID):
     if n_clicks == None:
         return dash.no_update
@@ -165,10 +166,6 @@ def updateClickedPlayer(clickedPlayerID):
 def updateClickedPlayer(clickData):
     return int(sourceDF.index[sourceDF['player'] == clickData['points'][0]['customdata'][0]][0])
 
-
-@callback(Output('clicked_player', 'data', allow_duplicate=True), Input('graph2', 'clickData'), prevent_initial_call=True)
-def updateClickedPlayer(clickData):
-    return int(sourceDF.index[sourceDF['player'] == clickData['points'][0]['customdata'][0]][0])
 
 
 @callback(Output('clicked_player', 'data', allow_duplicate=True), Input('graph1_general', 'clickData'), prevent_initial_call=True)
@@ -215,10 +212,8 @@ def relayoutData_filtering(relayoutData, newFilters: dict, var1: str, var2: str)
     Input('filters', 'data'),
     Input('graph1_general', 'relayoutData'),
     Input('graph2_general', 'relayoutData'),
-    Input('graph1', 'relayoutData'),
-    Input('graph2', 'relayoutData'),
 )
-def applyFilters(value, chosenPositions, chosenPlayer, footPreference, filters, relayoutData_general1, relayoutData_general2, relayoutData_specific1, relayoutData_specific2):
+def applyFilters(value, chosenPositions, chosenPlayer, footPreference, filters, relayoutData_general1, relayoutData_general2):
     a = sourceDF['age']
     mask = ((a >= value[0]) & (a <= value[1]))
 
@@ -243,28 +238,10 @@ def applyFilters(value, chosenPositions, chosenPlayer, footPreference, filters, 
         [relayoutData_general2, newFilters, 'power_jumping', 'movement_reactions']
     ]
 
-    parameter_list_specific = [
-        # Specific plots
-
-        {'FW': [relayoutData_specific1, newFilters, 'shots_on_target', 'goals']},
-        {'FW': [relayoutData_specific2, newFilters, 'dribbles_completed', 'miscontrols']},
-
-        {'MF': [relayoutData_specific1, newFilters, 'gca', 'passes_completed']},
-        {'MF': [relayoutData_specific2, newFilters, 'dribbles_completed', 'miscontrols']},
-
-        {'DF': [relayoutData_specific1, newFilters, 'blocked_passes', 'clearances']},
-        {'DF': [relayoutData_specific2, newFilters, 'tackles_won', 'interceptions']}
-
-        # [relayoutData_specific1, newFilters,'gk_save_pct', 'gk_goals_against_per90'],
-        # [relayoutData_specific2, newFilters,'gk_clean_sheets', 'age']
-    ]
 
     for params in parameter_list_general:
         newFilters = relayoutData_filtering(*params)
 
-    for params in parameter_list_specific:
-        if chosenPlayer['position'] == list(params.keys())[0]:
-            newFilters = relayoutData_filtering(*params[chosenPlayer['position']])
 
     # print(chosenPositions)
 
@@ -274,32 +251,42 @@ def applyFilters(value, chosenPositions, chosenPlayer, footPreference, filters, 
 # -------------------------------------------------------------
 # Callbacks for position specific plots: Alexandru
 # -------------------------------------------------------------
-@callback([Output(component_id='graph1', component_property='figure'), Output(component_id='graph2', component_property='figure')],
-    Input('filters', 'data'), Input('chosen_player', 'data'))  # Updates the position-specific plots based on the position
-def update_output(filters, chosenPlayer):
+
+@callback(Output(component_id='graph1', component_property='figure'),
+          Input('filters', 'data'), Input('chosen_player', 'data'),
+          Input('attributes_dropdown', 'value'))  # Updates the position-specific plots based on the position
+def update_output(filters, chosenPlayer, attribute):
     filterDataFrame = getFilteredDF(filters)
     try:
         if chosenPlayer['position'] == 'FW':
-            fig1 = px.scatter(filterDataFrame, x='shots_on_target', y='goals', color=filterDataFrame['offsides'], title='Goal Scoring Efficiency', labels={'shots_on_target': 'Shots on target', 'goals': 'Goals', 'color': 'Number of Offsides'}, hover_data=['player'])
-            fig1.update_layout(coloraxis_colorbar=dict(title='Number of Offsides'))
-            fig2 = px.scatter(filterDataFrame, x='dribbles_completed', y='miscontrols', title='Ball Handling Skills', labels={'dribbles_completed': 'Dribbles Completed', 'miscontrols': 'Miscontrols'}, hover_data=['player'])
+            fig1 = px.parallel_coordinates(filterDataFrame, color="birth_year", dimensions=attribute)
+        # if chosenPlayer['position'] == 'FW':
+        #     fig1 = px.scatter(filterDataFrame, x='shots_on_target', y='goals', color=filterDataFrame['offsides'], title='Goal Scoring Efficiency', labels={'shots_on_target': 'Shots on target', 'goals': 'Goals', 'color': 'Number of Offsides'}, hover_data=['player'])
+        #     fig1.update_layout(coloraxis_colorbar=dict(title='Number of Offsides'))
+        #     fig2 = px.scatter(filterDataFrame, x='dribbles_completed', y='miscontrols', title='Ball Handling Skills', labels={'dribbles_completed': 'Dribbles Completed', 'miscontrols': 'Miscontrols'}, hover_data=['player'])
 
         elif chosenPlayer['position'] == 'MF':
-            fig1 = px.scatter(filterDataFrame, x='gca', y='passes_completed', title='Correlation Between Goal-Creating Actions and Passes Completed', labels={'gca': 'Goal-Creating Actions', 'passes_completed': 'Passes completed'}, hover_data=['player'])
-            fig2 = px.scatter(filterDataFrame, x='dribbles_completed', y='miscontrols', title='Ball Handling Skills', labels={'dribbles_completed': 'Dribbles Completed', 'miscontrols': 'Miscontrols'}, hover_data=['player'])
+            fig1 = px.parallel_coordinates(filterDataFrame, color="birth_year", dimensions=attribute)
+            # fig1 = px.scatter(filterDataFrame, x='gca', y='passes_completed', title='Correlation Between Goal-Creating Actions and Passes Completed', labels={'gca': 'Goal-Creating Actions', 'passes_completed': 'Passes completed'}, hover_data=['player'])
+            # fig2 = px.scatter(filterDataFrame, x='dribbles_completed', y='miscontrols', title='Ball Handling Skills', labels={'dribbles_completed': 'Dribbles Completed', 'miscontrols': 'Miscontrols'}, hover_data=['player'])
 
         elif chosenPlayer['position'] == 'DF':
-            fig1 = px.scatter(filterDataFrame, x='blocked_passes', y='clearances', title='Defensive Interventions', labels={'blocked_passes': 'Blocked passes', 'clearances': 'Clearances'}, hover_data=['player'])
-            fig2 = px.scatter(filterDataFrame, x='tackles_won', y='interceptions', title="Analysing player's interception skills", labels={'tackles_won': 'Tackles won', 'interceptions': 'Interceptions'}, hover_data=['player'])
+            fig1 = px.parallel_coordinates(filterDataFrame, color="birth_year", dimensions=attribute)
+            # fig1 = px.scatter(filterDataFrame, x='blocked_passes', y='clearances', title='Defensive Interventions', labels={'blocked_passes': 'Blocked passes', 'clearances': 'Clearances'}, hover_data=['player'])
+            # fig2 = px.scatter(filterDataFrame, x='tackles_won', y='interceptions', title="Analysing player's interception skills", labels={'tackles_won': 'Tackles won', 'interceptions': 'Interceptions'}, hover_data=['player'])
 
         else:  # POSITION==GK
-            fig1 = px.scatter(filterDataFrame, x='gk_save_pct', y='gk_goals_against_per90', title='Goalkeeping Mastery: Balancing Saves and Goals Against')
-            fig2 = px.scatter(filterDataFrame, x='gk_clean_sheets', y='age', title='Comparison of Age and Performance in Goalkeeping')
+            fig1 = px.parallel_coordinates(filterDataFrame, color="birth_year", dimensions=attribute)
+            # fig1 = px.scatter(filterDataFrame, x='gk_save_pct', y='gk_goals_against_per90', title='Goalkeeping Mastery: Balancing Saves and Goals Against')
+            # fig2 = px.scatter(filterDataFrame, x='gk_clean_sheets', y='age', title='Comparison of Age and Performance in Goalkeeping')
 
-        return fig1, fig2
+        return fig1
 
     except:
         return dash.no_update
+
+
+
 
 
 # -------------------------------------------------------------
@@ -320,6 +307,10 @@ def update_general_plots(filters):
         return dash.no_update
 
 
+
+# -------------------------------------------------------------
+# Bookmark box : Alicia
+# -------------------------------------------------------------
 @callback(
     Output('bookmarks_sidebar_back', 'style', allow_duplicate=True),
     Output('bookmarks_sidebar', 'style', allow_duplicate=True),
@@ -378,3 +369,15 @@ def clearBookmarks(n_clicks):
 #     except:
 #         return dash.no_update
 #     return list(set(currentBookmarks))
+
+# -------------------------------------------------------------
+# Callbacks for adding the clicked player to bookmarks: Akseniia
+# -------------------------------------------------------------
+@callback(Output('bookmarked_players', 'data', allow_duplicate=True), Input('bookmark_clicked', 'n_clicks'), Input('clicked_player', 'data'), Input('bookmarked_players', 'data'), prevent_initial_call=True)
+def addPlayerToBookmarks(n_clicks, clickedPlayer, currentBookmarks):
+    try:
+        if n_clicks > 0:
+            currentBookmarks += [clickedPlayer]
+    except:
+        return dash.no_update
+    return list(set(currentBookmarks))

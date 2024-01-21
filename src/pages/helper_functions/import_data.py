@@ -8,7 +8,7 @@ def getAgeYears(ageString):
 def importData():
 
     # TODO: wrap the generation of the merged dataset with a separate module/function.
-    files = ["player_shooting.csv", "player_defense.csv", "player_gca.csv", "player_possession.csv", "player_playingtime.csv", "player_passing.csv", "player_misc.csv"]
+    files = ["player_shooting.csv", "player_defense.csv", "player_gca.csv", "player_possession.csv", "player_playingtime.csv", "player_passing.csv", "player_passing_types.csv", "player_misc.csv"]
     # TODO: bug: when including player_gca.csv the df will be sliced (as there are only 41 rows there) and we merge with it.
     frames = []
 
