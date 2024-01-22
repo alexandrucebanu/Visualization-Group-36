@@ -37,7 +37,7 @@ def layout(sourceDF,chosenPlayer):
 
         # Filter based on foot preference
         html.Div(
-            [html.H3('Filter based on position'), html.Div([
+            [html.H3('Filter based on dominant foot'), html.Div([
             dcc.Checklist(['Left','Right'], 
                 ['Left','Right'],
                 id='foot_preference')],
