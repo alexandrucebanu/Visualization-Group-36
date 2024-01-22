@@ -33,4 +33,9 @@ def importData():
     sourceDF = sourceDF.merge(external, on='short_name', how='left')
     sourceDF = sourceDF.drop('short_name', axis=1)
 
+    # Impute NA's in the wage_eur with the mean
+    mean_wage = sourceDF['wage_eur'].mean()
+    sourceDF['wage_eur'] = sourceDF['wage_eur'].fillna(mean_wage)
+    sourceDF['wage_eur'] = sourceDF['wage_eur'].astype(int)
+
     return sourceDF

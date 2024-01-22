@@ -14,7 +14,6 @@ from pages.components.header import getAppHeader
 from pages.components import altered_general_page
 from .helpers import fontIcon
 
-
 sourceDF = import_data.importData()
 
 possiblePositions = ['MF', 'DF', 'GK', 'FW']
@@ -38,19 +37,19 @@ def getFilteredDF(filters):
     # All interval masks
     variables = ['age', 'movement_sprint_speed', 'movement_reactions',
 
-        # General plots
-        'power_jumping', 'power_stamina',
+                 # General plots
+                 'power_jumping', 'power_stamina',
 
-        # Specific plots
-        'shots_on_target', 'goals',
-        'dribbles_completed', 'miscontrols',
-        'gca', 'passes_completed',
-        'dribbles_completed', 'miscontrols',
-        'blocked_passes', 'clearances',
-        'tackles_won', 'interceptions'
-        # 'gk_save_pct', 'gk_goals_against_per90',
-        # 'gk_clean_sheets', 'age'
-    ]
+                 # Specific plots
+                 'shots_on_target', 'goals',
+                 'dribbles_completed', 'miscontrols',
+                 'gca', 'passes_completed',
+                 'dribbles_completed', 'miscontrols',
+                 'blocked_passes', 'clearances',
+                 'tackles_won', 'interceptions'
+                 # 'gk_save_pct', 'gk_goals_against_per90',
+                 # 'gk_clean_sheets', 'age'
+                 ]
 
     variables_relevant = [var for var in variables if var in filters.keys()]
     interval_masks = reduce(lambda x, y: x & y, [intervalMask(sourceDF, var, filters) for var in variables_relevant])
@@ -98,17 +97,23 @@ def playerInfoBox(player):
     return html.Div(id='player-image-container', className='player-chosen-container', children=
     [
         html.Div(className='half', children=[getPlayerImageElement(player['player']),
-            html.Div(player['player'], className='player-name'),  # Team flag
-            html.Div([html.Img(src=dash.get_asset_url(getCountryFlagPath(getPlayerTeam(player['player'])))), ], className='team-flag')
-        ]
-        ),  # Separating bar
+                                             html.Div(player['player'], className='player-name'),  # Team flag
+                                             html.Div([html.Img(src=dash.get_asset_url(
+                                                 getCountryFlagPath(getPlayerTeam(player['player'])))), ],
+                                                      className='team-flag')
+                                             ]
+                 ),  # Separating bar
         html.Div(className='separating-bar'),  # Right half (question mark and search bar)
         html.Div(id='clicked_player', className='half', children=[  # Question mark image
-            html.Div([html.Img(id='unknown-player-icon', src=dash.get_asset_url('icons/magnifier.png'))], className='unknown-player-icon'),  # Search bar
-            dcc.Dropdown(id='select_player_name_chosen', options=[{'label': playerItem[1], 'value': playerItem[0]} for playerItem in playersList], placeholder="Search for a player...", ), ]),
+            html.Div([html.Img(id='unknown-player-icon', src=dash.get_asset_url('icons/magnifier.png'))],
+                     className='unknown-player-icon'),  # Search bar
+            dcc.Dropdown(id='select_player_name_chosen',
+                         options=[{'label': playerItem[1], 'value': playerItem[0]} for playerItem in playersList],
+                         placeholder="Search for a player...", ), ]),
 
         # Selected player information outside 'clicked_player'
-        html.Div(id='selected-player-info', children=[html.Button(id='bookmark_clicked', className='hidden')], className='half', ),
+        html.Div(id='selected-player-info', children=[html.Button(id='bookmark_clicked', className='hidden')],
+                 className='half', ),
     ])
     # html.Div
 
@@ -128,12 +133,12 @@ def layout(player_id=None):
             html.Aside(children=[
                 html.Div(className='aside_content', children=[
                     playerInfoBox(player), filters.layout(sourceDF, player),
-                ]), html.Span('chevron_left', id='close_aside', className='close-aside material-symbols-rounded')], id='aside'),
+                ]), html.Span('chevron_left', id='close_aside', className='close-aside material-symbols-rounded')],
+                id='aside'),
             html.Div(id='columns', children=[altered_general_page.main_page_changed(player)]),
 
         ], id='general_page', className='player_chosen_show_aside')
     ])
-
 
 
 # --------------------------------------------------------------------------------------------------------------------------
@@ -154,7 +159,6 @@ def toggleAside(n_clicks, currentClass):
     if currentClass == "player_chosen_hide_aside":
         return "player_chosen_show_aside"
     return "player_chosen_hide_aside"
-
 
 
 # -------------------------------------------------------------
@@ -184,27 +188,28 @@ def updateClickedPlayer(clickedPlayerID):
     return [
         getPlayerImageElement(player['player']),
         html.Div(player['player'], className='player-name'),  # Team flag
-        html.Div([html.Img(src=dash.get_asset_url(getCountryFlagPath(getPlayerTeam(player['player'])))), ], className='team-flag'),
+        html.Div([html.Img(src=dash.get_asset_url(getCountryFlagPath(getPlayerTeam(player['player'])))), ],
+                 className='team-flag'),
         html.Button(id='bookmark_clicked_player', children=[fontIcon('star'), 'Bookmark'])
     ]
 
 
-@callback(Output('clicked_player', 'data', allow_duplicate=True), Input('graph1', 'clickData'), prevent_initial_call=True)
+@callback(Output('clicked_player', 'data', allow_duplicate=True), Input('graph1', 'clickData'),
+          prevent_initial_call=True)
 def updateClickedPlayer(clickData):
     return int(sourceDF.index[sourceDF['player'] == clickData['points'][0]['customdata'][0]][0])
 
 
-
-@callback(Output('clicked_player', 'data', allow_duplicate=True), Input('graph1_general', 'clickData'), prevent_initial_call=True)
+@callback(Output('clicked_player', 'data', allow_duplicate=True), Input('graph1_general', 'clickData'),
+          prevent_initial_call=True)
 def updateClickedPlayer(clickData):
     return int(sourceDF.index[sourceDF['player'] == clickData['points'][0]['customdata'][0]][0])
 
 
-@callback(Output('clicked_player', 'data', allow_duplicate=True), Input('graph2_general', 'clickData'), prevent_initial_call=True)
+@callback(Output('clicked_player', 'data', allow_duplicate=True), Input('graph2_general', 'clickData'),
+          prevent_initial_call=True)
 def updateClickedPlayer(clickData):
     return int(sourceDF.index[sourceDF['player'] == clickData['points'][0]['customdata'][0]][0])
-
-
 
 
 def getPlayerById(playerId):
@@ -231,8 +236,12 @@ def relayoutData_filtering(relayoutData, newFilters: dict, var1: str, var2: str)
 # -------------------------------------------------------------
 # Callback for when the age filter slide is changed: Dana
 # -------------------------------------------------------------
-@callback(Output('age_histogram', 'children'), Output('filters', 'data'),
+@callback(
+    Output('age_histogram', 'children'),
+    Output('wage_histogram', 'children'),
+    Output('filters', 'data'),
     Input('age_slider', 'value'),
+    Input('wage_slider', 'value'),
     Input('chosen_positions', 'value'),
     Input('chosen_player', 'data'),
     Input('foot_preference', 'value'),
@@ -240,24 +249,38 @@ def relayoutData_filtering(relayoutData, newFilters: dict, var1: str, var2: str)
     Input('graph1_general', 'relayoutData'),
     Input('graph2_general', 'relayoutData'),
 )
-def applyFilters(value, chosenPositions, chosenPlayer, footPreference, filters, relayoutData_general1, relayoutData_general2):
+def applyFilters(value, wageRange, chosenPositions, chosenPlayer, footPreference, filters, relayoutData_general1,
+                 relayoutData_general2):
     a = sourceDF['age']
     mask = ((a >= value[0]) & (a <= value[1]))
 
+    wageSeries = sourceDF['wage_eur'].dropna()
+    maskWage = ((wageSeries >= wageRange[0]) & (wageSeries <= wageRange[1]))
+
     global df
     sourceDF['in_bound'] = mask.map(map_in_bound)
+    sourceDF['in_bound_wage'] = maskWage.map(map_in_bound)
 
     # Age/wage histogram
     numberOfBins = len(a.unique())
-    fig = px.histogram(sourceDF, x="age", nbins=numberOfBins, color='in_bound', color_discrete_map={"YES": "#2196f3", "NO": "#E9E9E9"})
-    fig.update_layout(yaxis_visible=False, xaxis_title=None, yaxis_showticklabels=False, xaxis_showticklabels=False, showlegend=False)
-    fig.update_layout(margin={'l': 0, 't': 0, 'b': 0, 'r': 0}, plot_bgcolor='white')
+    figAge = px.histogram(sourceDF, x="age", nbins=numberOfBins, color='in_bound',
+                          color_discrete_map={"YES": "#2196f3", "NO": "#E9E9E9"})
+    figAge.update_layout(yaxis_visible=False, xaxis_title=None, yaxis_showticklabels=False, xaxis_showticklabels=False,
+                         showlegend=False)
+    figAge.update_layout(margin={'l': 0, 't': 0, 'b': 0, 'r': 0}, plot_bgcolor='white')
+
+    figWage = px.histogram(sourceDF, x="wage_eur", nbins=10, color='in_bound_wage',
+                           color_discrete_map={"YES": "#2196f3", "NO": "#E9E9E9"})
+    figWage.update_layout(yaxis_visible=False, xaxis_title=None, yaxis_showticklabels=False, xaxis_showticklabels=False,
+                          showlegend=False)
+    figWage.update_layout(margin={'l': 0, 't': 0, 'b': 0, 'r': 0}, plot_bgcolor='white')
 
     # Apply filters
     newFilters = filters
     newFilters['age'] = value
     newFilters['chosen_positions'] = chosenPositions
     newFilters['preferred_foot'] = footPreference
+    newFilters['wage'] = wageRange
 
     parameter_list_general = [
         [relayoutData_general1, newFilters, 'movement_sprint_speed', 'power_stamina'],
@@ -267,7 +290,11 @@ def applyFilters(value, chosenPositions, chosenPlayer, footPreference, filters, 
     for params in parameter_list_general:
         newFilters = relayoutData_filtering(*params)
 
-    return dcc.Graph(figure=fig, config={'staticPlot': True}, style={'width': 'calc(100% - 20px)', 'height': '60px', 'margin': '5px auto'}), newFilters
+    ageGraph = dcc.Graph(figure=figAge, config={'staticPlot': True},
+                         style={'width': 'calc(100% - 20px)', 'height': '60px', 'margin': '5px auto'})
+    wageGraph = dcc.Graph(figure=figWage, config={'staticPlot': True},
+                          style={'width': 'calc(100% - 20px)', 'height': '60px', 'margin': '5px auto'})
+    return ageGraph, wageGraph, newFilters
 
 
 def getHumanReadableFeatureName(featureName):
@@ -279,9 +306,6 @@ def getHumanReadableFeatureName(featureName):
     return featureName.replace('_', ' ').title()
 
 
-
-
-
 def getColorScale():
     colors = {
         "chosen": "rgb(95,175,1)",
@@ -289,7 +313,8 @@ def getColorScale():
         "others": "rgb(14,69,96)"
     }
     # TODO: the following return is uglier than my high-school Arabic teacher. Fix it.
-    return [(0.00, colors['others']), (0.4, colors['others']), (0.4, colors['bookmarked']), (0.6, colors['bookmarked']), (0.6, colors['chosen']), (1, colors['chosen'])]
+    return [(0.00, colors['others']), (0.4, colors['others']), (0.4, colors['bookmarked']), (0.6, colors['bookmarked']),
+            (0.6, colors['chosen']), (1, colors['chosen'])]
 
 
 # -------------------------------------------------------------
@@ -310,12 +335,10 @@ def updatePositionSpecificPlot(filters, chosen_player_id, chosenFeatures, bookma
     filteredDataFrame['color'] = filteredDataFrame['id'].isin(list(bookmarkedPlayers)).map({True: 5, False: 1})
     filteredDataFrame.at[chosen_player_id, 'color'] = 10
 
-    figure = px.parallel_coordinates(filteredDataFrame, height=700, color="color", range_color=[0, 10], dimensions=chosenFeatures, labels=labels, color_continuous_scale=getColorScale())
+    figure = px.parallel_coordinates(filteredDataFrame, height=700, color="color", range_color=[0, 10],
+                                     dimensions=chosenFeatures, labels=labels, color_continuous_scale=getColorScale())
     figure.update_coloraxes(showscale=False)
     return figure
-
-
-
 
 
 # -------------------------------------------------------------
@@ -336,8 +359,14 @@ def update_general_plots(filters, bookmarkedPlayers, chosen_player_id):
     filteredDataFrame.at[chosen_player_id, 'color'] = 10
 
     try:
-        fig12 = px.scatter(filteredDataFrame, color="color", color_continuous_scale=getColorScale(), x="movement_sprint_speed", y='power_stamina', title='Sprint Speed and Stamina', labels={'movement_sprint_speed': 'Sprint Speed [FIFA scores]', 'power_stamina': 'Stamina [FIFA scores]'}, hover_data=['player'])
-        fig22 = px.scatter(filteredDataFrame, color="color", color_continuous_scale=getColorScale(), x="power_jumping", y='movement_reactions', title='Power Jumping and Movement Reaction', labels={'power_jumping': 'Power Jumping [FIFA Scores]', 'movement_reactions': 'Movement Reactions [FIFA Scores]'}, hover_data=['player'])
+        fig12 = px.scatter(filteredDataFrame, color="color", color_continuous_scale=getColorScale(),
+                           x="movement_sprint_speed", y='power_stamina', title='Sprint Speed and Stamina',
+                           labels={'movement_sprint_speed': 'Sprint Speed [FIFA scores]',
+                                   'power_stamina': 'Stamina [FIFA scores]'}, hover_data=['player'])
+        fig22 = px.scatter(filteredDataFrame, color="color", color_continuous_scale=getColorScale(), x="power_jumping",
+                           y='movement_reactions', title='Power Jumping and Movement Reaction',
+                           labels={'power_jumping': 'Power Jumping [FIFA Scores]',
+                                   'movement_reactions': 'Movement Reactions [FIFA Scores]'}, hover_data=['player'])
 
         fig12.update_coloraxes(showscale=False)
         fig22.update_coloraxes(showscale=False)
@@ -346,7 +375,6 @@ def update_general_plots(filters, bookmarkedPlayers, chosen_player_id):
 
     except:
         return dash.no_update
-
 
 
 # -------------------------------------------------------------
@@ -384,7 +412,6 @@ def hideBookmarkedPlayersSidebar(n_clicks, style):
     return style, style
 
 
-
 # -------------------------------------------------------------
 # Callback to update the bookmarked players sidebar and the navigator link (to bookmarks page) based on the latest bookmarks: Dana
 # -------------------------------------------------------------
@@ -416,7 +443,6 @@ def appendNewBookmarksToLists(bookmarkedPlayerIDS):
     ])], 0, 'hidden'
 
 
-
 # -------------------------------------------------------------
 # Callbacks for resetting the bookmarked players id list back to an empty list: Dana
 # -------------------------------------------------------------
@@ -427,8 +453,6 @@ def appendNewBookmarksToLists(bookmarkedPlayerIDS):
 )
 def clearBookmarks(n_clicks):
     return []
-
-
 
 
 # -------------------------------------------------------------

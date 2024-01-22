@@ -8,8 +8,10 @@ import plotly.express as px
 
 def layout(sourceDF,chosenPlayer):
     possiblePositions = list(sourceDF['position'].unique())  # TODO: this might not be very efficient (it's a static list but it's computed by every render)
-    a = sourceDF['age']
-    nrbins = len(a.unique())
+    ageSeries = sourceDF['age']
+    wageSeries = sourceDF['wage_eur']
+    nrbins = len(ageSeries.unique())
+    nrbinsWage = len(wageSeries.unique())
     fig = px.histogram(sourceDF, x="age", nbins=nrbins)
     fig.update_traces(marker_color='#2196f3')
     fig.update_layout(yaxis_visible=False, xaxis_title=None, yaxis_showticklabels=False, xaxis_showticklabels=False)
@@ -21,10 +23,17 @@ def layout(sourceDF,chosenPlayer):
         html.Div(
             [html.H3('Filter based on age'), 
             html.Div("Waiting...", id='age_histogram'), 
-            dcc.RangeSlider(min(a), max(a), value=[min(a), max(a)], 
+            dcc.RangeSlider(min(ageSeries), max(ageSeries), value=[min(ageSeries), max(ageSeries)],
                 tooltip={"placement": "bottom", "always_visible": True}, 
-                id='age_slider', step=1, marks={min(a) + 3 * int(i / 3): str(min(a) + 3 * int(i / 3)) for i in range(round((max(a) - min(a)) * 3))})],
-            id='wage_filter', className='filter_block'), 
+                id='age_slider', step=1, marks={min(ageSeries) + 3 * int(i / 3): str(min(ageSeries) + 3 * int(i / 3)) for i in range(round((max(ageSeries) - min(ageSeries)) * 3))})],
+            id='age_filter', className='filter_block'),
+        html.Div(
+            [html.H3('Filter based on wage'),
+            html.Div("Waiting...", id='wage_histogram'),
+            dcc.RangeSlider(min(wageSeries), max(wageSeries), value=[min(wageSeries), max(wageSeries)],
+                tooltip={"placement": "bottom", "always_visible": True},
+                id='wage_slider', step=50000)],
+            id='wage_filter', className='filter_block'),
 
         # Position filter
         html.Div(
