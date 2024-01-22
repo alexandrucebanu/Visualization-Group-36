@@ -7,14 +7,14 @@ from dataAdapters import getCountryFlagPath, playerImageDirectory, getPlayerTeam
 from .components import specific_players
 from .components import general_plots
 from .components import filters
-from .helper_functions import import_data
 import plotly.express as px
 from functools import reduce
 from pages.components.header import getAppHeader
 from pages.components import altered_general_page
 from .helpers import fontIcon
 
-sourceDF = import_data.importData()
+filePath = os.path.join(os.path.dirname(__file__), ('../data/' + 'merged_data.csv'))
+sourceDF = pd.read_csv(filePath)
 
 possiblePositions = ['MF', 'DF', 'GK', 'FW']
 
@@ -63,9 +63,10 @@ def getFilteredDF(filters):
 
     # foot preference mask
     b = sourceDF['preferred_foot']
+
     footMask = False
-    preferredFoot = filters['preferred_foot']
-    for preferredFoot in preferredFoot:
+    preferredFoot_filter = filters['preferred_foot']
+    for preferredFoot in preferredFoot_filter:
         footMask = ((footMask) | (b == preferredFoot))
 
     # Return the filtered dataframe

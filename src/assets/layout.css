@@ -756,6 +756,11 @@ header #bookmarked_checkout {
     top: 75px
 }
 
+#foot_filter label:nth-child(3) { /*Right foot*/
+    left: 15px;
+    top: 15px
+}
+
 .invalid_image {
     width: 100px;
     display: block;
