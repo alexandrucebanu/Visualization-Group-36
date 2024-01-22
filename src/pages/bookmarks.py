@@ -56,7 +56,7 @@ df_standardised.rename(columns={categories[i]: titles[i] for i in range(len(cate
 
 min_vals = df_standardised.min()
 df_standardised[titles] = df_standardised[titles] - min_vals
-
+df_standardised['player'] = sourceDF['player']
 
 def layout(player_id=None):
     # player = sourceDF.iloc[[player_id]].to_dict(orient='records')[0]
@@ -130,8 +130,16 @@ def addTabs():
     ])
 
 
-def makeRadar(titles, bookmarkedPlayerIDS):
+def makeRadar(titles, bookmarkedPlayerIDS, chosen_player):
     fig = go.Figure()
+
+    # Chosen player
+    fig.add_trace(go.Scatterpolar(
+            theta=titles,
+            r=[df_standardised[df_standardised['player'] == chosen_player['player']][var] for var in titles],
+            fill='toself',
+            name=chosen_player['player']
+        ))
 
     for player_ID in bookmarkedPlayerIDS:
         fig.add_trace(go.Scatterpolar(
@@ -162,25 +170,26 @@ def makeRadar(titles, bookmarkedPlayerIDS):
 
 @callback(Output('tabs-content-classes', 'children'),
     Input('tabs-with-classes', 'value'),
-    Input('bookmarked_players', 'data'))
-def render_content(tab, bookmarkedPlayerIDS):
+    Input('bookmarked_players', 'data'),
+    Input('chosen_player', 'data'))
+def render_content(tab, bookmarkedPlayerIDS, chosen_player):
     # Get list of bookmarked players
     bookmarkedPlayerIDS = list(set(bookmarkedPlayerIDS))
     bookmarkedPlayerIDS = [i for i in bookmarkedPlayerIDS if i != None]
 
     # Returns the appropriate radar chart
     if tab == 'tab-stats':
-        return makeRadar(titles_stats, bookmarkedPlayerIDS)
+        return makeRadar(titles_stats, bookmarkedPlayerIDS, chosen_player)
     elif tab == 'tab-passing':
-        return makeRadar(titles_passing, bookmarkedPlayerIDS)
+        return makeRadar(titles_passing, bookmarkedPlayerIDS, chosen_player)
     elif tab == 'tab-set-piece':
-        return makeRadar(titles_set_piece, bookmarkedPlayerIDS)
+        return makeRadar(titles_set_piece, bookmarkedPlayerIDS, chosen_player)
     elif tab == 'tab-gca':
-        return makeRadar(titles_gca, bookmarkedPlayerIDS)
+        return makeRadar(titles_gca, bookmarkedPlayerIDS, chosen_player)
     elif tab == 'tab-shooting':
-        return makeRadar(titles_shooting, bookmarkedPlayerIDS)
+        return makeRadar(titles_shooting, bookmarkedPlayerIDS, chosen_player)
     elif tab == 'tab-defense':
-        return makeRadar(titles_defense, bookmarkedPlayerIDS)
+        return makeRadar(titles_defense, bookmarkedPlayerIDS, chosen_player)
 
 
 @callback(Output('chosen_player_box', 'children'), Input('chosen_player', 'data'))
