@@ -15,7 +15,11 @@ def getAppHeader():
                     html.H3('Bookmarked Player'),
                     html.Button(id='clear_bookmarks', children='Clear all'),
                 ], style={'overflow': 'hidden'}),
-                html.Div(id='bookmarks_sidebar_list')
+                html.Div(id='bookmarks_sidebar_list'),
+                dcc.Link(children=[
+                    html.Span(className='icon', style={'background-image': 'url({})'.format(dash.get_asset_url('icons/check.png'))}),
+                    'Compare bookmarks'
+                ], href='/bookmarks', id='compare_bookmarks')
             ]),
 
     ])

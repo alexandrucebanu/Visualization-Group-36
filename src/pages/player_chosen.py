@@ -129,7 +129,8 @@ def layout(player_id=None):
                 html.Div(className='aside_content', children=[
                     playerInfoBox(player), filters.layout(sourceDF, player),
                 ]), html.Span('chevron_left', id='close_aside', className='close-aside material-symbols-rounded')], id='aside'),
-            html.Div(id='columns', children=[altered_general_page.main_page_changed(player)])
+            html.Div(id='columns', children=[altered_general_page.main_page_changed(player)]),
+
         ], id='general_page', className='player_chosen_show_aside')
     ])
 
@@ -385,11 +386,12 @@ def hideBookmarkedPlayersSidebar(n_clicks, style):
 
 
 # -------------------------------------------------------------
-# Callback to update the bookmarked players sidebar based on the latest bookmarks: Dana
+# Callback to update the bookmarked players sidebar and the navigator link (to bookmarks page) based on the latest bookmarks: Dana
 # -------------------------------------------------------------
 @callback(
     Output('bookmarks_sidebar_list', 'children'),
     Output('bookmarks_count', 'children'),
+    Output('compare_bookmarks', 'className'),
     Input('bookmarked_players', 'data')
 )
 def appendNewBookmarksToLists(bookmarkedPlayerIDS):
@@ -397,14 +399,21 @@ def appendNewBookmarksToLists(bookmarkedPlayerIDS):
     bookmarkedPlayerIDS = [i for i in bookmarkedPlayerIDS if i != None]
     bookmarkedPlayers = sourceDF.iloc[bookmarkedPlayerIDS].to_dict(orient='records')
     if len(bookmarkedPlayers):
-        return [
-            html.Div(className='bookmarked_player', children=[player['player']])
-            for player in bookmarkedPlayers
-        ], len(bookmarkedPlayerIDS)
+        return (
+            [
+                html.Div(className='bookmarked_player', children=[
+                    player['player'],
+                    html.Img(src=dash.get_asset_url(getCountryFlagPath(getPlayerTeam(player['player']))))
+                    , html.Span("{} y.o".format(player['age']), className='playerAge')
+                ])
+                for player in bookmarkedPlayers
+            ],
+            len(bookmarkedPlayerIDS),
+            'visible')
     return [html.Div(id='no_bookmarks_yet', children=[
         fontIcon('sentiment_neutral'),
         html.H4('No bookmarks yet!'),
-    ])], 0
+    ])], 0, 'hidden'
 
 
 

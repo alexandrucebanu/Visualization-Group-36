@@ -999,6 +999,25 @@ header #bookmarked_checkout {
     padding: 15px 0;
 }
 
+#bookmarks_sidebar .bookmarked_player .playerAge {
+    font-size: 12px;
+    float: right;
+}
+
+#bookmarks_sidebar .bookmarked_player img {
+    float: left;
+    margin-right: 8px;
+    border-radius: 2px;
+    border: 1px solid #ededed;
+    width: 20px;
+    margin-top: 3px;
+
+}
+
+#bookmarks_sidebar .bookmarked_player:last-child {
+    border-bottom: none !important;
+}
+
 
 #columns {
     /*display: flex;*/
@@ -1042,7 +1061,7 @@ header #bookmarked_checkout {
     border-top-left-radius: 7px;
     border-right: 1px solid #ffffff00;
     /* border-right: 1px solid rgba(0,126,255,.24); */
-    padding:3px;
+    padding: 3px;
     padding-right: 6px;
     height: 24px;
     padding-left: 8px;
@@ -1077,26 +1096,76 @@ Select--multi .Select-value-label {
     width: 100% !important;
     border-radius: 8px !important;
     /*border:1px solid #ededed !important;*/
-    border:none !important;
+    border: none !important;
     margin: auto;
     box-shadow: none;
 }
+
 .chose_attributes {
-    margin:40px 0;
+    margin: 40px 0;
     height: 70px;
-    padding:0 20px;
+    padding: 0 20px;
 }
+
 .chose_attributes label {
     overflow: hidden;
     width: 150px;
     font-size: 13px;
-    padding-top:10px;
+    padding-top: 10px;
     float: left;
     padding-right: 10px;
 }
+
 .overflow-hidden {
     overflow: hidden;
 }
+
 .clear {
     clear: both;
+}
+
+#compare_bookmarks {
+    /*position: fixed;*/
+    z-index: 100000000;
+    /*right: 40px;*/
+    /*bottom: 40px;*/
+    background: #f7f7f7;
+    line-height: 20px;
+    padding: 10px 18px;
+    color: #000;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 500;
+    border: 1px solid #ededed;
+    margin: 40px auto;
+    display: block;
+    width: fit-content;
+    transition: 0.4s;
+    display: none;
+}
+
+#compare_bookmarks.visible {
+    display: block !important;
+    opacity: 1;
+}
+
+#compare_bookmarks.hidden {
+    display: none;
+    opacity: 1;
+}
+
+#compare_bookmarks:hover {
+    background: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+    color: #1f9d51;
+}
+
+#compare_bookmarks span {
+    float: left;
+    width: 20px;
+    height: 20px;
+
+    background-position: center;
+    background-size: cover;
+    margin-right: 10px;
 }
