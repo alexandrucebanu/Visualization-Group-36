@@ -22,6 +22,16 @@ def getHumanReadableFeatureName(featureName):
 # App layout
 # --------------------------------------------------------------------------------------------------------------
 
+
+def featureNamesTransformed(name):
+    mapping = {
+        'gca': 'goal creating actions'
+    }
+    if name in list(mapping.keys()):
+        return mapping[name]
+    return name
+
+
 def main_page_changed(player=None):
     position = player['position']
     positionAttributes = {
@@ -39,6 +49,7 @@ def main_page_changed(player=None):
 
     return html.Div([
         html.Div(id='first_half',
+
             children=[
                 html.Div(id='position_container',
                     style={'alignItems': 'center', 'justifyContent': 'center'},
@@ -50,6 +61,7 @@ def main_page_changed(player=None):
                                 options=[{'label': getHumanReadableFeatureName(option), 'value': option} for option in positionAttributes[position]],
                                 value=defaultSelectedAttributes[position], multi=True, style={"float": 'left', "width": "calc(100% - 150px)", "padding": "0 2px"})
                         ]), ]),
+
                 html.Div(id='graph_inside_rectangle', children=[dcc.Graph(id='graph1', figure={}, style={
                     "borderBottom": "1px dashed #ededed"}
                 )])]
