@@ -7,7 +7,6 @@ from dataAdapters import getCountryFlagPath, playerImageDirectory, getPlayerTeam
 from .components import specific_players
 from .components import general_plots
 from .components import filters
-from .helper_functions import import_data
 import plotly.express as px
 from functools import reduce
 from pages.components.header import getAppHeader
@@ -15,7 +14,8 @@ from pages.components import altered_general_page
 from .helpers import fontIcon
 
 
-sourceDF = import_data.importData()
+filePath = os.path.join(os.path.dirname(__file__), ('../data/' + 'merged_data.csv'))
+sourceDF = pd.read_csv(filePath)
 
 possiblePositions = ['MF', 'DF', 'GK', 'FW']
 
@@ -64,9 +64,10 @@ def getFilteredDF(filters):
 
     # foot preference mask
     b = sourceDF['preferred_foot']
+
     footMask = False
-    preferredFoot = filters['preferred_foot']
-    for preferredFoot in preferredFoot:
+    preferredFoot_filter = filters['preferred_foot']
+    for preferredFoot in preferredFoot_filter:
         footMask = ((footMask) | (b == preferredFoot))
 
     # Return the filtered dataframe
@@ -242,9 +243,6 @@ def applyFilters(value, chosenPositions, chosenPlayer, footPreference, filters, 
     for params in parameter_list_general:
         newFilters = relayoutData_filtering(*params)
 
-
-    # print(chosenPositions)
-
     return dcc.Graph(figure=fig, config={'staticPlot': True}, style={'width': 'calc(100% - 20px)', 'height': '60px', 'margin': '5px auto'}), newFilters
 
 
@@ -286,17 +284,15 @@ def update_output(filters, chosenPlayer, attribute):
         return dash.no_update
 
 
-
-
-
 # -------------------------------------------------------------
 # Callbacks for general plots: Alicia
 # -------------------------------------------------------------
-@callback([Output(component_id='graph1_general', component_property='figure'), Output(component_id='graph2_general', component_property='figure')], Input('filters', 'data'))  # Updates the general plots based on filter
+@callback([Output(component_id='graph1_general', component_property='figure'), 
+            Output(component_id='graph2_general', component_property='figure')], 
+            Input('filters', 'data'))  # Updates the general plots based on filter
 def update_general_plots(filters):
     filterDataFrame = getFilteredDF(filters)
 
-    # TODO: Change the parameters of the plots!
     try:
         fig12 = px.scatter(filterDataFrame, x="movement_sprint_speed", y='power_stamina', title='Sprint Speed and Stamina', labels={'movement_sprint_speed': 'Sprint Speed [FIFA scores]', 'power_stamina': 'Stamina [FIFA scores]'}, hover_data=['player'])
         fig22 = px.scatter(filterDataFrame, x="power_jumping", y='movement_reactions', title='Power Jumping and Movement Reaction', labels={'power_jumping': 'Power Jumping [FIFA Scores]', 'movement_reactions': 'Movement Reactions [FIFA Scores]'}, hover_data=['player'])

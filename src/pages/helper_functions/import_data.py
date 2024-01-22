@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import re
 
 def getAgeYears(ageString):
     return int(ageString.split('-')[0])
@@ -25,12 +26,64 @@ def importData():
 
     # Merge data with external source
     external = pd.read_csv(os.path.join(os.path.dirname(__file__), ('../../data/' + 'players_22.csv')))
-    external = external[['short_name', 'wage_eur', 'value_eur', 'preferred_foot',
+    external = external[['short_name', 'long_name', 'wage_eur', 'value_eur', 'preferred_foot',
         'movement_sprint_speed', 'movement_reactions',
         'power_jumping', 'power_stamina']]
+    external = external.drop_duplicates(subset='long_name')
     external = external.drop_duplicates(subset='short_name')
-    sourceDF['short_name'] = sourceDF['player'].str.replace(r'^(\w)\w*\s', r'\1. ')
-    sourceDF = sourceDF.merge(external, on='short_name', how='left')
-    sourceDF = sourceDF.drop('short_name', axis=1)
+    external = external.reset_index()
 
-    return sourceDF
+    name_list = []
+    not_seen = []
+    for player_name in sourceDF['player']:
+        short_name_ = False
+        long_name_ = False
+        if (len(player_name.split()) == 1):
+            for short_name in external['short_name']:
+                if short_name == player_name:
+                    name_list.append(short_name)
+                    short_name_ = True
+                    break
+        
+        if short_name_ == False:
+            for long_name in external['long_name']:
+                if all((name in long_name) for name in player_name.split()):
+                    name_list.append(long_name)
+                    long_name_ = True
+                    break
+        
+        if (short_name_ == False) and (long_name_ == False):
+            not_seen.append(player_name)
+            name_list.append(0)
+    
+    name_list_ex = []
+    for i in range(0, len(external)):
+        if external.loc[i, 'short_name'] in name_list:
+            name_list_ex.append(external.loc[i, 'short_name'])
+        elif external.loc[i, 'long_name'] in name_list:
+            name_list_ex.append(external.loc[i, 'long_name'])
+        else:
+            name_list_ex.append('No match')
+
+    sourceDF['name'] = name_list
+    external['name'] = name_list_ex
+
+    add_list = []
+    for name in name_list:
+        if name in name_list_ex:
+            add_list.append(0)
+        else:
+            add_list.append(1)
+
+    #sourceDF['short_name'] = sourceDF['player'].str.replace(r'^(\w)\w*\s', r'\1. ')
+    sourceDF = sourceDF.merge(external, on='name', how='left')
+    sourceDF = sourceDF.drop('name', axis=1)
+
+    # Write to csv
+    filePath = os.path.join(os.path.dirname(__file__), ('../../data/' + 'merged_data.csv'))
+    sourceDF.to_csv(filePath)
+
+    filePath = os.path.join(os.path.dirname(__file__), ('../../data/' + 'merged_data.csv'))
+    frame = pd.read_csv(filePath, index_col=0)
+
+importData()

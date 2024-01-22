@@ -5,12 +5,8 @@ from dash import callback
 from dash import Input, Output
 from dash import dcc
 import plotly.graph_objects as go
-from .helper_functions import import_data
 import pandas as pd
-from .helper_functions import import_data
-
-# from .player_chosen import sourceDF, getPlayerImageElement
-sourceDF = import_data.importData()
+import os
 
 dash.register_page(__name__, path_template='/bookmarks')
 
@@ -18,7 +14,10 @@ dash.register_page(__name__, path_template='/bookmarks')
 # chosen_players = [482, 388, 134] # Neymar, messi, Ronaldo
 chosen_players = [4, 83, 410]  # Neymar, messi, Ronaldo
 
-sourceDF = import_data.importData()
+filePath = os.path.join(os.path.dirname(__file__), ('../data/' + 'merged_data.csv'))
+sourceDF = pd.read_csv(filePath)
+sourceDF = sourceDF.fillna(0)
+
 df_standardised = pd.DataFrame()
 
 # Statistics categories
@@ -150,8 +149,9 @@ def makeRadar(titles, bookmarkedPlayerIDS):
                 showticklabels=False,
                 showgrid=True,
                 autorange=True,
-            )),
-        showlegend=True
+            )
+        ),
+        showlegend=True,
     )
     fig.update_layout(margin={'l': 400, 't': 40, 'b': 0, 'r': 0})
 
@@ -185,7 +185,6 @@ def render_content(tab, bookmarkedPlayerIDS):
 
 @callback(Output('chosen_player_box', 'children'), Input('chosen_player', 'data'))
 def updateFirstPlaceHolder(chosenPlayer):
-    print(chosenPlayer)
     return [
         html.Img(src='assets/icons/player.png', className='player-image'),
         html.Div(className='player-details', style={'borderLeft': '1px solid #ededed', 'paddingLeft': '12px'}, children=[
