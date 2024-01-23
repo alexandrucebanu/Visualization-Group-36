@@ -15,7 +15,7 @@ def importData():
 
     counter = 0
     for file in files:
-        filePath = os.path.join(os.path.dirname(__file__), ('../../data/' + file))
+        filePath = os.path.join(os.path.dirname(__file__), ('../data/' + file))
         frame = pd.read_csv(filePath)
         frames.append(frame)
     sourceDF = frames[0]
@@ -25,7 +25,7 @@ def importData():
     sourceDF['age'] = (sourceDF['age']).map(getAgeYears)  # This is the dataframe form which the plots are being applied. Applying filters will limit the rows in this object.
 
     # Merge data with external source
-    external = pd.read_csv(os.path.join(os.path.dirname(__file__), ('../../data/' + 'players_22.csv')))
+    external = pd.read_csv(os.path.join(os.path.dirname(__file__), ('../data/' + 'players_22.csv')))
     external = external[['short_name', 'long_name', 'wage_eur', 'value_eur', 'preferred_foot',
         'movement_sprint_speed', 'movement_reactions',
         'power_jumping', 'power_stamina']]
@@ -33,6 +33,9 @@ def importData():
     external = external.drop_duplicates(subset='short_name')
     external = external.reset_index()
 
+    
+
+    sourceDF['wage_eur']=external['wage_eur']
     # Impute NA's in the wage_eur with the mean
     mean_wage = sourceDF['wage_eur'].mean()
     sourceDF['wage_eur'] = sourceDF['wage_eur'].fillna(mean_wage)
@@ -88,10 +91,10 @@ def importData():
     sourceDF = sourceDF.drop('name', axis=1)
 
     # Write to csv
-    filePath = os.path.join(os.path.dirname(__file__), ('../../data/' + 'merged_data.csv'))
+    filePath = os.path.join(os.path.dirname(__file__), ('../data/' + 'merged_data.csv'))
     sourceDF.to_csv(filePath)
 
-    filePath = os.path.join(os.path.dirname(__file__), ('../../data/' + 'merged_data.csv'))
+    filePath = os.path.join(os.path.dirname(__file__), ('../data/' + 'merged_data.csv'))
     frame = pd.read_csv(filePath, index_col=0)
 
 importData()
