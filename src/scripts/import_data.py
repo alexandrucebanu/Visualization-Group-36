@@ -33,13 +33,10 @@ def importData():
     external = external.drop_duplicates(subset='short_name')
     external = external.reset_index()
 
-    
-
-    sourceDF['wage_eur']=external['wage_eur']
     # Impute NA's in the wage_eur with the mean
-    mean_wage = sourceDF['wage_eur'].mean()
-    sourceDF['wage_eur'] = sourceDF['wage_eur'].fillna(mean_wage)
-    sourceDF['wage_eur'] = sourceDF['wage_eur'].astype(int)
+    mean_wage = external['wage_eur'].mean()
+    external['wage_eur'] = external['wage_eur'].fillna(mean_wage)
+    external['wage_eur'] = external['wage_eur'].astype(int)
 
     # ========================
     # Merge the two dataframes    
