@@ -12,6 +12,7 @@ from functools import reduce
 from pages.components.header import getAppHeader
 from pages.components import altered_general_page
 from .helpers import fontIcon
+import plotly.graph_objects as go
 
 # Setting up the file path for the merged data CSV file
 filePath = os.path.join(os.path.dirname(__file__), ('../data/' + 'merged_data.csv'))
@@ -518,11 +519,73 @@ def update_general_plots(filters, bookmarkedPlayers, chosen_player_id):
     filteredDataFrame['color'] = filteredDataFrame['id'].isin(list(bookmarkedPlayers)).map({True: 5, False: 1})
     filteredDataFrame.at[chosen_player_id, 'color'] = 10
 
+    filteredDataFrame = filteredDataFrame.reset_index()
+    #print(filteredDataFrame)
+    #print(chosen_player_id)
+    #print(filteredDataFrame[filteredDataFrame['level_0'] == chosen_player_id].index[0])
+
+    # Create a list to store the marker information for each data point
+    markers = ['^'] * len(filteredDataFrame)
+
+    # Set the marker type for the specific data point to be a square
+    #markers[filteredDataFrame[filteredDataFrame['level_0'] == chosen_player_id].index[0]] = ','
+
+    print(len(markers))
+    print(len(filteredDataFrame))
+
+    
+
     try:
-        fig12 = px.scatter(filteredDataFrame, color="color", color_continuous_scale=getColorScale(),
+        """fig12 = px.scatter(filteredDataFrame, color="color", color_continuous_scale=getColorScale(),
                            x="movement_sprint_speed", y='power_stamina', title='Sprint Speed and Stamina',
                            labels={'movement_sprint_speed': 'Sprint Speed [FIFA scores]',
-                                   'power_stamina': 'Stamina [FIFA scores]'}, hover_data=['player'])
+                                   'power_stamina': 'Stamina [FIFA scores]'}, hover_data=['player'],
+                            #mode='markers',
+                            #marker=markers
+                            #dict(
+                                #color='blue',  # Customize the color if needed
+                                #size=10,       # Customize the size if needed
+                                #symbol=markers  # Use the list of markers for each data point
+                            #)
+        )"""
+        fig12 = go.Figure()
+
+        # Add scatter trace with medium sized markers
+        fig12.add_trace(
+            go.Scatter(
+                mode='markers',
+                x=filteredDataFrame['movement_sprint_speed'],
+                y=filteredDataFrame['power_stamina'],
+                marker=dict(
+                    color='LightSkyBlue',
+                    size=20,
+                    line=dict(
+                        color='MediumPurple',
+                        width=2
+                    )
+                ),
+                showlegend=False
+            )
+        )
+        
+        fig12.add_trace(
+            go.Scatter(
+                mode='markers',
+                x=filteredDataFrame.loc[filteredDataFrame[filteredDataFrame['level_0'] == chosen_player_id].index[0], 'movement_sprint_speed'],
+                y=filteredDataFrame.loc[filteredDataFrame[filteredDataFrame['level_0'] == chosen_player_id].index[0], 'power_stamina'],
+                marker=dict(
+                    color='LightSkyBlue',
+                    size=120,
+                    line=dict(
+                        color='MediumPurple',
+                        width=12
+                    )
+                ),
+                showlegend=False
+            )
+        )
+
+
         fig22 = px.scatter(filteredDataFrame, color="color", color_continuous_scale=getColorScale(), x="power_jumping",
                            y='movement_reactions', title='Power Jumping and Movement Reaction',
                            labels={'power_jumping': 'Power Jumping [FIFA Scores]',
