@@ -12,6 +12,7 @@ from dash import dcc
 import plotly.graph_objects as go
 import pandas as pd
 import os
+from dataAdapters import get_first_vertical_image, playerImageDirectory, getCountryFlagPath, getPlayerTeam
 
 # Registering this file as a Dash page with a specific URL path
 dash.register_page(__name__, path_template='/bookmarks')
@@ -70,11 +71,9 @@ df_standardised[titles] = df_standardised[titles] - min_vals
 # Add player names to the standardised DataFrame
 df_standardised['player'] = sourceDF['player']
 
+
+
 def layout(player_id=None):
-    """
-    Defines the layout of the bookmarks page.
-    This function creates the main structure of the page including interactive components.
-    """
     # player = sourceDF.iloc[[player_id]].to_dict(orient='records')[0]
     return html.Div(id='bookmarks_page', children=[
         dcc.Store('chosen_player', storage_type='local'),
@@ -96,6 +95,7 @@ def layout(player_id=None):
 
         ])
     ])
+
 
 
 def addTabs():
@@ -220,6 +220,22 @@ def render_content(tab, bookmarkedPlayerIDS, chosen_player):
         return makeRadar(titles_defense, bookmarkedPlayerIDS, chosen_player)
 
 
+def getPlayerImageElement(playerName):
+    """
+    Retrieves the HTML element for the player's image.
+
+    :param playerName: The name of the player.
+    :type playerName: str
+    :return: HTML Div containing the player's image.
+    """
+    path = playerImageDirectory(playerName)
+    if (path):
+        image_path = get_first_vertical_image(path)
+        return html.Div([html.Img(src=dash.get_asset_url(image_path)), ], className='player-image')
+    else:
+        return html.Div([html.Img(src=dash.get_asset_url('icons/player.png'))], className='invalid_image')
+
+
 @callback(Output('chosen_player_box', 'children'), Input('chosen_player', 'data'))
 def updateFirstPlaceHolder(chosenPlayer):
     """
@@ -227,7 +243,7 @@ def updateFirstPlaceHolder(chosenPlayer):
     Called when a new player is selected, updating the displayed information.
     """
     return [
-        html.Img(src='assets/icons/player.png', className='player-image'),
+        getPlayerImageElement(chosenPlayer['player']),
         html.Div(className='player-details', style={'borderLeft': '1px solid #ededed', 'paddingLeft': '12px'}, children=[
             html.H4(chosenPlayer['player'], className='chosen_player_name'),
             html.Div(className='separating-bar'),
@@ -237,3 +253,4 @@ def updateFirstPlaceHolder(chosenPlayer):
             html.P('CARDS: yellow: {}, red: {}, yellow2: {}'.format(chosenPlayer['cards_yellow'], chosenPlayer['cards_red'], chosenPlayer['cards_yellow_red']), className='chosen_player_cards'),
         ])
     ]
+
