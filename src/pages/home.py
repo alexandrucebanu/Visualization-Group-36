@@ -16,13 +16,16 @@ playersList = [(index, player['player']) for index, player in df_defense.iterrow
 
 layout = [
     html.Div([
+        # Header with a background image
         html.Div(id='search_box_header', style={'background': (
             'linear-gradient(rgba(255,255,255,0), rgba(0,0,0,0.65)), url({}) center'.format(
                 dash.get_asset_url('backgrounds/soccer_field.jpg')))}),
+        # Logo image
         html.Div(id='logo',
                  style={'background': 'url(' + dash.get_asset_url('icons/icons8-soccer-94.png') + ')'}),
 
         html.H1('Welcome to Stratinder', style={'color': '#243E4C', 'display': 'block', 'textAlign': 'center'}),
+        # Search input container
         html.Div([
             # dcc.Input(id='search_input', type='text',
             #           placeholder='Search for the name of the player you want to substitute', debounce=False),
@@ -37,9 +40,13 @@ layout = [
     ], id='search_box'),
 ]
 
-
+# Callback function for updating search results based on player selection
 @callback(Output('results', 'children'), Input('select_player_name', 'value'))
 def choosePlayer(playerIdValue=None):
+    """
+    Updates the results section with player information based on the selected player ID.
+    If no player is selected, it returns an empty string.
+    """
     if not playerIdValue:
         return ""
     playerRow = df_defense.iloc[[playerIdValue]].to_dict(orient='records')[0]

@@ -19,6 +19,7 @@ allFlags = os.listdir(os.path.join(os.path.dirname(__file__), "../assets/flags")
 # manually exempting the country flags with names no in the dataset
 exemptions = ["gb-wls.png", "ir.png", "kr.png", "gb-eng.png"]
 
+# Loop through the countries in the dataset and exempt their corresponding flags from deletion
 for country in countries:
     try:
         exemptions.append(pycountry.countries.get(name=country).alpha_2.lower() + ".png")
@@ -26,6 +27,7 @@ for country in countries:
         print("Not exempting: ", country)
         continue
 
+# Remove flag files that are not in the exemptions list
 for flagFile in allFlags:
     if flagFile in exemptions:
         continue

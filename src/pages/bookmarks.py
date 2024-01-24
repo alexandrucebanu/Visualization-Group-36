@@ -1,3 +1,8 @@
+"""
+This module is responsible for creating and handling the "Bookmarks" page in the dashboard.
+It includes functionality for displaying and interacting with bookmarked player data.
+"""
+
 import dash
 from dash import html
 from pages.components.header import getAppHeader
@@ -8,6 +13,7 @@ import plotly.graph_objects as go
 import pandas as pd
 import os
 
+# Registering this file as a Dash page with a specific URL path
 dash.register_page(__name__, path_template='/bookmarks')
 
 # Dummy players
@@ -46,19 +52,29 @@ titles_shooting = ['Shots per 90', 'Shots on Target per 90', 'Goals per Shot on 
 categories_defense = ['tackles', 'tackles_won', 'dribble_tackles_pct', 'blocked_shots', 'blocked_passes']
 titles_defense = ['Number of Tackles', 'Number of Tackles Won', 'Percentage of Tackles which are type "Dribble"', 'Percentage of Tackles which are type "Shots"', 'Percentage of Tackles which are type "Passes"']
 
+# Combine all categories and titles for complete visualization setup
 categories = categories_stats + categories_passing + categories_set_piece + categories_gca + categories_shooting + categories_defense
 titles = titles_stats + titles_passing + titles_set_piece + titles_gca + titles_shooting + titles_defense
 
+# Standardize the data for each category for consistent visualization
 for col in categories:
     df_standardised[col] = (sourceDF[col] - sourceDF[col].mean()) / sourceDF[col].std()
 
+# Rename columns in the standardised DataFrame for better readability in visualization
 df_standardised.rename(columns={categories[i]: titles[i] for i in range(len(categories))}, inplace=True)
 
+# Adjust the values to start from the minimum value for each category
+min_vals = df_standardised.min()
 min_vals = df_standardised.min()
 df_standardised[titles] = df_standardised[titles] - min_vals
+# Add player names to the standardised DataFrame
 df_standardised['player'] = sourceDF['player']
 
 def layout(player_id=None):
+    """
+    Defines the layout of the bookmarks page.
+    This function creates the main structure of the page including interactive components.
+    """
     # player = sourceDF.iloc[[player_id]].to_dict(orient='records')[0]
     return html.Div(id='bookmarks_page', children=[
         dcc.Store('chosen_player', storage_type='local'),
@@ -83,6 +99,10 @@ def layout(player_id=None):
 
 
 def addTabs():
+    """
+    Creates tabbed sections for the dashboard.
+    Organizes different statistical categories into tabs for easier navigation.
+    """
     return html.Div([
         dcc.Tabs(
             id="tabs-with-classes",
@@ -131,6 +151,10 @@ def addTabs():
 
 
 def makeRadar(titles, bookmarkedPlayerIDS, chosen_player):
+    """
+    Generates a radar chart for the given player data.
+    Visualizes various statistics of players in a radar chart format.
+    """
     fig = go.Figure()
 
     # Chosen player
@@ -167,12 +191,16 @@ def makeRadar(titles, bookmarkedPlayerIDS, chosen_player):
         dcc.Graph(figure=fig, config={'staticPlot': True})
     ])
 
-
+# Callback functions for dynamic interactivity in the dashboard
 @callback(Output('tabs-content-classes', 'children'),
     Input('tabs-with-classes', 'value'),
     Input('bookmarked_players', 'data'),
     Input('chosen_player', 'data'))
 def render_content(tab, bookmarkedPlayerIDS, chosen_player):
+    """
+    Renders content based on the selected tab and bookmarked players.
+    Updates the visualization based on user interactions with tabs and player data.
+    """
     # Get list of bookmarked players
     bookmarkedPlayerIDS = list(set(bookmarkedPlayerIDS))
     bookmarkedPlayerIDS = [i for i in bookmarkedPlayerIDS if i != None]
@@ -194,6 +222,10 @@ def render_content(tab, bookmarkedPlayerIDS, chosen_player):
 
 @callback(Output('chosen_player_box', 'children'), Input('chosen_player', 'data'))
 def updateFirstPlaceHolder(chosenPlayer):
+    """
+    Updates the placeholder with chosen player details.
+    Called when a new player is selected, updating the displayed information.
+    """
     return [
         html.Img(src='assets/icons/player.png', className='player-image'),
         html.Div(className='player-details', style={'borderLeft': '1px solid #ededed', 'paddingLeft': '12px'}, children=[

@@ -4,13 +4,16 @@ from typing import Union
 import os
 from PIL import Image
 import re
-import dash
-import urllib.parse
-import unicodedata
-from pathlib import Path
+
 
 
 def getMergedDataFrame():
+    """
+    Merges multiple player data CSV files into a single DataFrame.
+
+    :return: The merged DataFrame containing player data from all specified CSV files.
+    :rtype: pd.DataFrame
+    """
     files = ["player_shooting.csv", "player_possession.csv", "player_playingtime.csv", "player_passing.csv", "player_misc.csv"];
     frames = []
 
@@ -28,8 +31,14 @@ def getMergedDataFrame():
 
 def getTeamGroup(team: str, mapToLetters=False) -> int | str:
     """
-    :type team: int | str <- The input team (either in the group number of the corresponding letter in uppercase)
-    :rtype: int <- The letter representing the group the team belongs to | returns 0 if the team group could not be found
+    Retrieves the group number or letter for a given team.
+
+    :param team: The name of the team.
+    :type team: str
+    :param mapToLetters: If True, returns the group letter instead of number.
+    :type mapToLetters: bool
+    :return: The group number or letter for the team.
+    :rtype: int | str
     """
     team = team.capitalize()
     # print('team: ', team)
@@ -48,8 +57,12 @@ def getTeamGroup(team: str, mapToLetters=False) -> int | str:
 
 def getPlayerTeam(playerName: str) -> Union[str, bool]:
     """
-    :rtype: str | bool <- The name of player's team in the games | returns False in case the player couldn't be found in the source dataset (players_misc.csv)
-    :type playerName: str <- The name of the player to retrieve the team for
+    Retrieves the team name for a given player.
+
+    :param playerName: The name of the player.
+    :type playerName: str
+    :return: The team name of the player or False if not found.
+    :rtype: str | bool
     """
     try:
         players_csv_path = os.path.join(os.path.dirname(__file__), 'data/player_misc.csv')
@@ -64,9 +77,9 @@ def natural_sort_key(s):
     """
     Generate a key for natural sorting based on numeric values in a string.
 
-    :param s: The input string
+    :param s: The input string.
     :type s: str
-    :return: A list of comparable items, including numeric parts
+    :return: A list of comparable items, including numeric parts.
     :rtype: list
     """
     return [int(text) if text.isdigit() else text.lower() for text in re.split('([0-9]+)', s)]
@@ -110,15 +123,15 @@ def get_first_vertical_image(directory_path):
 
 def playerImageDirectory(playerName, playerTeam=None, playerGroup=None):
     """
-    Generate the directory path for a player's player_images.
+    Generate the directory path for a player's images.
 
-    :param playerName: The name of the player
+    :param playerName: The name of the player.
     :type playerName: str
-    :param playerTeam: The name of the player's team
+    :param playerTeam: Optional team name of the player.
     :type playerTeam: str
-    :param playerGroup: The name of the player's team group
+    :param playerGroup: Optional team group of the player.
     :type playerGroup: str
-    :return: The directory path for the player's player_images
+    :return: The directory path for the player's images.
     :rtype: str
     """
     print('name: ', playerName)
@@ -148,6 +161,14 @@ def playerImageDirectory(playerName, playerTeam=None, playerGroup=None):
 
 
 def getCountryFlagPath(countryName: str):
+    """
+    Retrieves the file path for a country's flag image based on the country name.
+
+    :param countryName: The name of the country.
+    :type countryName: str
+    :return: The file path of the country's flag image.
+    :rtype: str
+    """
     countryCode = "un"
 
     # manually handling the countries with unlisted names | TODO: do this better with dictionary (using dict.keys() probably)

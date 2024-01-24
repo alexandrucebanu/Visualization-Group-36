@@ -13,25 +13,49 @@ from pages.components.header import getAppHeader
 from pages.components import altered_general_page
 from .helpers import fontIcon
 
+# Setting up the file path for the merged data CSV file
 filePath = os.path.join(os.path.dirname(__file__), ('../data/' + 'merged_data.csv'))
 sourceDF = pd.read_csv(filePath)
 
+# Defining possible positions in the dataset
 possiblePositions = ['MF', 'DF', 'GK', 'FW']
 
 
 def map_in_bound(value):
+    """
+    Maps a boolean value to a string representation.
+
+    :param value: The boolean value to map.
+    :type value: bool
+    :return: "YES" if value is True, otherwise "NO".
+    :rtype: str
+    """
     if (value):
         return "YES"
     return "NO"
 
 
 def intervalMask(df, var, filters):
+    """
+    Creates a mask for filtering DataFrame based on a variable's interval.
+
+    :param df: The DataFrame to apply the mask.
+    :param var: The variable to filter on.
+    :param filters: The filters specifying the interval.
+    :return: The mask for the specified interval.
+    """
     a = df[var]
     mask = ((a >= filters[var][0]) & (a <= filters[var][1]))
     return mask
 
 
 def getFilteredDF(filters):
+    """
+    Applies filters to the DataFrame and returns the filtered DataFrame.
+
+    :param filters: Dictionary containing filter settings.
+    :return: Filtered DataFrame.
+    """
     ## TODO: check if the filtering works as it should
 
     # All interval masks
@@ -77,7 +101,7 @@ def getFilteredDF(filters):
     return sourceDF[sourceDF['in_bound'] == "YES"]
 
 
-# Goal keeper data
+# GCA data
 filePath = os.path.join(os.path.dirname(__file__), '../data/player_gca.csv')
 df_defense = pd.read_csv(filePath, encoding='utf-8')
 playersList = [(index, player['player']) for index, player in df_defense.iterrows()]
@@ -86,6 +110,13 @@ dash.register_page(__name__, path_template='/replace/<player_id>')
 
 
 def getPlayerImageElement(playerName):
+    """
+    Retrieves the HTML element for the player's image.
+
+    :param playerName: The name of the player.
+    :type playerName: str
+    :return: HTML Div containing the player's image.
+    """
     path = playerImageDirectory(playerName)
     if (path):
         image_path = get_first_vertical_image(path)
@@ -95,6 +126,13 @@ def getPlayerImageElement(playerName):
 
 
 def playerInfoBox(player):
+    """
+    Creates an information box for a given player.
+
+    :param player: The player data dictionary.
+    :type player: dict
+    :return: HTML Div containing the player information box.
+    """
     return html.Div(id='player-image-container', className='player-chosen-container', children=
     [
         html.Div(className='half', children=[getPlayerImageElement(player['player']),
@@ -120,6 +158,13 @@ def playerInfoBox(player):
 
 
 def layout(player_id=None):
+    """
+    Defines the layout of the 'player chosen' page.
+
+    :param player_id: The ID of the player to display.
+    :type player_id: int
+    :return: The HTML layout for the page.
+    """
     if not player_id:
         return "No player id has been passed. Please start by choosing a player from the start page."
     player = sourceDF.iloc[[player_id]].to_dict(orient='records')[0]
@@ -150,6 +195,8 @@ def layout(player_id=None):
 # -------------------------------------------------------------
 # Callback to toggle the left aside: Dana
 # -------------------------------------------------------------
+
+# Callback to toggle the left aside
 @callback(
     Output('general_page', 'className'),
     Input('close_aside', 'n_clicks'),
@@ -157,6 +204,13 @@ def layout(player_id=None):
     prevent_initial_call=True
 )
 def toggleAside(n_clicks, currentClass):
+    """
+    Toggles the visibility of the left aside (sidebar) on the page.
+
+    :param n_clicks: Number of clicks on the toggle button.
+    :param currentClass: Current CSS class of the general page.
+    :return: The updated CSS class for the general page.
+    """
     if currentClass == "player_chosen_hide_aside":
         return "player_chosen_show_aside"
     return "player_chosen_hide_aside"
@@ -166,6 +220,7 @@ def toggleAside(n_clicks, currentClass):
 # Callbacks to update player box based on chosen players: Akseniia
 # -------------------------------------------------------------
 
+# Callbacks to update player box based on chosen players
 @callback(
     Output('bookmarked_players', 'data', allow_duplicate=True),
     Input('clicked_player', 'n_clicks'), State('bookmarked_players', 'data'),
@@ -173,18 +228,33 @@ def toggleAside(n_clicks, currentClass):
     prevent_initial_call=True
 )
 def addBookmark(n_clicks, bookmarkedPlayerIDS, clickedPlayerID):
+    """
+    Adds a player to the list of bookmarked players.
+
+    :param n_clicks: Number of clicks on the bookmark button.
+    :param bookmarkedPlayerIDS: Current list of bookmarked player IDs.
+    :param clickedPlayerID: ID of the player to bookmark.
+    :return: Updated list of bookmarked player IDs.
+    """
     if n_clicks == None:
         return dash.no_update
     return (bookmarkedPlayerIDS + [clickedPlayerID])
     return dash.no_update
 
-
+# Callback for updating the clicked player's information
 @callback(
     Output('clicked_player', 'children'),
     Input('clicked_player', 'data'),
     prevent_initial_call=True
 )
 def updateClickedPlayer(clickedPlayerID):
+    """
+    Updates the clicked player's information based on their ID.
+
+    :param clickedPlayerID: The ID of the clicked player.
+    :type clickedPlayerID: int
+    :return: HTML content for the clicked player.
+    """
     player = sourceDF.iloc[[clickedPlayerID]].to_dict(orient='records')[0]
     return [
         getPlayerImageElement(player['player']),
@@ -194,31 +264,67 @@ def updateClickedPlayer(clickedPlayerID):
         html.Button(id='bookmark_clicked_player', children=[fontIcon('star'), 'Bookmark'])
     ]
 
-
+# Callbacks for updating the clicked player based on graph interactions
 @callback(Output('clicked_player', 'data', allow_duplicate=True), Input('graph1', 'clickData'),
           prevent_initial_call=True)
 def updateClickedPlayer(clickData):
+    """
+    Updates the clicked player's ID based on the click event on the first graph.
+
+    :param clickData: Data from the click event on the graph.
+    :type clickData: dict
+    :return: The ID of the clicked player.
+    """
     return int(sourceDF.index[sourceDF['player'] == clickData['points'][0]['customdata'][0]][0])
 
 
 @callback(Output('clicked_player', 'data', allow_duplicate=True), Input('graph1_general', 'clickData'),
           prevent_initial_call=True)
 def updateClickedPlayer(clickData):
+    """
+    Updates the clicked player's ID based on the click event on the first general graph.
+
+    :param clickData: Data from the click event on the general graph.
+    :type clickData: dict
+    :return: The ID of the clicked player.
+    """
     return int(sourceDF.index[sourceDF['player'] == clickData['points'][0]['customdata'][0]][0])
 
 
 @callback(Output('clicked_player', 'data', allow_duplicate=True), Input('graph2_general', 'clickData'),
           prevent_initial_call=True)
 def updateClickedPlayer(clickData):
+    """
+    Updates the clicked player's ID based on the click event on the second general graph.
+
+    :param clickData: Data from the click event on the general graph.
+    :type clickData: dict
+    :return: The ID of the clicked player.
+    """
     return int(sourceDF.index[sourceDF['player'] == clickData['points'][0]['customdata'][0]][0])
 
-
+# Utility function to get player data by ID
 def getPlayerById(playerId):
+    """
+    Retrieves player data by player ID.
+
+    :param playerId: The ID of the player.
+    :type playerId: int
+    :return: Dictionary of player data.
+    """
     return sourceDF.iloc[[playerId]].to_dict(orient='records')[0]
 
-
+# Function to filter data based on plot interactions
 def relayoutData_filtering(relayoutData, newFilters: dict, var1: str, var2: str):
-    # General plots filtering, plot 1
+    """
+    Filters data based on user interaction with plot layouts.
+
+    :param relayoutData: Data from plot interaction.
+    :param newFilters: Existing filters to update.
+    :param var1: The first variable to filter on.
+    :param var2: The second variable to filter on.
+    :return: Updated filters.
+    """
     try:
         x_min = relayoutData['xaxis.range[0]']
         x_max = relayoutData['xaxis.range[1]']
@@ -235,7 +341,7 @@ def relayoutData_filtering(relayoutData, newFilters: dict, var1: str, var2: str)
 
 
 # -------------------------------------------------------------
-# Callback for when the age filter slide is changed: Dana
+# Callback for applying filters based on user input: Dana
 # -------------------------------------------------------------
 @callback(
     Output('age_histogram', 'children'),
@@ -252,6 +358,19 @@ def relayoutData_filtering(relayoutData, newFilters: dict, var1: str, var2: str)
 )
 def applyFilters(value, wageRange, chosenPositions, chosenPlayer, footPreference, filters, relayoutData_general1,
                  relayoutData_general2):
+    """
+    Applies filters to the data based on user input from various UI components.
+
+    :param value: Age range from the slider.
+    :param wageRange: Wage range from the slider.
+    :param chosenPositions: Selected player positions.
+    :param chosenPlayer: Data of the chosen player.
+    :param footPreference: Preferred foot filter.
+    :param filters: Existing filters.
+    :param relayoutData_general1: Interaction data from the first general plot.
+    :param relayoutData_general2: Interaction data from the second general plot.
+    :return: Updated age and wage histograms, and filters.
+    """
     a = sourceDF['age']
     mask = ((a >= value[0]) & (a <= value[1]))
 
@@ -299,6 +418,13 @@ def applyFilters(value, wageRange, chosenPositions, chosenPlayer, footPreference
 
 
 def getHumanReadableFeatureName(featureName):
+    """
+    Converts a feature name to a human-readable format.
+
+    :param featureName: The original feature name.
+    :type featureName: str
+    :return: The human-readable feature name.
+    """
     mapping = {
         'gca': 'goal creating actions'
     }
@@ -308,6 +434,11 @@ def getHumanReadableFeatureName(featureName):
 
 
 def getColorScale():
+    """
+    Generates a color scale for data visualization.
+
+    :return: A color scale for Plotly graphs.
+    """
     colors = {
         "chosen": "rgb(95,175,1)",
         "bookmarked": "rgb(255,106,0)",
@@ -329,6 +460,15 @@ def getColorScale():
     Input('bookmarked_players', 'data'),
 )
 def updatePositionSpecificPlot(filters, chosen_player_id, chosenFeatures, bookmarkedPlayers):
+    """
+    Updates the position-specific plot based on selected filters and bookmarked players.
+
+    :param filters: Applied filters.
+    :param chosen_player_id: ID of the chosen player.
+    :param chosenFeatures: Selected features for the plot.
+    :param bookmarkedPlayers: List of bookmarked player IDs.
+    :return: Updated position-specific plot.
+    """
     filteredDataFrame = getFilteredDF(filters)
 
     labels = {feature: getHumanReadableFeatureName(feature) for feature in chosenFeatures}
@@ -353,6 +493,14 @@ def updatePositionSpecificPlot(filters, chosen_player_id, chosenFeatures, bookma
     State('chosen_player_id', 'data'),
 )  # Updates the general plots based on filter
 def update_general_plots(filters, bookmarkedPlayers, chosen_player_id):
+    """
+    Updates the general plots based on the current filters, bookmarked players, and the chosen player.
+
+    :param filters: Dictionary of filters applied to the data.
+    :param bookmarkedPlayers: List of IDs of bookmarked players.
+    :param chosen_player_id: ID of the currently chosen player.
+    :return: Two Plotly figure objects for the updated plots.
+    """
     filteredDataFrame = getFilteredDF(filters)
 
     # TODO: Change the parameters of the plots!
@@ -389,6 +537,13 @@ def update_general_plots(filters, bookmarkedPlayers, chosen_player_id):
     prevent_initial_call=True
 )
 def update_output(n_clicks, style):
+    """
+    Toggles the display of the bookmarks sidebar based on user interaction.
+
+    :param n_clicks: The number of clicks on the checkout button.
+    :param style: The current CSS style of the bookmarks sidebar.
+    :return: Updated CSS style for the sidebar and its background layer.
+    """
     if n_clicks >= 1:  # Show box on odd clicks
         style['right'] = '0';
         style['display'] = 'block'
@@ -409,6 +564,13 @@ def update_output(n_clicks, style):
     prevent_initial_call=True
 )
 def hideBookmarkedPlayersSidebar(n_clicks, style):
+    """
+    Hides the bookmarks sidebar when the gray area (background) is clicked.
+
+    :param n_clicks: Number of clicks on the gray background area.
+    :param style: Current CSS style of the bookmarks sidebar.
+    :return: Updated CSS style to hide the sidebar and its background layer.
+    """
     style['display'] = 'none'
     return style, style
 
@@ -423,6 +585,12 @@ def hideBookmarkedPlayersSidebar(n_clicks, style):
     Input('bookmarked_players', 'data')
 )
 def appendNewBookmarksToLists(bookmarkedPlayerIDS):
+    """
+    Updates the sidebar with the list of bookmarked players and the bookmark count.
+
+    :param bookmarkedPlayerIDS: List of IDs of bookmarked players.
+    :return: Updated list of bookmarked players, count of bookmarked players, and class name for comparison button.
+    """
     bookmarkedPlayerIDS = list(set(bookmarkedPlayerIDS))
     bookmarkedPlayerIDS = [i for i in bookmarkedPlayerIDS if i != None]
     bookmarkedPlayers = sourceDF.iloc[bookmarkedPlayerIDS].to_dict(orient='records')
@@ -453,6 +621,12 @@ def appendNewBookmarksToLists(bookmarkedPlayerIDS):
     prevent_initial_call=True
 )
 def clearBookmarks(n_clicks):
+    """
+    Clears all bookmarked players.
+
+    :param n_clicks: Number of clicks on the clear bookmarks button.
+    :return: An empty list (resetting bookmarks).
+    """
     return []
 
 
@@ -467,6 +641,14 @@ def clearBookmarks(n_clicks):
     prevent_initial_call=True
 )
 def addPlayerToBookmarks(n_clicks, clickedPlayer, currentBookmarks):
+    """
+    Adds the clicked player to the list of bookmarked players.
+
+    :param n_clicks: Number of clicks on the bookmark button.
+    :param clickedPlayer: Data of the player that was clicked.
+    :param currentBookmarks: Current list of bookmarked players' IDs.
+    :return: Updated list of bookmarked players' IDs.
+    """
     try:
         if n_clicks > 0:
             currentBookmarks += [clickedPlayer]

@@ -3,11 +3,22 @@ import pandas as pd
 import re
 
 def getAgeYears(ageString):
+    """
+    Extracts the age in years from an age string.
+
+    :param ageString: The age string to be processed.
+    :type ageString: str
+    :return: Age in years as an integer.
+    :rtype: int
+    """
     return int(ageString.split('-')[0])
 
 
 def importData():
-
+    """
+    Imports, merges, and preprocesses player data from multiple CSV files.
+    Merges additional data from an external source and writes the merged data to a new CSV file.
+    """
     # TODO: wrap the generation of the merged dataset with a separate module/function.
     files = ["player_shooting.csv", "player_defense.csv", "player_gca.csv", "player_possession.csv", "player_playingtime.csv", "player_passing.csv", "player_passing_types.csv", "player_misc.csv"]
     # TODO: bug: when including player_gca.csv the df will be sliced (as there are only 41 rows there) and we merge with it.
