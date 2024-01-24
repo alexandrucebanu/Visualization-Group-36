@@ -245,8 +245,7 @@ def addBookmark(n_clicks, bookmarkedPlayerIDS, clickedPlayerID):
 @callback(
     Output('clicked_player', 'children'),
     Input('clicked_player', 'data'),
-    prevent_initial_call=True
-)
+    prevent_initial_call=True)
 def updateClickedPlayer(clickedPlayerID):
     """
     Updates the clicked player's information based on their ID.
@@ -302,6 +301,18 @@ def updateClickedPlayer(clickData):
     :return: The ID of the clicked player.
     """
     return int(sourceDF.index[sourceDF['player'] == clickData['points'][0]['customdata'][0]][0])
+
+@callback(Output('clicked_player', 'data', allow_duplicate=True), Input('select_player_name_chosen', 'value'),
+          prevent_initial_call=True)
+def updateClickedPlayer(player_id):
+    """
+    Updates the clicked player's ID based on the player selected from the dropdown.
+
+    :param player_id: The ID of the player selected from the dropdown.
+    :type player_id: int
+    :return: The ID of the selected player.
+    """
+    return int(player_id)
 
 # Utility function to get player data by ID
 def getPlayerById(playerId):
