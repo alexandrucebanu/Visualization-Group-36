@@ -341,7 +341,7 @@ def relayoutData_filtering(relayoutData, newFilters: dict, var1: str, var2: str)
 
 
 # -------------------------------------------------------------
-# Callback for applying filters based on user input: Dana
+# Callback for when the age filter slide is changed: Dana
 # -------------------------------------------------------------
 @callback(
     Output('age_histogram', 'children'),
@@ -389,7 +389,7 @@ def applyFilters(value, wageRange, chosenPositions, chosenPlayer, footPreference
                          showlegend=False)
     figAge.update_layout(margin={'l': 0, 't': 0, 'b': 0, 'r': 0}, plot_bgcolor='white')
 
-    figWage = px.histogram(sourceDF, x="wage_eur", nbins=10, color='in_bound_wage',
+    figWage = px.histogram(sourceDF, x="wage_eur", nbins=30, color='in_bound_wage',
                            color_discrete_map={"YES": "#2196f3", "NO": "#E9E9E9"})
     figWage.update_layout(yaxis_visible=False, xaxis_title=None, yaxis_showticklabels=False, xaxis_showticklabels=False,
                           showlegend=False)
@@ -432,6 +432,14 @@ def getHumanReadableFeatureName(featureName):
         featureName = mapping[featureName]
     return featureName.replace('_', ' ').title()
 
+#"chosen": "rgb(95,175,1)",
+#"bookmarked": "rgb(255,106,0)",
+#"others": "rgb(14,69,96)"
+
+#"chosen": "rgb(21,171,205)",
+#"bookmarked": "rgb(255,106,0)",
+#"others": "rgb(128,128,128)"
+
 
 def getColorScale():
     """
@@ -440,9 +448,9 @@ def getColorScale():
     :return: A color scale for Plotly graphs.
     """
     colors = {
-        "chosen": "rgb(95,175,1)",
+        "chosen": "rgb(0,0,360)",
         "bookmarked": "rgb(255,106,0)",
-        "others": "rgb(14,69,96)"
+        "others": "rgb(128,128,128)"
     }
     # TODO: the following return is uglier than my high-school Arabic teacher. Fix it.
     return [(0.00, colors['others']), (0.4, colors['others']), (0.4, colors['bookmarked']), (0.6, colors['bookmarked']),
@@ -507,15 +515,40 @@ def update_general_plots(filters, bookmarkedPlayers, chosen_player_id):
     filteredDataFrame['color'] = filteredDataFrame['id'].isin(list(bookmarkedPlayers)).map({True: 5, False: 1})
     filteredDataFrame.at[chosen_player_id, 'color'] = 10
 
+    #filteredDataFrame = filteredDataFrame.reset_index()
+    #print(filteredDataFrame)
+    #print(chosen_player_id)
+    #print(filteredDataFrame[filteredDataFrame['level_0'] == chosen_player_id].index[0])
+
+    # Create a list to store the marker information for each data point
+    #markers = [{'symbol': 'circle'}] * len(filteredDataFrame)
+
+    # Set the marker type for the specific data point to be a square
+    #markers[filteredDataFrame[filteredDataFrame['level_0'] == chosen_player_id].index[0]] = {'symbol': 'square'}
+
     try:
         fig12 = px.scatter(filteredDataFrame, color="color", color_continuous_scale=getColorScale(),
-                           x="movement_sprint_speed", y='power_stamina', title='Sprint Speed and Stamina',
-                           labels={'movement_sprint_speed': 'Sprint Speed [FIFA scores]',
-                                   'power_stamina': 'Stamina [FIFA scores]'}, hover_data=['player'])
+                            x="movement_sprint_speed", y='power_stamina', title='Sprint Speed and Stamina',
+                            labels={'movement_sprint_speed': 'Sprint Speed [FIFA scores]',
+                                   'power_stamina': 'Stamina [FIFA scores]'}, hover_data=['player'],
+                            #mode='markers',
+                            #marker=dict(
+                                #color='blue',  # Customize the color if needed
+                                #size=10,       # Customize the size if needed
+                            #    symbol=markers  # Use the list of markers for each data point
+                            #)
+        ),
         fig22 = px.scatter(filteredDataFrame, color="color", color_continuous_scale=getColorScale(), x="power_jumping",
-                           y='movement_reactions', title='Power Jumping and Movement Reaction',
-                           labels={'power_jumping': 'Power Jumping [FIFA Scores]',
-                                   'movement_reactions': 'Movement Reactions [FIFA Scores]'}, hover_data=['player'])
+                            y='movement_reactions', title='Power Jumping and Movement Reaction',
+                            labels={'power_jumping': 'Power Jumping [FIFA Scores]',
+                                   'movement_reactions': 'Movement Reactions [FIFA Scores]'}, hover_data=['player'],
+                            #mode='markers',
+                            #marker=dict(
+                                #color='blue',  # Customize the color if needed
+                                #size=10,       # Customize the size if needed
+                            #    symbol=markers  # Use the list of markers for each data point
+                            #))
+        )
 
         fig12.update_coloraxes(showscale=False)
         fig22.update_coloraxes(showscale=False)
