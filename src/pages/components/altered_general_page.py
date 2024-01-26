@@ -32,7 +32,7 @@ def featureNamesTransformed(name):
     return name
 
 
-def main_page_changed(player=None):
+def main_page_changed(player=None,colorMap=None):
     position = player['position']
     positionAttributes = {
         'FW': ['shots_on_target', 'goals', 'dribbles_completed', 'miscontrols'],
@@ -53,8 +53,13 @@ def main_page_changed(player=None):
             children=[
                 html.Div(id='position_container',
                     style={'alignItems': 'center', 'justifyContent': 'center'},
-                    children=[html.H3(id='position', children="Position: {}".format(positionForHumanDictionary[player['position']]),
-                        style={'color': '#243E4C', "margin-top": "20px", "text-align": "center"}),
+                    children=[
+                        html.H3(id='position', children="Position: {}".format(positionForHumanDictionary[player['position']]),style={'color': '#243E4C', "marginTop": "20px"}),
+                        html.Div(id='plot_legends',children=[
+                            html.Div(className='legend-color',children=[html.Div(style={'background':colorMap['chosen']}),html.Span('Player to replace')]),
+                            html.Div(className='legend-color',children=[html.Div(style={'background':colorMap['bookmarked']}),html.Span('Bookmarked players')]),
+                            html.Div(className='legend-color',children=[html.Div(style={'background':colorMap['others']}),html.Span('Others')]),
+                        ]),
                         html.Div(className='chose_attributes', children=[
                             html.Label('Attributes to compare:', className='chose_attributes_label'),
                             dcc.Dropdown(id="attributes_dropdown",

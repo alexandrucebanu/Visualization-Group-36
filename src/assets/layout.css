@@ -431,7 +431,23 @@ header #bookmarked_checkout {
 
 .player_chosen_hide_aside #aside {
     width: 10px !important;
-    opacity: 0;
+    border-right: none;
+
+    /*opacity: 0;*/
+}
+
+#close_aside {
+    transition: 0.5s;
+}
+
+.player_chosen_hide_aside #aside #close_aside {
+    opacity: 1;
+    transform: rotate(180deg);
+    right: -20px;
+}
+
+.player_chosen_hide_aside #aside .aside_content {
+    display: none;
 }
 
 #aside {
@@ -1173,4 +1189,59 @@ Select--multi .Select-value-label {
     background-position: center;
     background-size: cover;
     margin-right: 10px;
+}
+
+#position_container {
+    position: relative;
+}
+
+#position_container #position {
+    display: block;
+    margin-bottom: 70px;
+    text-align: left;
+    padding-left: 30px;
+    padding-top: 25px;
+}
+
+#plot_legends {
+    position: absolute;
+    right: 30px;
+    padding: 10px;
+    border-radius: 5px;
+    top: 10px;
+}
+
+#plot_legends .legend-color div {
+    width: 12px;
+    float: left;
+    margin-right: 10px;
+    border-radius: 4px;
+    height: 12px;
+
+}
+
+#plot_legends .legend-color {
+    display: block;
+    padding: 3px 0;
+    overflow: hidden;
+}
+
+#plot_legends .legend-color span {
+    display: block;
+    float: left;
+    line-height: 13px;
+}
+
+#plot_legends {
+    font-size: 12px;
+}
+.hidden {
+    display: none !important;
+}
+#bookmark_clicked_player.bookmarked{
+        color: #fff;
+    background: #f8b305;
+    /*box-shadow: 0 0 9px #f8b30587;*/
+    transition: 0.4s;
+    border-color: #f8bf05;
 }
