@@ -1,25 +1,18 @@
 import dash
 from dash import html, dcc
 from dash.dependencies import Input, Output, State
+from dash import callback
+import os
+import pandas as pd
+from dataAdapters import getCountryFlagPath, playerImageDirectory, getPlayerTeam, get_first_vertical_image, getTeamGroup
+from pages.helpers import fontIcon
 
 
-def getAppHeader():
-    return html.Header([html.Img(id='header_logo', src=dash.get_asset_url('logo.png')),
 
-        html.Button(id='checkout', children=[html.Span(id='bookmarks_count'), html.Span(className='material-symbols-rounded', children='shopping_cart')]),
+filePath = os.path.join(os.path.dirname(__file__), ('../../data/' + 'merged_data.csv'))
+sourceDF = pd.read_csv(filePath)
 
-        html.Div(id='bookmarks_sidebar_back', style={'display': 'none'}),
-        html.Div(id='bookmarks_sidebar', style={'display': 'none'},
-            children=[
-                html.Div([
-                    html.H3('Bookmarked Player'),
-                    html.Button(id='clear_bookmarks', children='Clear all'),
-                ], style={'overflow': 'hidden'}),
-                html.Div(id='bookmarks_sidebar_list'),
-                dcc.Link(children=[
-                    html.Span(className='icon', style={'background-image': 'url({})'.format(dash.get_asset_url('icons/check.png'))}),
-                    'Compare bookmarks'
-                ], href='/bookmarks', id='compare_bookmarks')
-            ]),
 
-    ])
+
+
+

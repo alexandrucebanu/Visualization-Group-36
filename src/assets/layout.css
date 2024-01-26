@@ -1248,3 +1248,27 @@ Select--multi .Select-value-label {
     transition: 0.4s;
     border-color: #f8bf05;
 }
+#go_back {
+    float: right;
+    background: #f7f7f7;
+    font-size: 13px;
+    padding: 9px 6px;
+    margin: 10px 0;
+    border: 1px solid #ededed;
+    border-radius: 10px;
+    font-weight: 500;
+    transition: 0.5s;
+    color: #000000d1;
+}
+#go_back span {
+    float: left;
+    line-height: 16px;
+    margin-right: 3px;
+    font-size: 20px;
+}
+
+#go_back:hover {
+    background: #5eaf01;
+    color:#fff;
+    border-color: #5eaf01;
+}

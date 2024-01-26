@@ -17,14 +17,15 @@ playersList = [(index, player['player']) for index, player in sourceDF.iterrows(
 layout = [
     html.Div([
         # Header with a background image
-        dcc.Store('chosen_player',storage_type='local'),
-        dcc.Store('chosen_player_id',storage_type='local'),
+        dcc.Store('chosen_player', storage_type='local'),
+        dcc.Store('chosen_player_id', storage_type='local'),
+        dcc.Store('clicked_player_id', storage_type='local'),
         html.Div(id='search_box_header', style={'background': (
             'linear-gradient(rgba(255,255,255,0), rgba(0,0,0,0.65)), url({}) center'.format(
                 dash.get_asset_url('backgrounds/soccer_field.jpg')))}),
         # Logo image
         html.Div(id='logo',
-                 style={'background': 'url(' + dash.get_asset_url('icons/icons8-soccer-94.png') + ')'}),
+            style={'background': 'url(' + dash.get_asset_url('icons/icons8-soccer-94.png') + ')'}),
 
         html.H1('Welcome to Stratinder', style={'color': '#243E4C', 'display': 'block', 'textAlign': 'center'}),
         # Search input container
@@ -32,28 +33,37 @@ layout = [
             # dcc.Input(id='search_input', type='text',
             #           placeholder='Search for the name of the player you want to substitute', debounce=False),
             dcc.Dropdown(options=[{'label': playerItem[1], 'value': playerItem[0]} for playerItem in playersList],
-                         id='select_player_name', placeholder="Search for a player..."),
+                id='select_player_name', placeholder="Search for a player..."),
             html.Div([], id='results'),
             html.Div(id='little_search_icon',
-                     style={'backgroundSize': 'cover',
-                            'background-image': 'url(' + dash.get_asset_url('icons/icons8-search-60.png') + ')'})
+                style={'backgroundSize': 'cover',
+                    'background-image': 'url(' + dash.get_asset_url('icons/icons8-search-60.png') + ')'})
         ], id='search_input_container'),
         html.Div([], id='results')
     ], id='search_box'),
 ]
 
+
 # Callback function for updating search results based on player selection
-@callback(Output('chosen_player_id','data'),Output('chosen_player','data'),Output('results', 'children'), Input('select_player_name', 'value'))
+@callback(
+    Output('chosen_player_id', 'data'),
+    Output('clicked_player_id', 'data'),
+    Output('chosen_player', 'data'),
+    Output('results', 'children'),
+    Input('select_player_name', 'value'),
+    prevent_initial_call=True
+
+)
 def choosePlayer(playerIdValue=None):
     """
     Updates the results section with player information based on the selected player ID.
     If no player is selected, it returns an empty string.
     """
     if not playerIdValue:
-        return None,None,""
+        return None, None, ""
     playerRow = sourceDF.iloc[[playerIdValue]].to_dict(orient='records')[0]
-    return (int(playerIdValue),playerRow,[
+    return (int(playerIdValue), int(playerIdValue), playerRow, [
         html.A([helpers.fontIcon('chevron_right'), "Explore replacements for {}".format(playerRow['player'])],
-               href='/replace/{}'.format(playerIdValue),
-               id="go_to_player_page")
+            href='/replace/{}'.format(playerIdValue),
+            id="go_to_player_page")
     ])

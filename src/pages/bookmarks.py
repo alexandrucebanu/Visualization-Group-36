@@ -5,12 +5,12 @@ It includes functionality for displaying and interacting with bookmarked player 
 
 import dash
 from dash import html
-from pages.components.header import getAppHeader
 from dash import callback
 from dash import Input, Output
 from dash import dcc
 import plotly.graph_objects as go
 import pandas as pd
+from pages.helpers import fontIcon
 import os
 from dataAdapters import get_first_vertical_image, playerImageDirectory, getCountryFlagPath, getPlayerTeam
 
@@ -72,13 +72,23 @@ df_standardised[titles] = df_standardised[titles] - min_vals
 df_standardised['player'] = sourceDF['player']
 
 
+def getAppHeader():
+    button = dcc.Link(children=[
+        html.Span(className='icon', style={'background-image': 'url({})'.format(dash.get_asset_url('icons/check.png'))}),
+        'Compare bookmarks'
+    ], href='/bookmarks', id='compare_bookmarks')
+
+    return html.Header([html.Img(id='header_logo', src=dash.get_asset_url('logo.png')),
+        dcc.Link([fontIcon('chevron_left'), "Explore other candidates"], id='go_back', href='/')
+
+    ])
+
 
 def layout(player_id=None):
     # player = sourceDF.iloc[[player_id]].to_dict(orient='records')[0]
     return html.Div(id='bookmarks_page', children=[
         dcc.Store('chosen_player', storage_type='local'),
         dcc.Store(id='bookmarked_players', storage_type='local', data=[]),
-
         getAppHeader(),
 
         html.Section([
@@ -255,3 +265,13 @@ def updateFirstPlaceHolder(chosenPlayer):
             html.P('CARDS: yellow: {}, red: {}, yellow2: {}'.format(chosenPlayer['cards_yellow'], chosenPlayer['cards_red'], chosenPlayer['cards_yellow_red']), className='chosen_player_cards'),
         ])
     ]
+
+
+@callback(
+    Output('go_back', 'href'),
+    Input('chosen_player_id', 'data')
+)
+def updateTargetOfGoBackLink(chosen_player_id):
+    print(1)
+    print('jddddddddddddddddddddddddddddddddd')
+    return "replace/{}".format(chosen_player_id)

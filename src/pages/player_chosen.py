@@ -9,7 +9,6 @@ from .components import general_plots
 from .components import filters
 import plotly.express as px
 from functools import reduce
-from pages.components.header import getAppHeader
 from pages.components import altered_general_page
 from .helpers import fontIcon
 
@@ -157,6 +156,29 @@ def playerInfoBox(player):
             className='half', ),
     ])
     # html.Div
+
+
+def getAppHeader():
+    button = dcc.Link(children=[
+        html.Span(className='icon', style={'background-image': 'url({})'.format(dash.get_asset_url('icons/check.png'))}),
+        'Compare bookmarks'
+    ], href='/bookmarks', id='compare_bookmarks')
+    return html.Header([html.Img(id='header_logo', src=dash.get_asset_url('logo.png')),
+
+        html.Button(id='checkout', children=[html.Span(id='bookmarks_count'), html.Span(className='material-symbols-rounded', children='shopping_cart')]),
+
+        html.Div(id='bookmarks_sidebar_back', style={'display': 'none'}),
+        html.Div(id='bookmarks_sidebar', style={'display': 'none'},
+            children=[
+                html.Div([
+                    html.H3('Bookmarked Player'),
+                    html.Button(id='clear_bookmarks', children='Clear all'),
+                ], style={'overflow': 'hidden'}),
+                html.Div(id='bookmarks_sidebar_list'),
+                button
+            ]),
+
+    ])
 
 
 def layout(player_id=None):
@@ -513,7 +535,7 @@ def updatePositionSpecificPlot(filters, chosen_player_id, chosenFeatures, bookma
     filteredDataFrame['color'][filteredDataFrame['id'] == int(clickedPlayerId)] = 4.5
     maskForBookmarks = filteredDataFrame['id'].isin(list(bookmarkedPlayers))
     filteredDataFrame['color'][maskForBookmarks] = 5.5
-    filteredDataFrame['color'][[chosen_player_id]] = 10
+    filteredDataFrame['color'][filteredDataFrame['id']==chosen_player_id] = 10
 
 
     # fig = px.parallel_categories(filteredDataFrame,dimensions=chosenFeatures)
@@ -540,7 +562,6 @@ def updatePositionSpecificPlot(filters, chosen_player_id, chosenFeatures, bookma
     State('chosen_player_id', 'data'),
 )  # Updates the general plots based on filter
 def update_general_plots(filters, bookmarkedPlayers, clickedPlayerId, chosen_player_id):
-    print("KIR KHAR", clickedPlayerId)
     """
     Updates the general plots based on the current filters, bookmarked players, and the chosen player.
 
@@ -557,7 +578,7 @@ def update_general_plots(filters, bookmarkedPlayers, clickedPlayerId, chosen_pla
     filteredDataFrame['color'][filteredDataFrame['id'] == int(clickedPlayerId)] = 4.5
     maskForBookmarks = filteredDataFrame['id'].isin(list(bookmarkedPlayers))
     filteredDataFrame['color'][maskForBookmarks] = 5.5
-    filteredDataFrame['color'][[chosen_player_id]] = 10
+    filteredDataFrame['color'][filteredDataFrame['id']==chosen_player_id] = 10
 
 
 
@@ -629,42 +650,6 @@ def hideBookmarkedPlayersSidebar(n_clicks, style):
     return style, style
 
 
-# -------------------------------------------------------------
-# Callback to update the bookmarked players sidebar and the navigator link (to bookmarks page) based on the latest bookmarks: Dana
-# -------------------------------------------------------------
-@callback(
-    Output('bookmarks_sidebar_list', 'children'),
-    Output('bookmarks_count', 'children'),
-    Output('compare_bookmarks', 'className'),
-    Input('bookmarked_players', 'data')
-)
-def appendNewBookmarksToLists(bookmarkedPlayerIDS):
-    """
-    Updates the sidebar with the list of bookmarked players and the bookmark count.
-
-    :param bookmarkedPlayerIDS: List of IDs of bookmarked players.
-    :return: Updated list of bookmarked players, count of bookmarked players, and class name for comparison button.
-    """
-    bookmarkedPlayerIDS = list(set(bookmarkedPlayerIDS))
-    bookmarkedPlayerIDS = [i for i in bookmarkedPlayerIDS if i != None]
-    bookmarkedPlayers = sourceDF.iloc[bookmarkedPlayerIDS].to_dict(orient='records')
-    if len(bookmarkedPlayers):
-        return (
-            [
-                html.Div(className='bookmarked_player', children=[
-                    player['player'],
-                    html.Img(src=dash.get_asset_url(getCountryFlagPath(getPlayerTeam(player['player']))))
-                    , html.Span("{} y.o".format(player['age']), className='playerAge')
-                ])
-                for player in bookmarkedPlayers
-            ],
-            len(bookmarkedPlayerIDS),
-            'visible')
-    return [html.Div(id='no_bookmarks_yet', children=[
-        fontIcon('sentiment_neutral'),
-        html.H4('No bookmarks yet!'),
-    ])], 0, 'hidden'
-
 
 # -------------------------------------------------------------
 # Callbacks for resetting the bookmarked players id list back to an empty list: Dana
@@ -719,3 +704,40 @@ def addPlayerToBookmarks(n_clicks, clickedPlayer, currentBookmarks):
     except:
         return dash.no_update
     return list(set(currentBookmarks))
+
+
+# -------------------------------------------------------------
+# Callback to update the bookmarked players sidebar and the navigator link (to bookmarks page) based on the latest bookmarks: Dana
+# -------------------------------------------------------------
+@callback(
+    Output('bookmarks_sidebar_list', 'children'),
+    Output('bookmarks_count', 'children'),
+    Output('compare_bookmarks', 'className'),
+    Input('bookmarked_players', 'data')
+)
+def appendNewBookmarksToLists(bookmarkedPlayerIDS):
+    """
+    Updates the sidebar with the list of bookmarked players and the bookmark count.
+
+    :param bookmarkedPlayerIDS: List of IDs of bookmarked players.
+    :return: Updated list of bookmarked players, count of bookmarked players, and class name for comparison button.
+    """
+    bookmarkedPlayerIDS = list(set(bookmarkedPlayerIDS))
+    bookmarkedPlayerIDS = [i for i in bookmarkedPlayerIDS if i != None]
+    bookmarkedPlayers = sourceDF.iloc[bookmarkedPlayerIDS].to_dict(orient='records')
+    if len(bookmarkedPlayers):
+        return (
+            [
+                html.Div(className='bookmarked_player', children=[
+                    player['player'],
+                    html.Img(src=dash.get_asset_url(getCountryFlagPath(getPlayerTeam(player['player']))))
+                    , html.Span("{} y.o".format(player['age']), className='playerAge')
+                ])
+                for player in bookmarkedPlayers
+            ],
+            len(bookmarkedPlayerIDS),
+            'visible')
+    return [html.Div(id='no_bookmarks_yet', children=[
+        fontIcon('sentiment_neutral'),
+        html.H4('No bookmarks yet!'),
+    ])], 0, 'hidden'
