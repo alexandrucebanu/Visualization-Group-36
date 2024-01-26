@@ -91,8 +91,9 @@ def layout(player_id=None):
                 html.Div(className='placeholder', children='Bookmarked Players'),
             ]),
 
-            addTabs(),
-
+            html.Div(id='columns', children=[
+                addTabs(),
+            ])
         ])
     ])
 
@@ -159,11 +160,11 @@ def makeRadar(titles, bookmarkedPlayerIDS, chosen_player):
 
     # Chosen player
     fig.add_trace(go.Scatterpolar(
-            theta=titles,
-            r=[df_standardised[df_standardised['player'] == chosen_player['player']][var] for var in titles],
-            fill='toself',
-            name=chosen_player['player']
-        ))
+        theta=titles,
+        r=[df_standardised[df_standardised['player'] == chosen_player['player']][var] for var in titles],
+        fill='toself',
+        name=chosen_player['player']
+    ))
 
     for player_ID in bookmarkedPlayerIDS:
         fig.add_trace(go.Scatterpolar(
@@ -190,6 +191,7 @@ def makeRadar(titles, bookmarkedPlayerIDS, chosen_player):
     return html.Div([
         dcc.Graph(figure=fig, config={'staticPlot': True})
     ])
+
 
 # Callback functions for dynamic interactivity in the dashboard
 @callback(Output('tabs-content-classes', 'children'),
@@ -253,4 +255,3 @@ def updateFirstPlaceHolder(chosenPlayer):
             html.P('CARDS: yellow: {}, red: {}, yellow2: {}'.format(chosenPlayer['cards_yellow'], chosenPlayer['cards_red'], chosenPlayer['cards_yellow_red']), className='chosen_player_cards'),
         ])
     ]
-

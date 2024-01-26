@@ -10,13 +10,15 @@ dash.register_page(__name__, path='/')
 # TODO: team data placement instruction in README.md <- We're using `group_stats.csv` right now
 # TODO: generate a catch for when the data directory does not exist
 
-filePath = os.path.join(os.path.dirname(__file__), '../data/player_gca.csv')
-df_defense = pd.read_csv(filePath)
-playersList = [(index, player['player']) for index, player in df_defense.iterrows()]
+filePath = os.path.join(os.path.dirname(__file__), '../data/merged_data.csv')
+sourceDF = pd.read_csv(filePath)
+playersList = [(index, player['player']) for index, player in sourceDF.iterrows()]
 
 layout = [
     html.Div([
         # Header with a background image
+        dcc.Store('chosen_player',storage_type='local'),
+        dcc.Store('chosen_player_id',storage_type='local'),
         html.Div(id='search_box_header', style={'background': (
             'linear-gradient(rgba(255,255,255,0), rgba(0,0,0,0.65)), url({}) center'.format(
                 dash.get_asset_url('backgrounds/soccer_field.jpg')))}),
@@ -41,17 +43,17 @@ layout = [
 ]
 
 # Callback function for updating search results based on player selection
-@callback(Output('results', 'children'), Input('select_player_name', 'value'))
+@callback(Output('chosen_player_id','data'),Output('chosen_player','data'),Output('results', 'children'), Input('select_player_name', 'value'))
 def choosePlayer(playerIdValue=None):
     """
     Updates the results section with player information based on the selected player ID.
     If no player is selected, it returns an empty string.
     """
     if not playerIdValue:
-        return ""
-    playerRow = df_defense.iloc[[playerIdValue]].to_dict(orient='records')[0]
-    return [
+        return None,None,""
+    playerRow = sourceDF.iloc[[playerIdValue]].to_dict(orient='records')[0]
+    return (int(playerIdValue),playerRow,[
         html.A([helpers.fontIcon('chevron_right'), "Explore replacements for {}".format(playerRow['player'])],
                href='/replace/{}'.format(playerIdValue),
                id="go_to_player_page")
-    ]
+    ])

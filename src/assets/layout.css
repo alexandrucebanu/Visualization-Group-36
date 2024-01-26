@@ -251,7 +251,7 @@ h1 {
 
 #search_input_container .Select-control {
     width: 100%; /* Set the width to 100% */
-    height: 30px;
+    height: 40px;
     border: 1px solid rgba(229, 229, 229, 0.7);
     font-size: 14px;
     border-radius: 12px;
@@ -268,7 +268,7 @@ h1 {
 
 #search_input_container .Select-control .Select-placeholder,
 #search_input_container .Select-control .Select-value {
-    line-height: 30px;
+    line-height: 40px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
