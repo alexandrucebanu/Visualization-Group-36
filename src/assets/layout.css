@@ -360,6 +360,7 @@ h1 {
 #columns {
     /*display: flex;*/
     width: calc(100% - 340px);
+    position: relative !important;
     float: left;
     margin-left: 10px;
 }
@@ -1195,9 +1196,9 @@ Select--multi .Select-value-label {
     position: relative;
 }
 
-#position_container #position {
+#position {
     display: block;
-    margin-bottom: 70px;
+    padding-bottom: 50px;
     text-align: left;
     padding-left: 30px;
     padding-top: 25px;
@@ -1235,11 +1236,13 @@ Select--multi .Select-value-label {
 #plot_legends {
     font-size: 12px;
 }
+
 .hidden {
     display: none !important;
 }
-#bookmark_clicked_player.bookmarked{
-        color: #fff;
+
+#bookmark_clicked_player.bookmarked {
+    color: #fff;
     background: #f8b305;
     /*box-shadow: 0 0 9px #f8b30587;*/
     transition: 0.4s;

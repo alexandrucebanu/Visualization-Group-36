@@ -32,7 +32,7 @@ def featureNamesTransformed(name):
     return name
 
 
-def main_page_changed(player=None,colorMap=None):
+def main_page_changed(player=None, colorMap=None):
     position = player['position']
     positionAttributes = {
         'FW': ['shots_on_target', 'goals', 'dribbles_completed', 'miscontrols'],
@@ -48,18 +48,32 @@ def main_page_changed(player=None,colorMap=None):
     }
 
     return html.Div([
+        html.Div(id='second_half',
+            children=[
+                html.H3(id='position', children="Position: {}".format(positionForHumanDictionary[player['position']]), style={'color': '#243E4C', "marginTop": "20px"}),
+                html.Div(id='plot_legends', children=[
+                    html.Div(className='legend-color', children=[html.Div(style={'background': colorMap['chosen']}), html.Span('Player to replace')]),
+                    html.Div(className='legend-color', children=[html.Div(style={'background': colorMap['bookmarked']}), html.Span('Bookmarked players')]),
+                    html.Div(className='legend-color', children=[html.Div(style={'background': colorMap['candidate']}), html.Span('Current candidate')]),
+                    html.Div(className='legend-color', children=[html.Div(style={'background': colorMap['others']}), html.Span('Others')]),
+                ]),
+                html.Div([
+
+                    html.Div(id='position_container_general',
+                        style={'alignItems': 'center', 'justifyContent': 'center'}),
+                    html.Div(id='graph_inside_rectangle_general',
+                        children=[
+                            dcc.Graph(id='graph1_general', figure={}),
+                            dcc.Graph(id='graph2_general', figure={})
+                        ])
+                ], style={'overflow': 'hidden'})
+            ]),
         html.Div(id='first_half',
 
             children=[
                 html.Div(id='position_container',
                     style={'alignItems': 'center', 'justifyContent': 'center'},
                     children=[
-                        html.H3(id='position', children="Position: {}".format(positionForHumanDictionary[player['position']]),style={'color': '#243E4C', "marginTop": "20px"}),
-                        html.Div(id='plot_legends',children=[
-                            html.Div(className='legend-color',children=[html.Div(style={'background':colorMap['chosen']}),html.Span('Player to replace')]),
-                            html.Div(className='legend-color',children=[html.Div(style={'background':colorMap['bookmarked']}),html.Span('Bookmarked players')]),
-                            html.Div(className='legend-color',children=[html.Div(style={'background':colorMap['others']}),html.Span('Others')]),
-                        ]),
                         html.Div(className='chose_attributes', children=[
                             html.Label('Attributes to compare:', className='chose_attributes_label'),
                             dcc.Dropdown(id="attributes_dropdown",
@@ -71,18 +85,4 @@ def main_page_changed(player=None,colorMap=None):
                     "borderBottom": "1px dashed #ededed"}
                 )])]
         ),
-        html.Div(id='second_half',
-            children=[
-                html.Div(id='position_container_general',
-                    style={'alignItems': 'center', 'justifyContent': 'center'},
-                    children=[html.Br(),
-                        html.H3(id='title_general_plots', children="General plots",
-                            style={'color': '#243E4C', 'textAlign': 'center'})
-                    ]),
-                html.Div(id='graph_inside_rectangle_general',
-                    children=[
-                        dcc.Graph(id='graph1_general', figure={}),
-                        dcc.Graph(id='graph2_general', figure={})
-                    ])
-            ])
     ])
