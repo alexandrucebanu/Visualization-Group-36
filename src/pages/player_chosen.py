@@ -51,7 +51,7 @@ def intervalMask(df, var, filters):
     return mask
 
 
-def getFilteredDF(filters, usePCPFilters=False):
+def getFilteredDF(filters, chosen_player_id, usePCPFilters=False):
     """
     Applies filters to the DataFrame and returns the filtered DataFrame.
 
@@ -60,9 +60,8 @@ def getFilteredDF(filters, usePCPFilters=False):
     """
     ## TODO: check if the filtering works as it should
 
-
     # All interval masks
-    variables = ['age', 'movement_sprint_speed', 'movement_reactions',
+    variables = ['wage_eur', 'age', 'movement_sprint_speed', 'movement_reactions',
 
         # General plots
         'power_jumping', 'power_stamina',
@@ -95,6 +94,7 @@ def getFilteredDF(filters, usePCPFilters=False):
     for chosenPosition in chosenPositions:
         positionMask = ((positionMask) | (a == chosenPosition))
 
+
     # foot preference mask
     b = sourceDF['preferred_foot']
 
@@ -104,9 +104,11 @@ def getFilteredDF(filters, usePCPFilters=False):
         footMask = ((footMask) | (b == preferredFoot))
 
     # Return the filtered dataframe
-    overallMask = (interval_masks) & positionMask & footMask
+    overallMask = (interval_masks) & positionMask & footMask #& chosenPlayer
     sourceDF['in_bound'] = overallMask.map(map_in_bound)
+    
     sourceDF['id'] = sourceDF.index
+    sourceDF.loc[sourceDF['id'] == chosen_player_id, 'in_bound'] = "YES"
 
     return sourceDF[sourceDF['in_bound'] == "YES"]
 
@@ -421,12 +423,12 @@ def relayoutData_filtering(relayoutData, newFilters: dict, var1: str, var2: str)
     Input('graph1_general', 'relayoutData'),
     Input('graph2_general', 'relayoutData'),
 )
-def applyFilters(value, wageRange, chosenPositions, chosenPlayer, footPreference, filters, relayoutData_general1,
+def applyFilters(ageRange, wageRange, chosenPositions, chosenPlayer, footPreference, filters, relayoutData_general1,
         relayoutData_general2):
     """
     Applies filters to the data based on user input from various UI components.
 
-    :param value: Age range from the slider.
+    :param ageRange: Age range from the slider.
     :param wageRange: Wage range from the slider.
     :param chosenPositions: Selected player positions.
     :param chosenPlayer: Data of the chosen player.
@@ -436,10 +438,11 @@ def applyFilters(value, wageRange, chosenPositions, chosenPlayer, footPreference
     :param relayoutData_general2: Interaction data from the second general plot.
     :return: Updated age and wage histograms, and filters.
     """
+    # print("saddsaasd", ageRange)
     a = sourceDF['age']
-    mask = ((a >= value[0]) & (a <= value[1]))
+    mask = ((a >= ageRange[0]) & (a <= ageRange[1]))
 
-    wageSeries = sourceDF['wage_eur'].dropna()
+    wageSeries = sourceDF['wage_eur']
     maskWage = ((wageSeries >= wageRange[0]) & (wageSeries <= wageRange[1]))
 
     global df
@@ -454,19 +457,19 @@ def applyFilters(value, wageRange, chosenPositions, chosenPlayer, footPreference
         showlegend=False)
     figAge.update_layout(margin={'l': 0, 't': 0, 'b': 0, 'r': 0}, plot_bgcolor='white')
 
-    figWage = px.histogram(sourceDF, x="wage_eur", nbins=10, color='in_bound_wage',
+    figWage = px.histogram(sourceDF, x="wage_eur", nbins=20, color='in_bound_wage',
         color_discrete_map={"YES": "#2196f3", "NO": "#E9E9E9"})
     figWage.update_layout(yaxis_visible=False, xaxis_title=None, yaxis_showticklabels=False, xaxis_showticklabels=False,
         showlegend=False)
-    figWage.update_layout(margin={'l': 0, 't': 0, 'b': 0, 'r': 0}, plot_bgcolor='white')
+    figWage.update_layout(margin={'l': 15, 't': 0, 'b': 0, 'r': 15}, plot_bgcolor='white')
 
     # Apply filters
 
     newFilters = filters
-    newFilters['age'] = value
+    newFilters['age'] = ageRange
     newFilters['chosen_positions'] = chosenPositions
     newFilters['preferred_foot'] = footPreference
-    newFilters['wage'] = wageRange
+    newFilters['wage_eur'] = wageRange
 
     parameter_list_general = [
         [relayoutData_general1, newFilters, 'movement_sprint_speed', 'power_stamina'],
@@ -485,7 +488,7 @@ def applyFilters(value, wageRange, chosenPositions, chosenPlayer, footPreference
 
 def getHumanReadableFeatureName(featureName):
     """
-    Converts a feature name to a human-readable format.
+    Converts a feature name to a humanxf-readable format.
 
     :param featureName: The original feature name.
     :type featureName: str
@@ -501,10 +504,10 @@ def getHumanReadableFeatureName(featureName):
 
 def getColorMap():
     return {
-        "chosen": "rgb(95,175,1)",
-        "bookmarked": "rgb(255,106,0)",
-        "candidate": "rgb(255,193,7)",
-        "others": "rgb(14,69,96)"
+        "chosen": "rgb(95,175,1)", # Green
+        "bookmarked": "rgb(255,106,0)", # Orange
+        "candidate": "rgb(255,193,7)", # yellow
+        "others": "rgb(14,69,96)" # dark blue
     }
 
 
@@ -515,8 +518,18 @@ def getColorScale():
     :return: A color scale for Plotly graphs.
     """
     colors = getColorMap()
-    return [(0.00, colors['others']), (0.4, colors['others']), (0.4, colors['candidate']), (0.5, colors['candidate']), (0.5, colors['bookmarked']), (0.6, colors['bookmarked']),
-        (0.6, colors['chosen']), (1, colors['chosen'])]
+
+    # TODO: the following return is uglier than my high-school Arabic teacher. Fix it.
+    
+    return [(0.00, colors['others']), 
+                (0.4, colors['others']), 
+                (0.4, colors['candidate']), 
+                (0.5, colors['candidate']), 
+                (0.5, colors['bookmarked']), 
+                (0.6, colors['bookmarked']),
+                (0.6, colors['chosen']), 
+                (1, colors['chosen'])]
+
 
 
 
@@ -529,23 +542,30 @@ def getColorScale():
     Input('clicked_player_id', 'data'),
 )
 def renderPCP(filters, chosen_player_id, chosenFeatures, bookmarkedPlayers, clickedPlayerId):
-    filteredDataFrame = getFilteredDF(filters)
+    """
+    Updates the position-specific plot based on selected filters and bookmarked players.
+
+    :param filters: Applied filters.
+    :param chosen_player_id: ID of the chosen player.
+    :param chosenFeatures: Selected features for the plot.
+    :param bookmarkedPlayers: List of bookmarked player IDs.
+    :return: Updated position-specific plot.
+    """
+    filteredDataFrame = getFilteredDF(filters, chosen_player_id, True)
 
     labels = {feature: getHumanReadableFeatureName(feature) for feature in chosenFeatures}
 
-    filteredDataFrame['color'] = 0
-    filteredDataFrame['color'][filteredDataFrame['id'] == int(clickedPlayerId)] = 4.5
+    filteredDataFrame['color'] = 0    
+    filteredDataFrame.loc[filteredDataFrame['id'] == int(clickedPlayerId), 'color'] = 4.5
     maskForBookmarks = filteredDataFrame['id'].isin(list(bookmarkedPlayers))
-    filteredDataFrame['color'][maskForBookmarks] = 5.5
-    filteredDataFrame['color'][filteredDataFrame['id'] == chosen_player_id] = 10
+    filteredDataFrame.loc[maskForBookmarks, 'color'] = 5.5
+    filteredDataFrame.loc[filteredDataFrame['id']==chosen_player_id, 'color'] = 10.0
 
-    # fig = px.parallel_categories(filteredDataFrame,dimensions=chosenFeatures)
-    # return fig
-    # return px.parallel_categories(filteredDataFrame)
-
-    figure = px.parallel_coordinates(filteredDataFrame, height=600, color="color", range_color=[0, 10],
+    figure = px.parallel_coordinates(filteredDataFrame, height=600, color="color", range_color=[0, 11],
         dimensions=chosenFeatures, labels=labels, color_continuous_scale=getColorScale())
+    
     figure.update_coloraxes(showscale=False)
+    
     return figure
 
 
@@ -583,9 +603,6 @@ def updatePositionSpecificPlot(chosenFeatures):
     return chosenFeatures
 
 
-
-
-
 # -------------------------------------------------------------
 # Callbacks to render general plots: Alicia
 # -------------------------------------------------------------
@@ -607,15 +624,16 @@ def update_general_plots(filters, bookmarkedPlayers, clickedPlayerId, chosen_pla
     :return: Two Plotly figure objects for the updated plots.
     """
 
-    filteredDataFrame = getFilteredDF(filters, True)
+    filteredDataFrame = getFilteredDF(filters, chosen_player_id, True)
 
     # TODO: Change the parameters of the plots!
-    filteredDataFrame['color'] = 0
+    filteredDataFrame.loc[:, 'color'] = 0
 
-    filteredDataFrame['color'][filteredDataFrame['id'] == int(clickedPlayerId)] = 4.5
+    filteredDataFrame.loc[filteredDataFrame['id'] == int(clickedPlayerId), 'color'] = 4.5
     maskForBookmarks = filteredDataFrame['id'].isin(list(bookmarkedPlayers))
-    filteredDataFrame['color'][maskForBookmarks] = 5.5
-    filteredDataFrame['color'][filteredDataFrame['id'] == chosen_player_id] = 10
+    filteredDataFrame.loc[maskForBookmarks, 'color'] = 5.5
+    filteredDataFrame.loc[filteredDataFrame['id']==chosen_player_id, 'color'] = 9.5
+
     try:
         fig12 = px.scatter(filteredDataFrame, color="color", range_color=[0, 11], color_continuous_scale=getColorScale(),
             x="movement_sprint_speed", y='power_stamina', title='Sprint Speed and Stamina',
@@ -626,8 +644,8 @@ def update_general_plots(filters, bookmarkedPlayers, clickedPlayerId, chosen_pla
             labels={'power_jumping': 'Power Jumping [FIFA Scores]',
                 'movement_reactions': 'Movement Reactions [FIFA Scores]'}, hover_data=['player'])
 
-        fig12.update_coloraxes(showscale=True)
-        fig22.update_coloraxes(showscale=True)
+        fig12.update_coloraxes(showscale=False)
+        fig22.update_coloraxes(showscale=False)
 
         return fig12, fig22
 
@@ -791,11 +809,3 @@ def filterBasedOnPCP(input, chosenAttributes, filters):
     except:
         return filters
     return filters
-
-
-    toAppend = []
-
-    # for i in range(len(list())):
-    #     toAppend['pcp_{}'.format(attr),]
-
-    return "OK"
