@@ -28,8 +28,8 @@ sourceDF = sourceDF.fillna(0)
 df_standardised = pd.DataFrame()
 
 # Statistics categories
-categories_stats = ['games', 'minutes_90s', 'cards_red', 'cards_yellow']
-titles_stats = ['Number of games', 'Minutes Player / 90', 'Red Cards', 'Yellow Cards']
+#categories_stats = ['games', 'minutes_90s', 'cards_red', 'cards_yellow']
+#titles_stats = ['Number of games', 'Minutes Player / 90', 'Red Cards', 'Yellow Cards']
 
 # Passing categories
 categories_passing = ['passes_pct', 'passes_progressive_distance', 'passes_pct_short', 'passes_pct_medium', 'passes_pct_long']
@@ -54,8 +54,8 @@ categories_defense = ['tackles', 'tackles_won', 'dribble_tackles_pct', 'blocked_
 titles_defense = ['Number of Tackles', 'Number of Tackles Won', 'Percentage of Tackles which are type "Dribble"', 'Percentage of Tackles which are type "Shots"', 'Percentage of Tackles which are type "Passes"']
 
 # Combine all categories and titles for complete visualization setup
-categories = categories_stats + categories_passing + categories_set_piece + categories_gca + categories_shooting + categories_defense
-titles = titles_stats + titles_passing + titles_set_piece + titles_gca + titles_shooting + titles_defense
+categories = categories_passing + categories_set_piece + categories_gca + categories_shooting + categories_defense #+ categories_stats 
+titles = titles_passing + titles_set_piece + titles_gca + titles_shooting + titles_defense # + titles_stats
 
 # Standardize the data for each category for consistent visualization
 for col in categories:
@@ -121,12 +121,12 @@ def addTabs():
             parent_className='custom-tabs',
             className='custom-tabs-container',
             children=[
-                dcc.Tab(
-                    label='Statistics',
-                    value='tab-stats',
-                    className='custom-tab',
-                    selected_className='custom-tab--selected'
-                ),
+                #dcc.Tab(
+                #    label='Statistics',
+                #    value='tab-stats',
+                #    className='custom-tab',
+                #    selected_className='custom-tab--selected'
+                #),
                 dcc.Tab(
                     label='Passing',
                     value='tab-passing',
@@ -218,9 +218,9 @@ def render_content(tab, bookmarkedPlayerIDS, chosen_player):
     bookmarkedPlayerIDS = [i for i in bookmarkedPlayerIDS if i != None]
 
     # Returns the appropriate radar chart
-    if tab == 'tab-stats':
-        return makeRadar(titles_stats, bookmarkedPlayerIDS, chosen_player)
-    elif tab == 'tab-passing':
+    #if tab == 'tab-stats':
+    #    return makeRadar(titles_stats, bookmarkedPlayerIDS, chosen_player)
+    if tab == 'tab-passing':
         return makeRadar(titles_passing, bookmarkedPlayerIDS, chosen_player)
     elif tab == 'tab-set-piece':
         return makeRadar(titles_set_piece, bookmarkedPlayerIDS, chosen_player)
