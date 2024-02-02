@@ -102,7 +102,7 @@ def layout(player_id=None):
 
             html.Aside(id='aside', children=[
                 html.Div(id='chosen_player_box', className='player-info-box', children=[
-                    'HIIII'
+                    # updateFirstPlaceHolder()
                 ]),
 
                 html.Div(className='placeholder', children='Bookmarked Players'),

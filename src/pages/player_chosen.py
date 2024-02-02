@@ -58,7 +58,7 @@ def getFilteredDF(filters, chosen_player_id):
     ## TODO: check if the filtering works as it should
 
     # All interval masks
-    variables = ['age', 'movement_sprint_speed', 'movement_reactions',
+    variables = ['wage_eur', 'age', 'movement_sprint_speed', 'movement_reactions',
 
         # General plots
         'power_jumping', 'power_stamina',
@@ -83,6 +83,7 @@ def getFilteredDF(filters, chosen_player_id):
     chosenPositions = filters['chosen_positions']
     for chosenPosition in chosenPositions:
         positionMask = ((positionMask) | (a == chosenPosition))
+
 
     # foot preference mask
     b = sourceDF['preferred_foot']
@@ -410,12 +411,12 @@ def relayoutData_filtering(relayoutData, newFilters: dict, var1: str, var2: str)
     Input('graph1_general', 'relayoutData'),
     Input('graph2_general', 'relayoutData'),
 )
-def applyFilters(value, wageRange, chosenPositions, chosenPlayer, footPreference, filters, relayoutData_general1,
+def applyFilters(ageRange, wageRange, chosenPositions, chosenPlayer, footPreference, filters, relayoutData_general1,
         relayoutData_general2):
     """
     Applies filters to the data based on user input from various UI components.
 
-    :param value: Age range from the slider.
+    :param ageRange: Age range from the slider.
     :param wageRange: Wage range from the slider.
     :param chosenPositions: Selected player positions.
     :param chosenPlayer: Data of the chosen player.
@@ -425,10 +426,11 @@ def applyFilters(value, wageRange, chosenPositions, chosenPlayer, footPreference
     :param relayoutData_general2: Interaction data from the second general plot.
     :return: Updated age and wage histograms, and filters.
     """
+    # print("saddsaasd", ageRange)
     a = sourceDF['age']
-    mask = ((a >= value[0]) & (a <= value[1]))
+    mask = ((a >= ageRange[0]) & (a <= ageRange[1]))
 
-    wageSeries = sourceDF['wage_eur'].dropna()
+    wageSeries = sourceDF['wage_eur']
     maskWage = ((wageSeries >= wageRange[0]) & (wageSeries <= wageRange[1]))
 
     global df
@@ -443,18 +445,18 @@ def applyFilters(value, wageRange, chosenPositions, chosenPlayer, footPreference
         showlegend=False)
     figAge.update_layout(margin={'l': 0, 't': 0, 'b': 0, 'r': 0}, plot_bgcolor='white')
 
-    figWage = px.histogram(sourceDF, x="wage_eur", nbins=10, color='in_bound_wage',
+    figWage = px.histogram(sourceDF, x="wage_eur", nbins=20, color='in_bound_wage',
         color_discrete_map={"YES": "#2196f3", "NO": "#E9E9E9"})
     figWage.update_layout(yaxis_visible=False, xaxis_title=None, yaxis_showticklabels=False, xaxis_showticklabels=False,
         showlegend=False)
-    figWage.update_layout(margin={'l': 0, 't': 0, 'b': 0, 'r': 0}, plot_bgcolor='white')
+    figWage.update_layout(margin={'l': 15, 't': 0, 'b': 0, 'r': 15}, plot_bgcolor='white')
 
     # Apply filters
     newFilters = filters
-    newFilters['age'] = value
+    newFilters['age'] = ageRange
     newFilters['chosen_positions'] = chosenPositions
     newFilters['preferred_foot'] = footPreference
-    newFilters['wage'] = wageRange
+    newFilters['wage_eur'] = wageRange
 
     parameter_list_general = [
         [relayoutData_general1, newFilters, 'movement_sprint_speed', 'power_stamina'],
@@ -473,7 +475,7 @@ def applyFilters(value, wageRange, chosenPositions, chosenPlayer, footPreference
 
 def getHumanReadableFeatureName(featureName):
     """
-    Converts a feature name to a human-readable format.
+    Converts a feature name to a humanxf-readable format.
 
     :param featureName: The original feature name.
     :type featureName: str
