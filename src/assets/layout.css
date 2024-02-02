@@ -937,7 +937,7 @@ header #bookmarked_checkout {
 #checkout #bookmarks_count {
     position: absolute;
     right: -4px;
-    background: #5eaf01;
+    background: rgb(74,106,243);
     bottom: -2px;
     width: 16px;
     height: 16px;
@@ -1428,4 +1428,12 @@ Select--multi .Select-value-label {
     border-radius: 4px;
     cursor: pointer;
     transition: 0.4s;
+}
+
+.final-player:first-child {
+    border-left: 4px solid #1f9d51;
+}
+
+#bookmarks_page #aside {
+    padding-left: 0;
 }

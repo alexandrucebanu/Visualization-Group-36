@@ -28,8 +28,8 @@ sourceDF = sourceDF.fillna(0)
 df_standardised = pd.DataFrame()
 
 # Statistics categories
-#categories_stats = ['games', 'minutes_90s', 'cards_red', 'cards_yellow']
-#titles_stats = ['Number of games', 'Minutes Player / 90', 'Red Cards', 'Yellow Cards']
+# categories_stats = ['games', 'minutes_90s', 'cards_red', 'cards_yellow']
+# titles_stats = ['Number of games', 'Minutes Player / 90', 'Red Cards', 'Yellow Cards']
 
 # Passing categories
 categories_passing = ['passes_pct', 'passes_progressive_distance', 'passes_pct_short', 'passes_pct_medium', 'passes_pct_long']
@@ -54,8 +54,8 @@ categories_defense = ['tackles', 'tackles_won', 'dribble_tackles_pct', 'blocked_
 titles_defense = ['Number of Tackles', 'Number of Tackles Won', 'Percentage of Tackles which are type "Dribble"', 'Percentage of Tackles which are type "Shots"', 'Percentage of Tackles which are type "Passes"']
 
 # Combine all categories and titles for complete visualization setup
-categories = categories_passing + categories_set_piece + categories_gca + categories_shooting + categories_defense #+ categories_stats 
-titles = titles_passing + titles_set_piece + titles_gca + titles_shooting + titles_defense # + titles_stats
+categories = categories_passing + categories_set_piece + categories_gca + categories_shooting + categories_defense  # + categories_stats
+titles = titles_passing + titles_set_piece + titles_gca + titles_shooting + titles_defense  # + titles_stats
 
 # Standardize the data for each category for consistent visualization
 for col in categories:
@@ -129,12 +129,12 @@ def addTabs():
             parent_className='custom-tabs',
             className='custom-tabs-container',
             children=[
-                #dcc.Tab(
+                # dcc.Tab(
                 #    label='Statistics',
                 #    value='tab-stats',
                 #    className='custom-tab',
                 #    selected_className='custom-tab--selected'
-                #),
+                # ),
                 dcc.Tab(
                     label='Passing',
                     value='tab-passing',
@@ -261,8 +261,7 @@ def updateFirstPlaceHolder(bookmarkedPlayerIds, chosenPlayerID):
     Updates the placeholder with chosen player details.
     Called when a new player is selected, updating the displayed information.
     """
-    playersToShow = sourceDF.loc[[chosenPlayerID]+bookmarkedPlayerIds, :].to_dict(orient='records')
-
+    playersToShow = sourceDF.loc[[chosenPlayerID] + bookmarkedPlayerIds, :].to_dict(orient='records')
 
     return [
         html.Div(className='final-players-container', children=[
@@ -275,8 +274,8 @@ def updateFirstPlaceHolder(bookmarkedPlayerIds, chosenPlayerID):
                         html.Li('{} y.o'.format(player['age'])),
                         html.Li('{} fouls'.format(player['fouls'])),
                     ], className='specs'),
-                    html.Span(player['cards_yellow'],className='cards_yellow'),
-                    html.Span(player['cards_red'],className='cards_red'),
+                    html.Span(player['cards_yellow'], className='cards_yellow'),
+                    html.Span(player['cards_red'], className='cards_red'),
                 ])
             ])
             for player in playersToShow
@@ -313,4 +312,3 @@ def set_default_tab(chosen_player):
     default_tab = position_to_tab.get(position, 'tab-defense')
 
     return default_tab
-

@@ -505,9 +505,9 @@ def getHumanReadableFeatureName(featureName):
 def getColorMap():
     return {
         "chosen": "rgb(95,175,1)", # Green
-        "bookmarked": "rgb(255,106,0)", # Orange
-        "candidate": "rgb(255,193,7)", # yellow
-        "others": "rgb(14,69,96)" # dark blue
+        "bookmarked": "rgb(74,106,243)", # Purple
+        "candidate": "rgb(255,102,181)", # Pink
+        "others": "rgb(76,76,76)" # dark blue
     }
 
 
