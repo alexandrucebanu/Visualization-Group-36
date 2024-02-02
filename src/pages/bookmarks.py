@@ -85,6 +85,13 @@ def getAppHeader():
 
 
 def layout(player_id=None):
+    # if not player_id:
+    #     return "No player id has been passed. Please start by choosing a player from the start page."
+    # player = sourceDF.iloc[[player_id]].to_dict(orient='records')[0]
+    # chosen_player_position = player['position'] if 'position' in player else None
+    # print(player)
+    # print(player['position'])
+
     # player = sourceDF.iloc[[player_id]].to_dict(orient='records')[0]
     return html.Div(id='bookmarks_page', children=[
         dcc.Store('chosen_player', storage_type='local'),
@@ -213,6 +220,7 @@ def render_content(tab, bookmarkedPlayerIDS, chosen_player):
     Renders content based on the selected tab and bookmarked players.
     Updates the visualization based on user interactions with tabs and player data.
     """
+    position = chosen_player['position']
     # Get list of bookmarked players
     bookmarkedPlayerIDS = list(set(bookmarkedPlayerIDS))
     bookmarkedPlayerIDS = [i for i in bookmarkedPlayerIDS if i != None]
@@ -254,6 +262,7 @@ def updateFirstPlaceHolder(chosenPlayer):
     Updates the placeholder with chosen player details.
     Called when a new player is selected, updating the displayed information.
     """
+
     return [
         getPlayerImageElement(chosenPlayer['player']),
         html.Div(className='player-details', style={'borderLeft': '1px solid #ededed', 'paddingLeft': '12px'}, children=[
@@ -275,3 +284,27 @@ def updateTargetOfGoBackLink(chosen_player_id):
     print(1)
     print('jddddddddddddddddddddddddddddddddd')
     return "replace/{}".format(chosen_player_id)
+
+
+@callback(
+    Output('tabs-with-classes', 'value'),
+    Input('chosen_player', 'data'),
+)
+def set_default_tab(chosen_player):
+    """
+    Sets the default tab of the radar charts based on the chosen player's position.
+    """
+    if not chosen_player or 'position' not in chosen_player:
+        return dash.no_update
+
+    position = chosen_player['position']
+    position_to_tab = {
+        'MF': 'tab-passing',
+        'DF': 'tab-defense',
+        'FW': 'tab-gca',
+        'GK': 'tab-defense'
+    }
+    default_tab = position_to_tab.get(position, 'tab-defense')
+
+    return default_tab
+
