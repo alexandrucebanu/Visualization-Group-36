@@ -29,7 +29,7 @@ def map_in_bound(value):
     :return: "YES" if value is True, otherwise "NO".
     :rtype: str
     """
-    if (value):
+    if value:
         return "YES"
     return "NO"
 
@@ -43,12 +43,15 @@ def intervalMask(df, var, filters):
     :param filters: The filters specifying the interval.
     :return: The mask for the specified interval.
     """
-    a = df[var]
+    column = var
+    if (var[0:4] == "pcp_"):
+        column = var[4:]
+    a = df[column]
     mask = ((a >= filters[var][0]) & (a <= filters[var][1]))
     return mask
 
 
-def getFilteredDF(filters):
+def getFilteredDF(filters, usePCPFilters=False):
     """
     Applies filters to the DataFrame and returns the filtered DataFrame.
 
@@ -56,6 +59,7 @@ def getFilteredDF(filters):
     :return: Filtered DataFrame.
     """
     ## TODO: check if the filtering works as it should
+
 
     # All interval masks
     variables = ['age', 'movement_sprint_speed', 'movement_reactions',
@@ -74,9 +78,16 @@ def getFilteredDF(filters):
         # 'gk_clean_sheets', 'age'
     ]
 
+    if usePCPFilters:
+        for key in list(filters.keys()):
+            if key[0:4] == "pcp_":
+                variables = variables + [key]
+
     variables_relevant = [var for var in variables if var in filters.keys()]
+
     interval_masks = reduce(lambda x, y: x & y, [intervalMask(sourceDF, var, filters) for var in variables_relevant])
 
+    print(sourceDF.columns)
     # position mask
     a = sourceDF['position']
     positionMask = False
@@ -145,9 +156,6 @@ def playerInfoBox(player):
         html.Div(id='clicked_player', className='half', children=[  # Question mark image
             html.Div([html.Img(id='unknown-player-icon', src=dash.get_asset_url('icons/magnifier.png'))],
                 className='unknown-player-icon'),  # Search bar
-            dcc.Dropdown(id='select_player_name_chosen',
-                options=[{'label': playerItem[1], 'value': playerItem[0]} for playerItem in playersList],
-                placeholder="Search for a player...", ),
             html.Button(id='bookmark_clicked_player', className='hidden')
         ]),
 
@@ -164,6 +172,9 @@ def getAppHeader():
         'Compare bookmarks'
     ], href='/bookmarks', id='compare_bookmarks')
     return html.Header([html.Img(id='header_logo', src=dash.get_asset_url('logo.png')),
+        dcc.Dropdown(id='select_player_name_chosen',
+            options=[{'label': playerItem[1], 'value': playerItem[0]} for playerItem in playersList],
+            placeholder="Search for a player...", ),
 
         html.Button(id='checkout', children=[html.Span(id='bookmarks_count'), html.Span(className='material-symbols-rounded', children='shopping_cart')]),
 
@@ -194,6 +205,8 @@ def layout(player_id=None):
     player = sourceDF.iloc[[player_id]].to_dict(orient='records')[0]
     return html.Div(id='parent_player_chosen', children=[
         dcc.Store(id='clicked_player_id', storage_type='local'),
+        dcc.Store(id='pcp_attrs', storage_type='local'),
+        dcc.Store('plot_config', storage_type='local'),
         dcc.Store(id='chosen_player', data=player, storage_type='local'),
         dcc.Store(id='chosen_player_id', data=int(player_id), storage_type='local'),
         dcc.Store(id='bookmarked_players', storage_type='local', data=[]),
@@ -448,6 +461,7 @@ def applyFilters(value, wageRange, chosenPositions, chosenPlayer, footPreference
     figWage.update_layout(margin={'l': 0, 't': 0, 'b': 0, 'r': 0}, plot_bgcolor='white')
 
     # Apply filters
+
     newFilters = filters
     newFilters['age'] = value
     newFilters['chosen_positions'] = chosenPositions
@@ -501,32 +515,20 @@ def getColorScale():
     :return: A color scale for Plotly graphs.
     """
     colors = getColorMap()
-    # TODO: the following return is uglier than my high-school Arabic teacher. Fix it.
     return [(0.00, colors['others']), (0.4, colors['others']), (0.4, colors['candidate']), (0.5, colors['candidate']), (0.5, colors['bookmarked']), (0.6, colors['bookmarked']),
         (0.6, colors['chosen']), (1, colors['chosen'])]
 
 
-# -------------------------------------------------------------
-# Callbacks for position specific plot: Alexandru
-# -------------------------------------------------------------
+
 @callback(
     Output(component_id='graph1', component_property='figure'),
-    Input('filters', 'data'),
+    State('filters', 'data'),
     Input('chosen_player_id', 'data'),
-    Input('attributes_dropdown', 'value'),
+    Input('pcp_attrs', 'data'),
     Input('bookmarked_players', 'data'),
     Input('clicked_player_id', 'data'),
 )
-def updatePositionSpecificPlot(filters, chosen_player_id, chosenFeatures, bookmarkedPlayers,clickedPlayerId):
-    """
-    Updates the position-specific plot based on selected filters and bookmarked players.
-
-    :param filters: Applied filters.
-    :param chosen_player_id: ID of the chosen player.
-    :param chosenFeatures: Selected features for the plot.
-    :param bookmarkedPlayers: List of bookmarked player IDs.
-    :return: Updated position-specific plot.
-    """
+def renderPCP(filters, chosen_player_id, chosenFeatures, bookmarkedPlayers, clickedPlayerId):
     filteredDataFrame = getFilteredDF(filters)
 
     labels = {feature: getHumanReadableFeatureName(feature) for feature in chosenFeatures}
@@ -535,8 +537,7 @@ def updatePositionSpecificPlot(filters, chosen_player_id, chosenFeatures, bookma
     filteredDataFrame['color'][filteredDataFrame['id'] == int(clickedPlayerId)] = 4.5
     maskForBookmarks = filteredDataFrame['id'].isin(list(bookmarkedPlayers))
     filteredDataFrame['color'][maskForBookmarks] = 5.5
-    filteredDataFrame['color'][filteredDataFrame['id']==chosen_player_id] = 10
-
+    filteredDataFrame['color'][filteredDataFrame['id'] == chosen_player_id] = 10
 
     # fig = px.parallel_categories(filteredDataFrame,dimensions=chosenFeatures)
     # return fig
@@ -546,6 +547,41 @@ def updatePositionSpecificPlot(filters, chosen_player_id, chosenFeatures, bookma
         dimensions=chosenFeatures, labels=labels, color_continuous_scale=getColorScale())
     figure.update_coloraxes(showscale=False)
     return figure
+
+
+@callback(Output('filters', 'data', allow_duplicate=True), Output('pcp_attrs', 'data', allow_duplicate=True), State('filters', 'data'), State('pcp_attrs', 'data'), Input('remove_pcp_filters', 'n_clicks'), prevent_initial_call=True)
+def removePCPFilters(filters, pcp_attrs, n_clicks):
+    newFilters = {}
+    for filterKey in list(filters.keys()):
+        if filterKey[0:4] != 'pcp_':
+            newFilters[filterKey] = filters[filterKey]
+    return newFilters, pcp_attrs
+
+
+# -------------------------------------------------------------
+# Callbacks for position specific plot: Alexandru
+# -------------------------------------------------------------
+@callback(
+    # Output(component_id='graph1', component_property='figure'),
+    Output('pcp_attrs', 'data'),
+    # Input('filters', 'data'),
+    # Input('chosen_player_id', 'data'),
+    Input('attributes_dropdown', 'value'),
+    # Input('bookmarked_players', 'data'),
+    # Input('clicked_player_id', 'data'),
+)
+def updatePositionSpecificPlot(chosenFeatures):
+    """
+    Updates the position-specific plot based on selected filters and bookmarked players.
+
+    :param filters: Applied filters.
+    :param chosen_player_id: ID of the chosen player.
+    :param chosenFeatures: Selected features for the plot.
+    :param bookmarkedPlayers: List of bookmarked player IDs.
+    :return: Updated position-specific plot.
+    """
+    return chosenFeatures
+
 
 
 
@@ -570,7 +606,8 @@ def update_general_plots(filters, bookmarkedPlayers, clickedPlayerId, chosen_pla
     :param chosen_player_id: ID of the currently chosen player.
     :return: Two Plotly figure objects for the updated plots.
     """
-    filteredDataFrame = getFilteredDF(filters)
+
+    filteredDataFrame = getFilteredDF(filters, True)
 
     # TODO: Change the parameters of the plots!
     filteredDataFrame['color'] = 0
@@ -578,22 +615,19 @@ def update_general_plots(filters, bookmarkedPlayers, clickedPlayerId, chosen_pla
     filteredDataFrame['color'][filteredDataFrame['id'] == int(clickedPlayerId)] = 4.5
     maskForBookmarks = filteredDataFrame['id'].isin(list(bookmarkedPlayers))
     filteredDataFrame['color'][maskForBookmarks] = 5.5
-    filteredDataFrame['color'][filteredDataFrame['id']==chosen_player_id] = 10
-
-
-
+    filteredDataFrame['color'][filteredDataFrame['id'] == chosen_player_id] = 10
     try:
-        fig12 = px.scatter(filteredDataFrame, color="color", color_continuous_scale=getColorScale(),
+        fig12 = px.scatter(filteredDataFrame, color="color", range_color=[0, 11], color_continuous_scale=getColorScale(),
             x="movement_sprint_speed", y='power_stamina', title='Sprint Speed and Stamina',
             labels={'movement_sprint_speed': 'Sprint Speed [FIFA scores]',
                 'power_stamina': 'Stamina [FIFA scores]'}, hover_data=['player'])
-        fig22 = px.scatter(filteredDataFrame, color="color", color_continuous_scale=getColorScale(), x="power_jumping",
+        fig22 = px.scatter(filteredDataFrame, color="color", range_color=[0, 11], color_continuous_scale=getColorScale(), x="power_jumping",
             y='movement_reactions', title='Power Jumping and Movement Reaction',
             labels={'power_jumping': 'Power Jumping [FIFA Scores]',
                 'movement_reactions': 'Movement Reactions [FIFA Scores]'}, hover_data=['player'])
 
-        fig12.update_coloraxes(showscale=False)
-        fig22.update_coloraxes(showscale=False)
+        fig12.update_coloraxes(showscale=True)
+        fig22.update_coloraxes(showscale=True)
 
         return fig12, fig22
 
@@ -741,3 +775,27 @@ def appendNewBookmarksToLists(bookmarkedPlayerIDS):
         fontIcon('sentiment_neutral'),
         html.H4('No bookmarks yet!'),
     ])], 0, 'hidden'
+
+
+@callback(Output('filters', 'data', allow_duplicate=True), Input('graph1', 'restyleData'), State('pcp_attrs', 'data'), State('filters', 'data'), prevent_initial_call=True)
+def filterBasedOnPCP(input, chosenAttributes, filters):
+    keys = type(input)
+    try:
+        for keyRange, range in enumerate(input):
+            for keyAttr, attr in enumerate(chosenAttributes):
+                wierdname = list(range.keys())[0]
+                weirdvalue = list(range.values())[0][0]
+                if ("dimensions[{}].constraintrange".format(keyAttr) == wierdname):
+                    filters['pcp_{}'.format(attr)] = weirdvalue
+                # rangeProperties = range
+    except:
+        return filters
+    return filters
+
+
+    toAppend = []
+
+    # for i in range(len(list())):
+    #     toAppend['pcp_{}'.format(attr),]
+
+    return "OK"

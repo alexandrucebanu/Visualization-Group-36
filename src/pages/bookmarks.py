@@ -88,17 +88,15 @@ def layout(player_id=None):
     # player = sourceDF.iloc[[player_id]].to_dict(orient='records')[0]
     return html.Div(id='bookmarks_page', children=[
         dcc.Store('chosen_player', storage_type='local'),
+        dcc.Store('chosen_player_id', storage_type='local'),
         dcc.Store(id='bookmarked_players', storage_type='local', data=[]),
         getAppHeader(),
 
         html.Section([
 
             html.Aside(id='aside', children=[
-                html.Div(id='chosen_player_box', className='player-info-box', children=[
-                    'HIIII'
-                ]),
+                html.Div(id='chosen_player_box', className='player-info-box'),
 
-                html.Div(className='placeholder', children='Bookmarked Players'),
             ]),
 
             html.Div(id='columns', children=[
@@ -161,22 +159,16 @@ def addTabs():
     ])
 
 
-def makeRadar(titles, bookmarkedPlayerIDS, chosen_player):
+def makeRadar(titles, bookmarkedPlayerIDS, chosen_player_id):
     """
     Generates a radar chart for the given player data.
     Visualizes various statistics of players in a radar chart format.
     """
     fig = go.Figure()
 
-    # Chosen player
-    fig.add_trace(go.Scatterpolar(
-        theta=titles,
-        r=[df_standardised[df_standardised['player'] == chosen_player['player']][var] for var in titles],
-        fill='toself',
-        name=chosen_player['player']
-    ))
+    playersToShow = bookmarkedPlayerIDS + [chosen_player_id]
 
-    for player_ID in bookmarkedPlayerIDS:
+    for player_ID in playersToShow:
         fig.add_trace(go.Scatterpolar(
             theta=titles,
             r=[df_standardised.loc[player_ID, var] for var in titles],
@@ -203,12 +195,16 @@ def makeRadar(titles, bookmarkedPlayerIDS, chosen_player):
     ])
 
 
+
+
 # Callback functions for dynamic interactivity in the dashboard
-@callback(Output('tabs-content-classes', 'children'),
+@callback(
+    Output('tabs-content-classes', 'children'),
     Input('tabs-with-classes', 'value'),
     Input('bookmarked_players', 'data'),
-    Input('chosen_player', 'data'))
-def render_content(tab, bookmarkedPlayerIDS, chosen_player):
+    Input('chosen_player_id', 'data')
+)
+def render_content(tab, bookmarkedPlayerIDS, chosen_player_id):
     """
     Renders content based on the selected tab and bookmarked players.
     Updates the visualization based on user interactions with tabs and player data.
@@ -219,17 +215,20 @@ def render_content(tab, bookmarkedPlayerIDS, chosen_player):
 
     # Returns the appropriate radar chart
     if tab == 'tab-stats':
-        return makeRadar(titles_stats, bookmarkedPlayerIDS, chosen_player)
+        return makeRadar(titles_stats, bookmarkedPlayerIDS, chosen_player_id)
     elif tab == 'tab-passing':
-        return makeRadar(titles_passing, bookmarkedPlayerIDS, chosen_player)
+        return makeRadar(titles_passing, bookmarkedPlayerIDS, chosen_player_id)
     elif tab == 'tab-set-piece':
-        return makeRadar(titles_set_piece, bookmarkedPlayerIDS, chosen_player)
+        return makeRadar(titles_set_piece, bookmarkedPlayerIDS, chosen_player_id)
     elif tab == 'tab-gca':
-        return makeRadar(titles_gca, bookmarkedPlayerIDS, chosen_player)
+        return makeRadar(titles_gca, bookmarkedPlayerIDS, chosen_player_id)
     elif tab == 'tab-shooting':
-        return makeRadar(titles_shooting, bookmarkedPlayerIDS, chosen_player)
+        return makeRadar(titles_shooting, bookmarkedPlayerIDS, chosen_player_id)
     elif tab == 'tab-defense':
-        return makeRadar(titles_defense, bookmarkedPlayerIDS, chosen_player)
+        return makeRadar(titles_defense, bookmarkedPlayerIDS, chosen_player_id)
+
+
+
 
 
 def getPlayerImageElement(playerName):
@@ -248,21 +247,30 @@ def getPlayerImageElement(playerName):
         return html.Div([html.Img(src=dash.get_asset_url('icons/player.png'))], className='invalid_image')
 
 
-@callback(Output('chosen_player_box', 'children'), Input('chosen_player', 'data'))
-def updateFirstPlaceHolder(chosenPlayer):
+@callback(Output('chosen_player_box', 'children'), Input('bookmarked_players', 'data'), Input('chosen_player_id', 'data'))
+def updateFirstPlaceHolder(bookmarkedPlayerIds, chosenPlayerID):
     """
     Updates the placeholder with chosen player details.
     Called when a new player is selected, updating the displayed information.
     """
+    playersToShow = sourceDF.loc[[chosenPlayerID]+bookmarkedPlayerIds, :].to_dict(orient='records')
+
     return [
-        getPlayerImageElement(chosenPlayer['player']),
-        html.Div(className='player-details', style={'borderLeft': '1px solid #ededed', 'paddingLeft': '12px'}, children=[
-            html.H4(chosenPlayer['player'], className='chosen_player_name'),
-            html.Div(className='separating-bar'),
-            html.P('AGE: {}'.format(chosenPlayer['age']), className='chosen_player_age'),
-            # html.P('HEIGHT: {}'.format(chosenPlayer['height_cm']), className='chosen_player_height'),
-            html.P('FOULS: {}'.format(chosenPlayer['fouls']), className='chosen_player_fouls'),
-            html.P('CARDS: yellow: {}, red: {}, yellow2: {}'.format(chosenPlayer['cards_yellow'], chosenPlayer['cards_red'], chosenPlayer['cards_yellow_red']), className='chosen_player_cards'),
+        html.Div(className='final-players-container', children=[
+
+            html.Div(className='final-player', children=[
+                getPlayerImageElement(player['player']),
+                html.Div(children=[
+                    html.H4(player['player'], className='chosen_player_name'),
+                    html.Ul(children=[
+                        html.Li('{} y.o'.format(player['age'])),
+                        html.Li('{} fouls'.format(player['fouls'])),
+                    ], className='specs'),
+                    html.Span(player['cards_yellow'],className='cards_yellow'),
+                    html.Span(player['cards_red'],className='cards_red'),
+                ])
+            ])
+            for player in playersToShow
         ])
     ]
 
@@ -272,6 +280,4 @@ def updateFirstPlaceHolder(chosenPlayer):
     Input('chosen_player_id', 'data')
 )
 def updateTargetOfGoBackLink(chosen_player_id):
-    print(1)
-    print('jddddddddddddddddddddddddddddddddd')
     return "replace/{}".format(chosen_player_id)

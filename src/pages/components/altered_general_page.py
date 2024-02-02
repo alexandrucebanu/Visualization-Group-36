@@ -1,5 +1,5 @@
 import dash
-from dash import Dash, html, dcc, callback, Output, Input, dash_table
+from dash import Dash, html, dcc, callback, Output, Input, dash_table,State
 import pandas as pd
 import os
 import plotly.express as px
@@ -78,11 +78,13 @@ def main_page_changed(player=None, colorMap=None):
                             html.Label('Attributes to compare:', className='chose_attributes_label'),
                             dcc.Dropdown(id="attributes_dropdown",
                                 options=[{'label': getHumanReadableFeatureName(option), 'value': option} for option in positionAttributes[position]],
-                                value=defaultSelectedAttributes[position], multi=True, style={"float": 'left', "width": "calc(100% - 150px)", "padding": "0 2px"})
+                                value=defaultSelectedAttributes[position], multi=True, style={"float": 'left', "width": "calc(100% - 150px)", "padding": "0 2px", "paddingRight": "100px"})
                         ]), ]),
+                html.Button('Remove PCP filters', id='remove_pcp_filters'),
 
                 html.Div(id='graph_inside_rectangle', children=[dcc.Graph(id='graph1', figure={}, style={
                     "borderBottom": "1px dashed #ededed"}
                 )])]
         ),
     ])
+

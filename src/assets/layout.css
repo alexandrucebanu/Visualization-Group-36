@@ -9,12 +9,19 @@
 
 *:focus {
     outline: none;
+    border: none;
     font-family: 'Roboto', sans-serif;
 }
 
 a {
     color: inherit;
     text-decoration: none;
+}
+
+.is-focused, .is-pseudo-focused {
+    outline: none !important;
+    border: none;
+
 }
 
 body {
@@ -413,6 +420,7 @@ header {
 
 header #header_logo {
     height: 44px;
+    float: left;
     margin-top: 7px;
 }
 
@@ -1075,6 +1083,7 @@ header #bookmarked_checkout {
 
 #first_half {
     height: 800px;
+    position: relative;
 }
 
 .Select--multi .Select-value-icon {
@@ -1248,6 +1257,7 @@ Select--multi .Select-value-label {
     transition: 0.4s;
     border-color: #f8bf05;
 }
+
 #go_back {
     float: right;
     background: #f7f7f7;
@@ -1260,6 +1270,7 @@ Select--multi .Select-value-label {
     transition: 0.5s;
     color: #000000d1;
 }
+
 #go_back span {
     float: left;
     line-height: 16px;
@@ -1269,6 +1280,148 @@ Select--multi .Select-value-label {
 
 #go_back:hover {
     background: #5eaf01;
-    color:#fff;
+    color: #fff;
     border-color: #5eaf01;
+}
+
+.final-player .invalid_image {
+    width: 50px;
+    height: 50px;
+    padding: 0;
+    float: left;
+}
+
+.final-player {
+    display: block;
+    border-bottom: 1px dashed #ededed;
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+}
+
+.final-player:last-child {
+    border-bottom: none;
+}
+
+.final-player .invalid_image img {
+    width: 40px;
+}
+
+.final-player div {
+    float: left;
+    font-size: 12px;
+    line-height: 15px;
+    margin-left: 10px;
+}
+
+.final-players-container {
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.final-player div h4 {
+    font-size: 14px;
+    margin-top: 20px;
+    margin-bottom: 3px;
+}
+
+.final-player ul {
+    display: block;
+    /*margin-top: 10px;*/
+}
+
+.final-player ul li {
+    list-style: none;
+    display: block;
+    float: left;
+    color: #333333;
+    font-weight: 500;
+    margin-right: 10px;
+}
+
+.final-player:first-child {
+    /*border-left: 2px solid #1f9d51;*/
+}
+
+.cards_yellow {
+    position: absolute;
+    right: 10px;
+    bottom: 35px;
+    background: #e1321d;
+    color: #fff;
+    width: 14px;
+    text-align: center;
+    border-radius: 0 4px 4px 0;
+    font-size: 11px;
+    height: 14px;
+    display: block;
+    font-weight: bold;
+}
+
+.cards_red {
+    position: absolute;
+    right: 24px;
+    bottom: 35px;
+    background: #ffb802;
+    color: #fff;
+    width: 14px;
+    text-align: center;
+    border-radius: 4px 0 0 4px;
+    font-size: 11px;
+    height: 14px;
+    font-weight: bold;
+    display: block;
+}
+
+#select_player_name_chosen {
+    border-left: 1px solid #ededed;
+    border-right: 1px solid #ededed;
+    padding-left: 20px;
+    padding-right: 20px;
+    float: left;
+    width: 400px;
+    margin-left: 30px;
+    line-height: 25px;
+    margin-top: 10px;
+    font-size: 13px;
+}
+
+#select_player_name_chosen .Select-control {
+    border: none;
+    margin-top: 4px;
+    border-radius: 13px;
+}
+
+#select_player_name_chosen .Select-control:hover {
+    box-shadow: none;
+}
+
+#remove_pcp_filters {
+    background: rgba(252, 181, 193, 0.33);
+    /*background: #b80a1e;*/
+    color: #b80a1e;
+    border: none;
+    padding: 2px 10px;
+    font-family: 'Roboto';
+    font-size: 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: 0.4s;
+    position: absolute;
+    right: 66px;
+    top: 9px;
+}
+
+#remove_pcp_filters:hover {
+    /*background: rgba(252, 181, 193, 0.33);*/
+    /*background: #b80a1e;*/
+    background: #b80a1e;
+    color: #fff;
+    border: none;
+    padding: 2px 10px;
+    font-family: 'Roboto';
+    font-size: 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: 0.4s;
 }
