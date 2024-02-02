@@ -1208,6 +1208,7 @@ Select--multi .Select-value-label {
     display: flex;
     position: absolute;
     left: 50%; /* Centers the legend */
+    top: 35pt;
     transform: translateX(-50%); /* Adjusts for the width of the legend to ensure it's truly centered */
     border-radius: 5px;
     margin-bottom: 10px;
