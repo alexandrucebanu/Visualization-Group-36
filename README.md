@@ -13,7 +13,7 @@ correct structure of this placement:
 
 Create the directory `data` within `src/`.
 Download [player data](https://www.kaggle.com/datasets/swaptr/fifa-world-cup-2022-player-data) and extract the content
-of the archive there.
+of the archive there. Also add [players_22.csv](https://www.kaggle.com/datasets/stefanoleone992/fifa-22-complete-player-dataset?select=players_22.csv).
 After doing so, a collection of `.csv` and a single `.json` file should be placed within `src/data` (relative to the
 root of the repository).
 
@@ -44,6 +44,14 @@ After correct placement of both archive the directory structure of your project 
 
 ````
 
+Run the import_data.py file found in the directory src/scripts to merge the data in a compatible dataformat. 
+
+Now, the set-up is ready. Run src/app.py.
+
+## Implementation
+
+The major libraries used in the project included Dash, Plotly and Pandas. Whith the support from the methods, functionalities and componenents of these, all code was programmed by the members of the group.
+
 ## 📝 References
 
 The player data used across the project is sourced
@@ -51,3 +59,4 @@ from [FIFA World Cup 2022 Player Data](https://www.kaggle.com/datasets/swaptr/fi
 on Kaggle licensed under [ODbL](https://opendatacommons.org/licenses/odbl/1-0/).
 The flags used to represent players' teams are retrieved
 from [`hampusborgos/country-flags`](https://github.com/hampusborgos/country-flags) GitHub repository.
+
