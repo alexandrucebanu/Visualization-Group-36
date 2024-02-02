@@ -553,7 +553,7 @@ def updatePositionSpecificPlot(filters, chosen_player_id, chosenFeatures, bookma
     figure = px.parallel_coordinates(filteredDataFrame, height=600, color="color", range_color=[0, 11],
         dimensions=chosenFeatures, labels=labels, color_continuous_scale=getColorScale())
     
-    figure.update_coloraxes(showscale=True)
+    figure.update_coloraxes(showscale=False)
     
     return figure
 
@@ -601,8 +601,8 @@ def update_general_plots(filters, bookmarkedPlayers, clickedPlayerId, chosen_pla
             labels={'power_jumping': 'Power Jumping [FIFA Scores]',
                 'movement_reactions': 'Movement Reactions [FIFA Scores]'}, hover_data=['player'])
 
-        fig12.update_coloraxes(showscale=True)
-        fig22.update_coloraxes(showscale=True)
+        fig12.update_coloraxes(showscale=False)
+        fig22.update_coloraxes(showscale=False)
 
         return fig12, fig22
 
