@@ -826,8 +826,9 @@ header #bookmarked_checkout {
 #bookmarks_page section {
     width: 100%;
     height: auto;
-    padding: 0 10px;
+    padding: 0;
     overflow: hidden;
+    padding-right: 0;
 }
 
 .placeholder {
@@ -937,7 +938,7 @@ header #bookmarked_checkout {
 #checkout #bookmarks_count {
     position: absolute;
     right: -4px;
-    background: rgb(74,106,243);
+    background: rgb(74, 106, 243);
     bottom: -2px;
     width: 16px;
     height: 16px;
@@ -1051,10 +1052,13 @@ header #bookmarked_checkout {
 
 #columns {
     /*display: flex;*/
-    width: calc(100% - 340px);
+    width: calc(100% - 331px);
     transition: 0.5s;
     float: left;
-    margin-left: 10px;
+    margin-left: 0;
+    padding-left: 0;
+    padding-right: 0;
+    margin-right: 0;
 }
 
 .player_chosen_show_aside #columns {
@@ -1350,7 +1354,7 @@ Select--multi .Select-value-label {
 .cards_yellow {
     position: absolute;
     right: 10px;
-    bottom: 35px;
+    bottom: 15px;
     background: #e1321d;
     color: #fff;
     width: 14px;
@@ -1365,7 +1369,7 @@ Select--multi .Select-value-label {
 .cards_red {
     position: absolute;
     right: 24px;
-    bottom: 35px;
+    bottom: 15px;
     background: #ffb802;
     color: #fff;
     width: 14px;
@@ -1436,4 +1440,18 @@ Select--multi .Select-value-label {
 
 #bookmarks_page #aside {
     padding-left: 0;
+    margin-left: 0 !important;
+}
+
+.final-player .player-image {
+    width: 50px;
+    height: 50px;
+}
+
+.final-player .player-image img {
+    width: 50px;
+    background-size: cover !important;
+    object-fit: cover;
+    object-position: top !important;
+    height: 50px;
 }
