@@ -48,7 +48,7 @@ def intervalMask(df, var, filters):
     return mask
 
 
-def getFilteredDF(filters):
+def getFilteredDF(filters, chosen_player_id):
     """
     Applies filters to the DataFrame and returns the filtered DataFrame.
 
@@ -93,9 +93,11 @@ def getFilteredDF(filters):
         footMask = ((footMask) | (b == preferredFoot))
 
     # Return the filtered dataframe
-    overallMask = (interval_masks) & positionMask & footMask
+    overallMask = (interval_masks) & positionMask & footMask #& chosenPlayer
     sourceDF['in_bound'] = overallMask.map(map_in_bound)
+    
     sourceDF['id'] = sourceDF.index
+    sourceDF.loc[sourceDF['id'] == chosen_player_id, 'in_bound'] = "YES"
 
     return sourceDF[sourceDF['in_bound'] == "YES"]
 
@@ -487,10 +489,10 @@ def getHumanReadableFeatureName(featureName):
 
 def getColorMap():
     return {
-        "chosen": "rgb(95,175,1)",
-        "bookmarked": "rgb(255,106,0)",
-        "candidate": "rgb(255,193,7)",
-        "others": "rgb(14,69,96)"
+        "chosen": "rgb(95,175,1)", # Green
+        "bookmarked": "rgb(255,106,0)", # Orange
+        "candidate": "rgb(255,193,7)", # yellow
+        "others": "rgb(14,69,96)" # dark blue
     }
 
 
@@ -502,8 +504,16 @@ def getColorScale():
     """
     colors = getColorMap()
     # TODO: the following return is uglier than my high-school Arabic teacher. Fix it.
-    return [(0.00, colors['others']), (0.4, colors['others']), (0.4, colors['candidate']), (0.5, colors['candidate']), (0.5, colors['bookmarked']), (0.6, colors['bookmarked']),
-        (0.6, colors['chosen']), (1, colors['chosen'])]
+    
+    return [(0.00, colors['others']), 
+                (0.4, colors['others']), 
+                (0.4, colors['candidate']), 
+                (0.5, colors['candidate']), 
+                (0.5, colors['bookmarked']), 
+                (0.6, colors['bookmarked']),
+                (0.6, colors['chosen']), 
+                (1, colors['chosen'])]
+
 
 
 # -------------------------------------------------------------
@@ -527,27 +537,23 @@ def updatePositionSpecificPlot(filters, chosen_player_id, chosenFeatures, bookma
     :param bookmarkedPlayers: List of bookmarked player IDs.
     :return: Updated position-specific plot.
     """
-    filteredDataFrame = getFilteredDF(filters)
+    filteredDataFrame = getFilteredDF(filters, chosen_player_id)
 
     labels = {feature: getHumanReadableFeatureName(feature) for feature in chosenFeatures}
 
-    filteredDataFrame['color'] = 0
-    filteredDataFrame['color'][filteredDataFrame['id'] == int(clickedPlayerId)] = 4.5
+    filteredDataFrame['color'] = 0    
+    filteredDataFrame.loc[filteredDataFrame['id'] == int(clickedPlayerId), 'color'] = 4.5
     maskForBookmarks = filteredDataFrame['id'].isin(list(bookmarkedPlayers))
-    filteredDataFrame['color'][maskForBookmarks] = 5.5
-    filteredDataFrame['color'][filteredDataFrame['id']==chosen_player_id] = 10
+    filteredDataFrame.loc[maskForBookmarks, 'color'] = 5.5
 
+    filteredDataFrame.loc[filteredDataFrame['id']==chosen_player_id, 'color'] = 10.0
 
-    # fig = px.parallel_categories(filteredDataFrame,dimensions=chosenFeatures)
-    # return fig
-    # return px.parallel_categories(filteredDataFrame)
-
-    figure = px.parallel_coordinates(filteredDataFrame, height=600, color="color", range_color=[0, 10],
+    figure = px.parallel_coordinates(filteredDataFrame, height=600, color="color", range_color=[0, 11],
         dimensions=chosenFeatures, labels=labels, color_continuous_scale=getColorScale())
-    figure.update_coloraxes(showscale=False)
+    
+    figure.update_coloraxes(showscale=True)
+    
     return figure
-
-
 
 
 # -------------------------------------------------------------
@@ -570,30 +576,31 @@ def update_general_plots(filters, bookmarkedPlayers, clickedPlayerId, chosen_pla
     :param chosen_player_id: ID of the currently chosen player.
     :return: Two Plotly figure objects for the updated plots.
     """
-    filteredDataFrame = getFilteredDF(filters)
+
+    filteredDataFrame = getFilteredDF(filters, chosen_player_id)
+
+    print(chosen_player_id)
 
     # TODO: Change the parameters of the plots!
-    filteredDataFrame['color'] = 0
+    filteredDataFrame.loc[:, 'color'] = 0
 
-    filteredDataFrame['color'][filteredDataFrame['id'] == int(clickedPlayerId)] = 4.5
+    filteredDataFrame.loc[filteredDataFrame['id'] == int(clickedPlayerId), 'color'] = 4.5
     maskForBookmarks = filteredDataFrame['id'].isin(list(bookmarkedPlayers))
-    filteredDataFrame['color'][maskForBookmarks] = 5.5
-    filteredDataFrame['color'][filteredDataFrame['id']==chosen_player_id] = 10
-
-
+    filteredDataFrame.loc[maskForBookmarks, 'color'] = 5.5
+    filteredDataFrame.loc[filteredDataFrame['id']==chosen_player_id, 'color'] = 9.5
 
     try:
-        fig12 = px.scatter(filteredDataFrame, color="color", color_continuous_scale=getColorScale(),
+        fig12 = px.scatter(filteredDataFrame, color="color", range_color=[0, 11], color_continuous_scale=getColorScale(),
             x="movement_sprint_speed", y='power_stamina', title='Sprint Speed and Stamina',
             labels={'movement_sprint_speed': 'Sprint Speed [FIFA scores]',
                 'power_stamina': 'Stamina [FIFA scores]'}, hover_data=['player'])
-        fig22 = px.scatter(filteredDataFrame, color="color", color_continuous_scale=getColorScale(), x="power_jumping",
+        fig22 = px.scatter(filteredDataFrame, color="color", range_color=[0, 11], color_continuous_scale=getColorScale(), x="power_jumping",
             y='movement_reactions', title='Power Jumping and Movement Reaction',
             labels={'power_jumping': 'Power Jumping [FIFA Scores]',
                 'movement_reactions': 'Movement Reactions [FIFA Scores]'}, hover_data=['player'])
 
-        fig12.update_coloraxes(showscale=False)
-        fig22.update_coloraxes(showscale=False)
+        fig12.update_coloraxes(showscale=True)
+        fig22.update_coloraxes(showscale=True)
 
         return fig12, fig22
 
